@@ -22,7 +22,7 @@ Each "recipe" is a small Kotlin program that teaches you one concept at a time.
 |--------|-------------------|
 | `HelloWorld.kt` | Your first Kotlin program |
 | `StringCooker.kt` | String manipulation basics |
-| `ImmutableVariables.kt` | `val` vs `var` (why you can't recook) |
+| `ImmutableVariables.kt`  and `MutableVariables.kt`| `val` vs `var` (why you can't recook) |
 
 ## 🚀 How to cook (run) these recipes
 
