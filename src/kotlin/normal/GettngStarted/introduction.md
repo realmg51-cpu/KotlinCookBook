@@ -146,7 +146,7 @@ Since then, almost every programmer has cooked this dish in every language they 
 
 Now that you can print messages, it's time to learn about **variables** – the ingredients you can store and reuse.
 
-👉 [Introduction to Variables](src/kotlin/normal/Variables/introduction.md)
+👉 [Introduction to Variables]([src/kotlin/normal/Variables/introduction.md](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/introduction.md))
 
 ---
 
