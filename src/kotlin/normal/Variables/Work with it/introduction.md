@@ -165,4 +165,6 @@ fun main() {
 
 > 🍳 *Remember: A good chef knows which knife to use. A good Kotlin developer knows which string splitter to use!*
 
+[Next recipe: IfChef](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/IfChef/introduction.md)
+
 Happy chopping! 🔪
