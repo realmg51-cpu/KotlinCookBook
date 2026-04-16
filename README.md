@@ -8,7 +8,7 @@ This is a simple **Kotlin CookBook** that helps you learn Kotlin **easier** and 
 Each "recipe" is a small Kotlin program that teaches you one concept at a time.
 
 >[!IMPORTANT]
->This repo is still incomplete and I just learning Kotlin now,so if you can,please help me to complete by **fork** and add new **recipes**
+>This repo is still incomplete and I just learning Kotlin now,so if you can,please help me to complete by **fork** and add new **recipes**. . All code in here is **safe** and **stable**.
 
 ## Who can use it?
 **Everyone!** Whether you're a:
@@ -21,7 +21,7 @@ Each "recipe" is a small Kotlin program that teaches you one concept at a time.
 | Recipe | What you'll learn |
 |--------|-------------------|
 | `HelloWorld.kt` | Your first Kotlin program |
-| `StringCooker.kt` | String manipulation basics |
+| `StringSpiliter.kt` | String manipulation basics |
 | `ImmutableVariables.kt`  and `MutableVariables.kt`| `val` vs `var` (why you can't recook) |
 
 ## 🚀 How to cook (run) these recipes
