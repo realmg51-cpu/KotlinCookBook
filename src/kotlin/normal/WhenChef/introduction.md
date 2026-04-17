@@ -60,10 +60,6 @@ println("Today's meal: $meal")
 
 > 🍳 *Like asking the spice rack: "What spice goes with chicken?" and it GIVES you the answer.*
 
-### Important when using `when` as expression:
-- **Must cover all possibilities** (or use `else`)
-- The value from the matched branch is returned
-
 ---
 
 ## 🧂 Matching Multiple Values (One branch, many options)
@@ -129,6 +125,89 @@ println(breakfast)
 ```
 
 > 🍳 *Like asking multiple questions: "Do we have eggs AND cheese? No. Eggs AND milk? Yes → make that!"*
+
+---
+
+## 🔥 Chef's Warning: The `else` Rule (Important!)
+
+When you use `when` as an **expression** (assigning the result to a variable), **`else` is REQUIRED** – unless you have covered *every* possible case.
+
+### ✅ Correct – with `else`
+
+```kotlin
+val statusCode = 404
+
+val message = when (statusCode) {
+    200 -> "OK"
+    404 -> "Not Found"
+    else -> "Unknown"  // ✅ else makes it safe!
+}
+```
+
+### ❌ Wrong – missing `else` (ERROR!)
+
+```kotlin
+val statusCode = 404
+
+val message = when (statusCode) {
+    200 -> "OK"
+    404 -> "Not Found"
+    // ❌ ERROR! 'when' expression must be exhaustive
+}
+```
+
+### ✅ Exception – all cases covered
+
+```kotlin
+val isRaining = true
+
+val advice = when (isRaining) {
+    true -> "☔ Bring an umbrella!"
+    false -> "😎 Enjoy the sun!"
+}
+// ✅ No else needed – Boolean only has true/false!
+```
+
+```kotlin
+val day = "Monday"
+
+val type = when (day) {
+    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" -> "Weekday"
+    "Saturday", "Sunday" -> "Weekend"
+}
+// ✅ Also fine – every day of the week is covered!
+```
+
+### 📊 Summary – `else` Rule
+
+| Type of `when` | `else` required? | Example |
+|----------------|------------------|---------|
+| `when` as **statement** (no assignment) | ❌ Not required | `when (x) { 1 -> print("one") }` |
+| `when` as **expression** (assigned to variable) | ✅ REQUIRED (unless all cases covered) | `val result = when (x) { ... }` |
+| All cases covered (Boolean, Enum) | ❌ No `else` needed | `when (bool) { true->... false->... }` |
+
+### 🍳 Kitchen Example
+
+```kotlin
+fun main() {
+    val eggs = 3
+    
+    // ✅ Correct – has else
+    val dish = when (eggs) {
+        1 -> "🍳 Fried egg"
+        2 -> "🍳 Double fried egg"
+        else -> "🍳 Omelette!"  // eggs = 3,4,5,... all go here
+    }
+    
+    // ❌ This would cause an ERROR:
+    // val wrong = when (eggs) {
+    //     1 -> "One egg"
+    //     2 -> "Two eggs"
+    // } // ERROR! eggs could be 3,4,5...
+}
+```
+
+> 🍳 *Remember: `Int` can be ANY number from -2 billion to 2 billion. You can't write 4 billion branches. That's why `else` is required!*
 
 ---
 
@@ -226,6 +305,21 @@ Create a program that checks multiple conditions using `when` (no argument):
 - Enums (we'll learn later)
 - Custom types (advanced)
 
+**The Golden Rule:** *"If you're putting the `when` result into a variable, always add `else` – unless you're 100% sure you've covered every possibility."*
+
+```kotlin
+// ✅ Safe – has else
+val result = when (value) {
+    // branches...
+    else -> "default"
+}
+
+// ❌ Dangerous – might crash!
+val result = when (value) {
+    // branches... but no else
+}
+```
+
 **Pro tip:** Kotlin's `when` is more powerful than `switch` in Java or C – it can match ranges, multiple values, and even complex conditions!
 
 ---
@@ -243,5 +337,3 @@ Now you can make complex decisions cleanly with `when`. Next, we'll learn about 
 > *"A Kotlin developer with `when` writes cleaner code than one with 20 `else if`s."*
 
 Happy spicing! 👨‍🍳
-
----
