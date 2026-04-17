@@ -1,7 +1,12 @@
 
 # Kotlin CookBook 🍳
 
-[![🧪 Test Kotlin Kitchen](https://github.com/realmg51-cpu/KotlinCookBook/actions/workflows/ci.yml/badge.svg)](https://github.com/realmg51-cpu/KotlinCookBook/actions/workflows/ci.yml)
+![Kotlin Version](https://img.shields.io/badge/Kotlin-2.0.20-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
+![Tests](https://github.com/realmg51-cpu/KotlinCookBook/actions/workflows/ci.yml/badge.svg)
+![Stars](https://img.shields.io/github/stars/realmg51-cpu/KotlinCookBook)
+![Forks](https://img.shields.io/github/forks/realmg51-cpu/KotlinCookBook)
 
 > *"Learn Kotlin the fun way – one recipe at a time!"*
 
