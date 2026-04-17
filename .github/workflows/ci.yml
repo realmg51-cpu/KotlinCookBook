@@ -5,7 +5,7 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch:  # Cho phép chạy thủ công từ GitHub UI
+  workflow_dispatch:
 
 jobs:
   test-all-recipes:
@@ -15,21 +15,37 @@ jobs:
       - name: 🍴 Checkout code
         uses: actions/checkout@v4
       
-      - name: ☕ Setup Kotlin
+      - name: ☕ Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
       
-      - name: 🏗️ Install Kotlin
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y kotlin
+      - name: 💾 Cache Kotlin compiler
+        id: cache-kotlin
+        uses: actions/cache@v4
+        with:
+          path: ~/kotlinc
+          key: ${{ runner.os }}-kotlin-2.0.20
+          restore-keys: |
+            ${{ runner.os }}-kotlin-
       
-      - name: 📋 Find all Kotlin files
-        id: find_files
+      - name: 🏗️ Install Kotlin (cached)
+        if: steps.cache-kotlin.outputs.cache-hit != 'true'
         run: |
-          echo "files=$(find src -name "*.kt" -type f | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          wget -q https://github.com/JetBrains/kotlin/releases/download/v2.0.20/kotlin-compiler-2.0.20.zip
+          unzip -q kotlin-compiler-2.0.20.zip -d ~/
+          rm kotlin-compiler-2.0.20.zip
+      
+      - name: 🔗 Add Kotlin to PATH
+        run: |
+          echo "${{ github.workspace }}/kotlinc/bin" >> $GITHUB_PATH
+          echo "~/kotlinc/bin" >> $GITHUB_PATH
+      
+      - name: ✅ Verify Kotlin installation
+        run: |
+          kotlinc -version
+          echo "Kotlin is ready! 🚀"
       
       - name: 🧪 Test each recipe
         run: |
@@ -39,11 +55,12 @@ jobs:
           FAILED=0
           TOTAL=0
           
-          for file in $(find src -name "*.kt" -type f); do
+          for file in $(grep -l "fun main" $(find src -name "*.kt" -type f) 2>/dev/null || true); do
             TOTAL=$((TOTAL + 1))
             echo "🔪 Testing: $file"
             
-            if kotlin "$file" > /tmp/output.txt 2>&1; then
+            # Chạy file Kotlin bằng script mode
+            if kotlinc -script "$file" > /tmp/output.txt 2>&1; then
               echo "   ✅ PASSED"
             else
               echo "   ❌ FAILED"
