@@ -5,10 +5,10 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch:  # Cho phép chạy thủ công
+  workflow_dispatch:
 
 env:
-  KOTLIN_VERSION: 2.0.20
+  KOTLIN_VERSION: 2.3.20
 
 jobs:
   test:
@@ -41,26 +41,12 @@ jobs:
           wget -q https://github.com/JetBrains/kotlin/releases/download/v${{ env.KOTLIN_VERSION }}/kotlin-compiler-${{ env.KOTLIN_VERSION }}.zip
           unzip -q kotlin-compiler-${{ env.KOTLIN_VERSION }}.zip -d ~/
           rm kotlin-compiler-${{ env.KOTLIN_VERSION }}.zip
-          echo "✅ Kotlin installed!"
       
       - name: 🔗 Add Kotlin to PATH
-        run: |
-          echo "$HOME/kotlinc/bin" >> $GITHUB_PATH
-          echo "✅ Kotlin added to PATH"
+        run: echo "$HOME/kotlinc/bin" >> $GITHUB_PATH
       
       - name: ✅ Verify Kotlin installation
-        run: |
-          kotlinc -version
-          echo "🎉 Kotlin is ready!"
-      
-      - name: 🔍 Find all recipes
-        id: find-recipes
-        run: |
-          recipes=$(find src -name "*.kt" -type f -exec grep -l "fun main" {} \; 2>/dev/null | sort)
-          count=$(echo "$recipes" | wc -l)
-          echo "recipes=$recipes" >> $GITHUB_OUTPUT
-          echo "count=$count" >> $GITHUB_OUTPUT
-          echo "📋 Found $count recipe(s)"
+        run: kotlinc -version
       
       - name: 🧪 Test each recipe
         run: |
@@ -74,16 +60,15 @@ jobs:
           PASSED_LIST=""
           FAILED_LIST=""
           
-          for file in ${{ steps.find-recipes.outputs.recipes }}; do
+          # Tìm và test trực tiếp, không qua output
+          while IFS= read -r file; do
             TOTAL=$((TOTAL + 1))
             filename=$(basename "$file")
-            dir=$(dirname "$file")
             
             echo "🔪 Testing: $file"
             
-            # Compile the file
+            # Compile và chạy
             if kotlinc "$file" -include-runtime -d "/tmp/${filename%.kt}.jar" 2>/tmp/compile_error.txt; then
-              # Run the compiled JAR
               if java -jar "/tmp/${filename%.kt}.jar" > /tmp/output.txt 2>&1; then
                 echo "   ✅ PASSED"
                 PASSED_LIST="$PASSED_LIST\n   ✅ $file"
@@ -94,7 +79,6 @@ jobs:
                 FAILED=$((FAILED + 1))
                 FAILED_LIST="$FAILED_LIST\n   ❌ $file"
               fi
-              # Cleanup
               rm -f "/tmp/${filename%.kt}.jar"
             else
               echo "   ❌ FAILED (compilation error)"
@@ -104,7 +88,7 @@ jobs:
               FAILED_LIST="$FAILED_LIST\n   ❌ $file"
             fi
             echo ""
-          done
+          done < <(find src -name "*.kt" -type f -exec grep -l "fun main" {} \; 2>/dev/null | sort)
           
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "📊 RESULTS"
@@ -124,10 +108,6 @@ jobs:
             echo ""
             echo "❌ Failed recipes:"
             echo -e "$FAILED_LIST"
-            echo ""
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            echo "❌ $FAILED recipe(s) failed! Please fix them."
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             exit 1
           else
             echo ""
