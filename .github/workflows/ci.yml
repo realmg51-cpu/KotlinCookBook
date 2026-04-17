@@ -5,85 +5,142 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch:
+  workflow_dispatch:  # Cho phép chạy thủ công
+
+env:
+  KOTLIN_VERSION: 2.0.20
 
 jobs:
-  test-all-recipes:
+  test:
+    name: 🧪 Test Recipes
     runs-on: ubuntu-latest
     
     steps:
       - name: 🍴 Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
       
       - name: ☕ Setup Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
       
       - name: 💾 Cache Kotlin compiler
         id: cache-kotlin
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: ~/kotlinc
-          key: ${{ runner.os }}-kotlin-2.0.20
+          key: ${{ runner.os }}-kotlin-${{ env.KOTLIN_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-kotlin-
       
       - name: 🏗️ Install Kotlin (cached)
         if: steps.cache-kotlin.outputs.cache-hit != 'true'
         run: |
-          wget -q https://github.com/JetBrains/kotlin/releases/download/v2.0.20/kotlin-compiler-2.0.20.zip
-          unzip -q kotlin-compiler-2.0.20.zip -d ~/
-          rm kotlin-compiler-2.0.20.zip
+          echo "📦 Downloading Kotlin ${{ env.KOTLIN_VERSION }}..."
+          wget -q https://github.com/JetBrains/kotlin/releases/download/v${{ env.KOTLIN_VERSION }}/kotlin-compiler-${{ env.KOTLIN_VERSION }}.zip
+          unzip -q kotlin-compiler-${{ env.KOTLIN_VERSION }}.zip -d ~/
+          rm kotlin-compiler-${{ env.KOTLIN_VERSION }}.zip
+          echo "✅ Kotlin installed!"
       
       - name: 🔗 Add Kotlin to PATH
         run: |
           echo "$HOME/kotlinc/bin" >> $GITHUB_PATH
+          echo "✅ Kotlin added to PATH"
       
-      - name: 🧪 Test each recipe (compile + run)
+      - name: ✅ Verify Kotlin installation
         run: |
-          echo "🧪 Starting kitchen tests..."
+          kotlinc -version
+          echo "🎉 Kotlin is ready!"
+      
+      - name: 🔍 Find all recipes
+        id: find-recipes
+        run: |
+          recipes=$(find src -name "*.kt" -type f -exec grep -l "fun main" {} \; 2>/dev/null | sort)
+          count=$(echo "$recipes" | wc -l)
+          echo "recipes=$recipes" >> $GITHUB_OUTPUT
+          echo "count=$count" >> $GITHUB_OUTPUT
+          echo "📋 Found $count recipe(s)"
+      
+      - name: 🧪 Test each recipe
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🧪 STARTING KITCHEN TESTS"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
           
           FAILED=0
           TOTAL=0
+          PASSED_LIST=""
+          FAILED_LIST=""
           
-          for file in $(grep -l "fun main" $(find src -name "*.kt" -type f) 2>/dev/null || true); do
+          for file in ${{ steps.find-recipes.outputs.recipes }}; do
             TOTAL=$((TOTAL + 1))
-            echo "🔪 Testing: $file"
-            
-            # Lấy tên file không có extension
-            filename=$(basename "$file" .kt)
+            filename=$(basename "$file")
             dir=$(dirname "$file")
             
-            # Compile file Kotlin
-            if kotlinc "$file" -include-runtime -d "$dir/$filename.jar" 2>/tmp/compile_error.txt; then
-              # Chạy file đã compile
-              if java -jar "$dir/$filename.jar" > /tmp/output.txt 2>&1; then
+            echo "🔪 Testing: $file"
+            
+            # Compile the file
+            if kotlinc "$file" -include-runtime -d "/tmp/${filename%.kt}.jar" 2>/tmp/compile_error.txt; then
+              # Run the compiled JAR
+              if java -jar "/tmp/${filename%.kt}.jar" > /tmp/output.txt 2>&1; then
                 echo "   ✅ PASSED"
+                PASSED_LIST="$PASSED_LIST\n   ✅ $file"
               else
                 echo "   ❌ FAILED (runtime error)"
                 echo "   📜 Output:"
                 cat /tmp/output.txt | sed 's/^/      /'
                 FAILED=$((FAILED + 1))
+                FAILED_LIST="$FAILED_LIST\n   ❌ $file"
               fi
-              # Dọn dẹp file jar sau khi test
-              rm -f "$dir/$filename.jar"
+              # Cleanup
+              rm -f "/tmp/${filename%.kt}.jar"
             else
               echo "   ❌ FAILED (compilation error)"
               echo "   📜 Error:"
               cat /tmp/compile_error.txt | sed 's/^/      /'
               FAILED=$((FAILED + 1))
+              FAILED_LIST="$FAILED_LIST\n   ❌ $file"
             fi
             echo ""
           done
           
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "📊 Results: $((TOTAL - FAILED))/$TOTAL passed"
+          echo "📊 RESULTS"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "Total recipes: $TOTAL"
+          echo "✅ Passed: $((TOTAL - FAILED))"
+          echo "❌ Failed: $FAILED"
+          
+          if [ -n "$PASSED_LIST" ]; then
+            echo ""
+            echo "✅ Passed recipes:"
+            echo -e "$PASSED_LIST"
+          fi
           
           if [ $FAILED -ne 0 ]; then
-            echo "❌ $FAILED recipe(s) failed!"
+            echo ""
+            echo "❌ Failed recipes:"
+            echo -e "$FAILED_LIST"
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "❌ $FAILED recipe(s) failed! Please fix them."
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             exit 1
           else
-            echo "🎉 All recipes passed! Bon appétit!"
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "🎉 ALL RECIPES PASSED! Bon appétit! 🎉"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             exit 0
           fi
+      
+      - name: 📊 Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: /tmp/output.txt
+          retention-days: 7
