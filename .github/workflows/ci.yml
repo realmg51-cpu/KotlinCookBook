@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  KOTLIN_VERSION: 2.3.20
+  KOTLIN_VERSION: 2.3.20  # ← Phiên bản mới nhất (16/03/2026)
 
 jobs:
   test:
@@ -39,14 +39,18 @@ jobs:
         run: |
           echo "📦 Downloading Kotlin ${{ env.KOTLIN_VERSION }}..."
           wget -q https://github.com/JetBrains/kotlin/releases/download/v${{ env.KOTLIN_VERSION }}/kotlin-compiler-${{ env.KOTLIN_VERSION }}.zip
-          unzip -q kotlin-compiler-${{ env.KOTLIN_VERSION }}.zip -d ~/
+          # -o: ghi đè không hỏi, -q: im lặng
+          unzip -q -o kotlin-compiler-${{ env.KOTLIN_VERSION }}.zip -d ~/
           rm kotlin-compiler-${{ env.KOTLIN_VERSION }}.zip
+          echo "✅ Kotlin ${{ env.KOTLIN_VERSION }} installed!"
       
       - name: 🔗 Add Kotlin to PATH
         run: echo "$HOME/kotlinc/bin" >> $GITHUB_PATH
       
       - name: ✅ Verify Kotlin installation
-        run: kotlinc -version
+        run: |
+          kotlinc -version
+          echo "🎉 Kotlin is ready!"
       
       - name: 🧪 Test each recipe
         run: |
@@ -60,21 +64,18 @@ jobs:
           PASSED_LIST=""
           FAILED_LIST=""
           
-          # Tìm và test trực tiếp, không qua output
           while IFS= read -r file; do
             TOTAL=$((TOTAL + 1))
             filename=$(basename "$file")
             
             echo "🔪 Testing: $file"
             
-            # Compile và chạy
             if kotlinc "$file" -include-runtime -d "/tmp/${filename%.kt}.jar" 2>/tmp/compile_error.txt; then
               if java -jar "/tmp/${filename%.kt}.jar" > /tmp/output.txt 2>&1; then
                 echo "   ✅ PASSED"
                 PASSED_LIST="$PASSED_LIST\n   ✅ $file"
               else
                 echo "   ❌ FAILED (runtime error)"
-                echo "   📜 Output:"
                 cat /tmp/output.txt | sed 's/^/      /'
                 FAILED=$((FAILED + 1))
                 FAILED_LIST="$FAILED_LIST\n   ❌ $file"
@@ -82,7 +83,6 @@ jobs:
               rm -f "/tmp/${filename%.kt}.jar"
             else
               echo "   ❌ FAILED (compilation error)"
-              echo "   📜 Error:"
               cat /tmp/compile_error.txt | sed 's/^/      /'
               FAILED=$((FAILED + 1))
               FAILED_LIST="$FAILED_LIST\n   ❌ $file"
@@ -93,16 +93,9 @@ jobs:
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "📊 RESULTS"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo ""
           echo "Total recipes: $TOTAL"
           echo "✅ Passed: $((TOTAL - FAILED))"
           echo "❌ Failed: $FAILED"
-          
-          if [ -n "$PASSED_LIST" ]; then
-            echo ""
-            echo "✅ Passed recipes:"
-            echo -e "$PASSED_LIST"
-          fi
           
           if [ $FAILED -ne 0 ]; then
             echo ""
@@ -111,16 +104,6 @@ jobs:
             exit 1
           else
             echo ""
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo "🎉 ALL RECIPES PASSED! Bon appétit! 🎉"
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             exit 0
           fi
-      
-      - name: 📊 Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: /tmp/output.txt
-          retention-days: 7
