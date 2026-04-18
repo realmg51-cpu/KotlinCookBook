@@ -16,7 +16,7 @@ This is a simple **Kotlin CookBook** that helps you learn Kotlin **easier** and 
 
 Each "recipe" is a small Kotlin program that teaches you one concept at a time.
 
-> [!IMPORTANT]
+> [!NOTE]
 > This repo is still incomplete and I'm just learning Kotlin now, so if you can, please help me complete it by **forking** and adding new **recipes**. All code here is **safe** and **stable**.
 
 ---
