@@ -37,7 +37,7 @@ Each "recipe" is a small Kotlin program that teaches you one concept at a time.
 
 Before you start cooking, make sure you have:
 
-- **Kotlin** installed (version 1.9+)
+- **Kotlin** installed (version 2.3.20+)
 - A text editor (VS Code, IntelliJ, or even Notepad!)
 - A hungry mind 😋
 
