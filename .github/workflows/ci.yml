@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  KOTLIN_VERSION: 2.3.20  # ← Phiên bản mới nhất (16/03/2026)
+  KOTLIN_VERSION: 2.3.20
 
 jobs:
   test:
@@ -39,10 +39,9 @@ jobs:
         run: |
           echo "📦 Downloading Kotlin ${{ env.KOTLIN_VERSION }}..."
           wget -q https://github.com/JetBrains/kotlin/releases/download/v${{ env.KOTLIN_VERSION }}/kotlin-compiler-${{ env.KOTLIN_VERSION }}.zip
-          # -o: ghi đè không hỏi, -q: im lặng
           unzip -q -o kotlin-compiler-${{ env.KOTLIN_VERSION }}.zip -d ~/
           rm kotlin-compiler-${{ env.KOTLIN_VERSION }}.zip
-          echo "✅ Kotlin ${{ env.KOTLIN_VERSION }} installed!"
+          echo "✅ Kotlin installed!"
       
       - name: 🔗 Add Kotlin to PATH
         run: echo "$HOME/kotlinc/bin" >> $GITHUB_PATH
@@ -52,8 +51,11 @@ jobs:
           kotlinc -version
           echo "🎉 Kotlin is ready!"
       
-      - name: 🧪 Test each recipe
+      - name: 🧪 Test each recipe with output logging
         run: |
+          # Create output directory
+          mkdir -p test-outputs
+          
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "🧪 STARTING KITCHEN TESTS"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -64,38 +66,102 @@ jobs:
           PASSED_LIST=""
           FAILED_LIST=""
           
+          # Create summary file
+          SUMMARY_FILE="test-outputs/SUMMARY.md"
+          echo "# 🧪 Kotlin CookBook Test Results" > $SUMMARY_FILE
+          echo "" >> $SUMMARY_FILE
+          echo "**Run Date:** $(date)" >> $SUMMARY_FILE
+          echo "**Kotlin Version:** ${{ env.KOTLIN_VERSION }}" >> $SUMMARY_FILE
+          echo "" >> $SUMMARY_FILE
+          echo "## Results" >> $SUMMARY_FILE
+          echo "" >> $SUMMARY_FILE
+          
           while IFS= read -r file; do
             TOTAL=$((TOTAL + 1))
             filename=$(basename "$file")
+            safename=$(echo "$file" | sed 's|/|_|g' | sed 's|src_kotlin_normal_||')
+            output_file="test-outputs/${safename}.txt"
             
             echo "🔪 Testing: $file"
             
+            # Run and capture output
             if kotlinc "$file" -include-runtime -d "/tmp/${filename%.kt}.jar" 2>/tmp/compile_error.txt; then
-              if java -jar "/tmp/${filename%.kt}.jar" > /tmp/output.txt 2>&1; then
+              if java -jar "/tmp/${filename%.kt}.jar" > "$output_file" 2>&1; then
                 echo "   ✅ PASSED"
                 PASSED_LIST="$PASSED_LIST\n   ✅ $file"
+                echo "- ✅ **PASSED** | $file" >> $SUMMARY_FILE
+                
+                # Add first few lines of output to summary
+                echo "  <details><summary>📜 Output</summary>" >> $SUMMARY_FILE
+                echo "" >> $SUMMARY_FILE
+                echo '  ```' >> $SUMMARY_FILE
+                head -20 "$output_file" >> $SUMMARY_FILE
+                if [ $(wc -l < "$output_file") -gt 20 ]; then
+                  echo "  ... (truncated, see full log in artifact)" >> $SUMMARY_FILE
+                fi
+                echo '  ```' >> $SUMMARY_FILE
+                echo "  </details>" >> $SUMMARY_FILE
+                echo "" >> $SUMMARY_FILE
               else
                 echo "   ❌ FAILED (runtime error)"
-                cat /tmp/output.txt | sed 's/^/      /'
+                echo "   📜 Output saved to artifact"
+                cat "$output_file" | sed 's/^/      /'
                 FAILED=$((FAILED + 1))
                 FAILED_LIST="$FAILED_LIST\n   ❌ $file"
+                echo "- ❌ **FAILED** | $file (runtime error)" >> $SUMMARY_FILE
+                echo "  <details><summary>📜 Error Output</summary>" >> $SUMMARY_FILE
+                echo "" >> $SUMMARY_FILE
+                echo '  ```' >> $SUMMARY_FILE
+                cat "$output_file" >> $SUMMARY_FILE
+                echo '  ```' >> $SUMMARY_FILE
+                echo "  </details>" >> $SUMMARY_FILE
+                echo "" >> $SUMMARY_FILE
               fi
               rm -f "/tmp/${filename%.kt}.jar"
             else
               echo "   ❌ FAILED (compilation error)"
+              echo "   📜 Compilation error saved to artifact"
               cat /tmp/compile_error.txt | sed 's/^/      /'
               FAILED=$((FAILED + 1))
               FAILED_LIST="$FAILED_LIST\n   ❌ $file"
+              echo "- ❌ **FAILED** | $file (compilation error)" >> $SUMMARY_FILE
+              echo "  <details><summary>📜 Compilation Error</summary>" >> $SUMMARY_FILE
+              echo "" >> $SUMMARY_FILE
+              echo '  ```' >> $SUMMARY_FILE
+              cat /tmp/compile_error.txt >> $SUMMARY_FILE
+              echo '  ```' >> $SUMMARY_FILE
+              echo "  </details>" >> $SUMMARY_FILE
+              echo "" >> $SUMMARY_FILE
             fi
             echo ""
           done < <(find src -name "*.kt" -type f -exec grep -l "fun main" {} \; 2>/dev/null | sort)
           
+          # Add summary to the end
+          echo "## Summary" >> $SUMMARY_FILE
+          echo "" >> $SUMMARY_FILE
+          echo "| Metric | Value |" >> $SUMMARY_FILE
+          echo "|--------|-------|" >> $SUMMARY_FILE
+          echo "| Total Recipes | $TOTAL |" >> $SUMMARY_FILE
+          echo "| ✅ Passed | $((TOTAL - FAILED)) |" >> $SUMMARY_FILE
+          echo "| ❌ Failed | $FAILED |" >> $SUMMARY_FILE
+          echo "" >> $SUMMARY_FILE
+          
+          if [ $FAILED -eq 0 ]; then
+            echo "🎉 **All recipes passed! Bon appétit!** 🎉" >> $SUMMARY_FILE
+          else
+            echo "⚠️ **$FAILED recipe(s) failed! Please check the logs.**" >> $SUMMARY_FILE
+          fi
+          
+          # Print final results
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "📊 RESULTS"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "Total recipes: $TOTAL"
           echo "✅ Passed: $((TOTAL - FAILED))"
           echo "❌ Failed: $FAILED"
+          echo ""
+          echo "📁 Outputs saved to: test-outputs/"
+          echo "📄 Summary: test-outputs/SUMMARY.md"
           
           if [ $FAILED -ne 0 ]; then
             echo ""
@@ -107,3 +173,11 @@ jobs:
             echo "🎉 ALL RECIPES PASSED! Bon appétit! 🎉"
             exit 0
           fi
+      
+      - name: 📊 Upload test outputs as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kotlin-test-outputs
+          path: test-outputs/
+          retention-days: 30
