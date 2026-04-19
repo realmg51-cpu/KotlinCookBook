@@ -18,34 +18,46 @@ jobs:
       actions: read
       contents: read
 
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'actions', 'java-kotlin' ]
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v6
 
     - name: Setup Java
+      if: matrix.language == 'java-kotlin'
       uses: actions/setup-java@v5
       with:
         distribution: 'temurin'
         java-version: '17'
 
     - name: Setup Kotlin
+      if: matrix.language == 'java-kotlin'
       run: |
-        wget -q https://github.com/JetBrains/kotlin/releases/download/v2.0.20/kotlin-compiler-2.0.20.zip
-        unzip -q -o kotlin-compiler-2.0.20.zip -d ~/
+        wget -q https://github.com/JetBrains/kotlin/releases/download/v2.3.20/kotlin-compiler-2.3.20.zip
+        unzip -q -o kotlin-compiler-2.3.20.zip -d ~/
         echo "$HOME/kotlinc/bin" >> $GITHUB_PATH
-        rm kotlin-compiler-2.0.20.zip
+        rm kotlin-compiler-2.3.20.zip
+        kotlinc -version
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v4
       with:
-        languages: java-kotlin
-        build-mode: manual
+        languages: ${{ matrix.language }}
+        build-mode: ${{ matrix.language == 'java-kotlin' && 'manual' || 'none' }}
 
-    - name: Manual build (compile Kotlin)
+    - name: Manual build (Kotlin)
+      if: matrix.language == 'java-kotlin'
       run: |
-        echo "Compiling Kotlin files for CodeQL..."
-        kotlinc src/kotlin/normal/**/*.kt -d /tmp/kotlin-build || true
-        echo "✅ Manual build completed"
+        echo "📦 Building Kotlin files for CodeQL analysis..."
+        # Compile all Kotlin files to create build artifacts
+        find src -name "*.kt" -type f -exec kotlinc {} -d /tmp/kotlin-build \;
+        echo "✅ Build completed"
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
+      with:
+        category: "/language:${{matrix.language}}"
