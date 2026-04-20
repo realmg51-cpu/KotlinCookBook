@@ -124,4 +124,4 @@ Remember:
 
 Happy cooking! 👨‍🍳
 
-[👉 Introduction to work with variables](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/Work%20with%20it/introduction.md)
+[👉 Introduction to work with variables](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/WorkWithIt/introduction.md)
