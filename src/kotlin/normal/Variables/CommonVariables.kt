@@ -1,11 +1,23 @@
 fun main() {
-    val number: Int = 6 // Int (number)
-    val character: Char = 'a' // Should always use '',if not? You food will burning!!
-    val word: String = "I like Kotlin!" // Should always use "",'' for single character,"" for string
-    val pi: Float = 3.14f // use 'f' because it's a 32-bit float. To see diffrent with 'Double'
-    val db: Double = 1.677778877 // this is float but 64-bit and not ends with 'f'
-  // let's place it to the dish:
-    println("number: " + number)
-    println("character: " + character)
-  // and more.
+    // Integer - interger (32 bit)
+    val number: Int = 6
+    
+    // Character - single character (use'')
+    val character: Char = 'a'
+    
+    // String - string (use "")
+    val word: String = "I like Kotlin!"
+    
+    // Float - 32 bit
+    val pi: Float = 3.14f
+    
+    // Double - 64 bit
+    val db: Double = 1.677778877
+    
+    // print it
+    println("number: $number")
+    println("character: $character")
+    println("word: $word")
+    println("pi: $pi")
+    println("db: $db")
 }
