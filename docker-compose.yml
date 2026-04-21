@@ -1,0 +1,36 @@
+# 🍳 Docker Compose for KotlinCookBook
+
+version: '3.8'
+
+services:
+  kotlin-cookbook:
+    build: .
+    container_name: kotlin-cookbook
+    stdin_open: true   # For interactive recipes with readln()
+    tty: true
+    volumes:
+      # Mount local src for development (hot reload)
+      - ./src:/app/src
+      - ./scripts:/app/scripts
+    environment:
+      - KOTLIN_VERSION=2.0.20
+    # Override command to run specific recipe
+    command: ["kotlin", "src/kotlin/normal/HelloWorld.kt"]
+    
+  # Run all tests
+  test:
+    build: .
+    container_name: kotlin-cookbook-test
+    command: ["sh", "-c", "for f in src/kotlin/normal/*.kt; do echo \"Testing $$f...\"; kotlin \"$$f\" || exit 1; done"]
+    profiles:
+      - test
+      
+  # Interactive mode (for learning)
+  interactive:
+    build: .
+    container_name: kotlin-cookbook-interactive
+    stdin_open: true
+    tty: true
+    command: ["/bin/bash"]
+    profiles:
+      - interactive
