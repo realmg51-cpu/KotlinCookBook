@@ -4,124 +4,70 @@ on:
   push:
     paths:
       - 'src/kotlin/normal/**'
-      - '.github/workflows/update-structure.yml'
   workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * 0'  # Chạy mỗi Chủ Nhật
 
 jobs:
-  update-structure:
+  update:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
       
       - name: Install tree
         run: sudo apt-get install -y tree
       
-      - name: Generate project structure
-        id: generate
+      - name: Generate structure with echo
         run: |
-          # Tạo file structure tạm thời
-          cat > structure_temp.md << 'EOF'
-          <!-- STRUCTURE_START -->
-          ## 📁 Project Structure
+          # Start with marker
+          echo "<!-- STRUCTURE_START -->" > /tmp/new.md
+          echo "" >> /tmp/new.md
+          echo "## 📁 Project Structure" >> /tmp/new.md
+          echo "" >> /tmp/new.md
+          echo '```' >> /tmp/new.md
           
-          EOF
+          # Add tree output
+          tree src/kotlin/normal --dirsfirst -I "*.md" -L 4 >> /tmp/new.md
           
-          # Thêm tree structure (giới hạn depth 4)
-          echo '```' >> structure_temp.md
-          tree src/kotlin/normal --dirsfirst -I "*.md|introduction.md" -L 4 -F >> structure_temp.md
-          echo '```' >> structure_temp.md
+          # Close code block
+          echo '```' >> /tmp/new.md
+          echo "" >> /tmp/new.md
           
-          echo >> structure_temp.md
-          
-          # Thêm thống kê
+          # Add statistics
           RECIPE_COUNT=$(find src/kotlin/normal -name "*.kt" -type f | wc -l)
           CATEGORY_COUNT=$(find src/kotlin/normal -mindepth 1 -maxdepth 1 -type d | wc -l)
-          TOTAL_SIZE=$(du -sh src/kotlin/normal | cut -f1)
           
-          cat >> structure_temp.md << EOF
-          ### 📊 Statistics
-          
-          | Metric | Value |
-          |--------|-------|
-          | 🍳 Recipes | `$RECIPE_COUNT` Kotlin files |
-          | 📁 Categories | `$CATEGORY_COUNT` folders |
-          | 💾 Total size | `$TOTAL_SIZE` |
-          
-          EOF
-          
-          # Thêm bot avatar
-          cat >> structure_temp.md << 'EOF'
-          ---
-          
-          ### 🤖 Maintained by
-          
-          <img src=".github/avatars/bot.svg" width="50" height="50" style="border-radius: 50%;" alt="KotlinCookBot">
-          
-          *Structure auto-updated by [KotlinCookBot](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/.github/avatars/bot.svg)*
-          
-          ---
-          
-          *Last update: $(date +'%Y-%m-%d %H:%M:%S UTC')*
-          
-          <!-- STRUCTURE_END -->
-          EOF
-          
-          # Replace timestamp
-          sed -i "s/\$(date +'%Y-%m-%d %H:%M:%S UTC')/$(date +'%Y-%m-%d %H:%M:%S UTC')/g" structure_temp.md
+          echo "### 📊 Statistics" >> /tmp/new.md
+          echo "" >> /tmp/new.md
+          echo "| Metric | Value |" >> /tmp/new.md
+          echo "|--------|-------|" >> /tmp/new.md
+          echo "| 🍳 Recipes | \`$RECIPE_COUNT\` files |" >> /tmp/new.md
+          echo "| 📁 Categories | \`$CATEGORY_COUNT\` folders |" >> /tmp/new.md
+          echo "" >> /tmp/new.md
+          echo "---" >> /tmp/new.md
+          echo "" >> /tmp/new.md
+          echo '<img src=".github/avatars/bot.svg" width="40">' >> /tmp/new.md
+          echo "" >> /tmp/new.md
+          echo "*Last update: $(date +'%Y-%m-%d %H:%M:%S UTC')*" >> /tmp/new.md
+          echo "" >> /tmp/new.md
+          echo "<!-- STRUCTURE_END -->" >> /tmp/new.md
       
-      - name: Update README.md
+      - name: Remove old structure and replace
         run: |
-          # Kiểm tra nếu có marker STRUCTURE_START/END
-          if grep -q "<!-- STRUCTURE_START -->" README.md; then
-            # Thay thế nội dung giữa 2 markers
-            sed -i '/<!-- STRUCTURE_START -->/,/<!-- STRUCTURE_END -->/{
-              /<!-- STRUCTURE_START -->/{
-                p
-                r structure_temp.md
-              }
-              /<!-- STRUCTURE_END -->/p
-              d
-            }' README.md
-          else
-            # Nếu chưa có marker, thêm vào cuối README
-            echo "" >> README.md
-            cat structure_temp.md >> README.md
-          fi
+          # Delete everything between markers (including markers)
+          sed -i '/<!-- STRUCTURE_START -->/,/<!-- STRUCTURE_END -->/d' README.md
+          
+          # Append new structure at the end
+          cat /tmp/new.md >> README.md
+          
+          # Clean up extra blank lines
+          sed -i '/^$/N;/^\n$/D' README.md
       
-      - name: Check for changes
-        id: check
-        run: |
-          if git diff --quiet README.md; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-            echo "No changes to commit"
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "Changes detected"
-          fi
-      
-      - name: Commit and push changes
-        if: steps.check.outputs.changed == 'true'
+      - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "📁 docs: auto-update project structure [skip ci]"
+          commit_message: "📁 docs: update project structure [skip ci]"
           commit_user_name: "KotlinCookBot"
           commit_user_email: "41898282+github-actions[bot]@users.noreply.github.com"
-          commit_author: "KotlinCookBot <41898282+github-actions[bot]@users.noreply.github.com>"
           file_pattern: "README.md"
-          skip_fetch: true
-      
-      - name: Summary
-        run: |
-          echo "## 🍳 Update Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- 📁 Structure updated: $(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_STEP_SUMMARY
-          echo "- 🍳 Recipes: $(find src/kotlin/normal -name '*.kt' | wc -l)" >> $GITHUB_STEP_SUMMARY
-          echo "- 📂 Categories: $(find src/kotlin/normal -mindepth 1 -maxdepth 1 -type d | wc -l)" >> $GITHUB_STEP_SUMMARY
