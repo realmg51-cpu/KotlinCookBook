@@ -258,6 +258,10 @@ Have questions? Suggestions? Want to share your own recipe?
 
 ---
 
+
+
+Now go cook some Kotlin! 🚀
+
 <!-- STRUCTURE_START -->
 ## 📁 Project Structure
 
@@ -288,14 +292,18 @@ src/kotlin/normal
 10 directories, 12 files
 ```
 
-📊 **12 recipes**
+## 📊 Statistics
 
-<img src=".github/avatars/bot.svg" width="30">
+| Metric | Value |
+|--------|-------|
+| 🍳 **Total Recipes** | `12` Kotlin files |
+| 📁 **Categories** | `6` folders |
+| 📈 **Most recipes** | Variables (5 files) |
 
-*Updated: 2026-04-21*
+---
+
+<img src=".github/avatars/bot.svg" width="40">
+
+*Auto-updated by KotlinCookBot 🤖*
+*Last update: 2026-04-21 22:19:11 UTC*
 <!-- STRUCTURE_END -->
-
-
-
-Now go cook some Kotlin! 🚀
-
