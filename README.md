@@ -309,7 +309,60 @@ src/kotlin/normal/
 
 ---
 
-*Last update: 2026-04-21 11:48:27 UTC*
+*Last update: 2026-04-21 12:42:48 UTC*
 
+<!-- STRUCTURE_END -->
+<!-- STRUCTURE_START -->
+<!-- STRUCTURE_START -->
+## 📁 Project Structure
+
+```
+src/kotlin/normal/
+├── BreakAndContinue/
+│   ├── Break.kt
+│   └── Continue.kt
+├── GettingStarted/
+│   └── HelloWorld.kt
+├── IfChef/
+│   └── IfChef.kt
+├── Loops/
+│   ├── For/
+│   │   └── ForStirring.kt
+│   └── While/
+│       └── WhileStirring.kt
+├── Variables/
+│   ├── WorkWithIt/
+│   │   ├── StringSplitter.kt
+│   │   └── StringSplitterv2.kt
+│   ├── CommonVariables.kt
+│   ├── ImmutableVariables.kt
+│   └── MutableVariables.kt
+└── WhenChef/
+    └── WhenChef.kt
+
+10 directories, 12 files
+```
+
+### 📊 Statistics
+
+| Metric | Value |
+|--------|-------|
+| 🍳 Recipes |  Kotlin files |
+| 📁 Categories |  folders |
+| 💾 Total size |  |
+
+---
+
+### 🤖 Maintained by
+
+<img src=".github/avatars/bot.svg" width="50" height="50" style="border-radius: 50%;" alt="KotlinCookBot">
+
+*Structure auto-updated by [KotlinCookBot](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/.github/avatars/bot.svg)*
+
+---
+
+*Last update: 2026-04-21 12:42:48 UTC*
+
+<!-- STRUCTURE_END -->
 <!-- STRUCTURE_END -->
 <!-- STRUCTURE_END -->
