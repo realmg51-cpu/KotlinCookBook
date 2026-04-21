@@ -18,55 +18,103 @@ jobs:
       - name: Install tree
         run: sudo apt-get install -y tree
       
-      - name: Generate and update
+      - name: Generate structure and statistics
         run: |
-          # Tạo structure
-          echo "## 📁 Project Structure" > /tmp/structure.txt
-          echo "" >> /tmp/structure.txt
-          echo '```' >> /tmp/structure.txt
-          tree src/kotlin/normal --dirsfirst -I "*.md" -L 4 >> /tmp/structure.txt
-          echo '```' >> /tmp/structure.txt
-          echo "" >> /tmp/structure.txt
+          # Tạo structure mới
+          echo "## 📁 Project Structure" > /tmp/structure.md
+          echo "" >> /tmp/structure.md
+          echo '```' >> /tmp/structure.md
+          tree src/kotlin/normal --dirsfirst -I "*.md" -L 4 >> /tmp/structure.md
+          echo '```' >> /tmp/structure.md
+          echo "" >> /tmp/structure.md
           
-          RECIPE_COUNT=$(find src/kotlin/normal -name "*.kt" -type f | wc -l)
-          echo "📊 **$RECIPE_COUNT recipes**" >> /tmp/structure.txt
-          echo "" >> /tmp/structure.txt
-          echo '<img src=".github/avatars/bot.svg" width="30">' >> /tmp/structure.txt
-          echo "" >> /tmp/structure.txt
-          echo "*Updated: $(date +'%Y-%m-%d')*" >> /tmp/structure.txt
+          # Thống kê cơ bản
+          TOTAL_RECIPES=$(find src/kotlin/normal -name "*.kt" -type f | wc -l)
+          CATEGORIES=$(find src/kotlin/normal -mindepth 1 -maxdepth 1 -type d | wc -l)
+          MOST_RECIPES=$(find src/kotlin/normal -mindepth 2 -name "*.kt" | cut -d'/' -f4 | sort | uniq -c | sort -rn | head -1 | awk '{print $2 " (" $1 " files)"}')
+          DATE=$(date +'%Y-%m-%d')
           
-          # Dùng Python để cập nhật README
-          python3 << 'PYTHON_EOF'
-          import re
+          # Thống kê từng category
+          GETTING_COUNT=$(find src/kotlin/normal/GettingStarted -name "*.kt" 2>/dev/null | wc -l)
+          VAR_COUNT=$(find src/kotlin/normal/Variables -name "*.kt" 2>/dev/null | wc -l)
+          IF_COUNT=$(find src/kotlin/normal/IfChef -name "*.kt" 2>/dev/null | wc -l)
+          WHEN_COUNT=$(find src/kotlin/normal/WhenChef -name "*.kt" 2>/dev/null | wc -l)
+          LOOPS_COUNT=$(find src/kotlin/normal/Loops -name "*.kt" 2>/dev/null | wc -l)
+          BREAK_COUNT=$(find src/kotlin/normal/BreakAndContinue -name "*.kt" 2>/dev/null | wc -l)
           
-          # Đọc structure mới
-          with open('/tmp/structure.txt', 'r') as f:
-              new_struct = f.read().strip()
+          # Tính progress bar
+          progress_bar() {
+            local percent=$1
+            local filled=$((percent / 10))
+            local empty=$((10 - filled))
+            printf "█%.0s" $(seq 1 $filled)
+            printf "░%.0s" $(seq 1 $empty)
+          }
           
-          # Đọc README
-          with open('README.md', 'r') as f:
-              readme = f.read()
+          GETTING_PERCENT=$((GETTING_COUNT * 100 / 5))
+          VAR_PERCENT=$((VAR_COUNT * 100 / 8))
+          IF_PERCENT=$((IF_COUNT * 100 / 5))
+          WHEN_PERCENT=$((WHEN_COUNT * 100 / 5))
+          LOOPS_PERCENT=$((LOOPS_COUNT * 100 / 8))
+          BREAK_PERCENT=$((BREAK_COUNT * 100 / 5))
           
+          GETTING_BAR=$(progress_bar $GETTING_PERCENT)
+          VAR_BAR=$(progress_bar $VAR_PERCENT)
+          IF_BAR=$(progress_bar $IF_PERCENT)
+          WHEN_BAR=$(progress_bar $WHEN_PERCENT)
+          LOOPS_BAR=$(progress_bar $LOOPS_PERCENT)
+          BREAK_BAR=$(progress_bar $BREAK_PERCENT)
+          
+          # Ghi statistics
+          cat >> /tmp/structure.md << EOF
+          ## 📊 Statistics
+          
+          | Metric | Value |
+          |--------|-------|
+          | 🍳 **Total Recipes** | \`$TOTAL_RECIPES\` Kotlin files |
+          | 📁 **Categories** | \`$CATEGORIES\` folders |
+          | 📈 **Most recipes** | $MOST_RECIPES |
+          | 🆕 **Latest update** | $DATE |
+          
+          ---
+          
+          ## 🏆 Category Breakdown
+          
+          | Category | Recipes | Progress |
+          |----------|---------|----------|
+          | GettingStarted | $GETTING_COUNT | $GETTING_BAR ${GETTING_PERCENT}% |
+          | Variables | $VAR_COUNT | $VAR_BAR ${VAR_PERCENT}% |
+          | IfChef | $IF_COUNT | $IF_BAR ${IF_PERCENT}% |
+          | WhenChef | $WHEN_COUNT | $WHEN_BAR ${WHEN_PERCENT}% |
+          | Loops | $LOOPS_COUNT | $LOOPS_BAR ${LOOPS_PERCENT}% |
+          | BreakAndContinue | $BREAK_COUNT | $BREAK_BAR ${BREAK_PERCENT}% |
+          
+          **Overall Progress:** 🍳 **$TOTAL_RECIPES/50 recipes (${TOTAL_RECIPES}%)**
+          
+          ---
+          
+          <img src=".github/avatars/bot.svg" width="40">
+          
+          *Auto-updated by KotlinCookBot 🤖*
+          *Last update: $(date +'%Y-%m-%d %H:%M:%S UTC')*
+          
+          EOF
+      
+      - name: Update README
+        run: |
           # Xóa section cũ
-          readme = re.sub(r'<!-- STRUCTURE_START -->.*?<!-- STRUCTURE_END -->', '', readme, flags=re.DOTALL)
+          sed -i '/<!-- STRUCTURE_START -->/,/<!-- STRUCTURE_END -->/d' README.md
           
-          # Tìm vị trí "Happy cooking"
-          pattern = r'(\*\*Happy cooking! 👨‍🍳🍳\*\*)'
-          
-          # Chèn structure mới vào trước
-          replacement = f'<!-- STRUCTURE_START -->\n{new_struct}\n<!-- STRUCTURE_END -->\n\n\1'
-          new_readme = re.sub(pattern, replacement, readme, flags=re.DOTALL)
-          
-          # Ghi lại
-          with open('README.md', 'w') as f:
-              f.write(new_readme)
-          
-          print("✅ README updated")
-          PYTHON_EOF
+          # Thêm section mới vào trước "Happy cooking"
+          sed -i '/\*\*Happy cooking! 👨‍🍳🍳\*\*/i\
+          <!-- STRUCTURE_START -->\
+          '"$(cat /tmp/structure.md)"'\
+          <!-- STRUCTURE_END -->\
+          ' README.md
       
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "📁 docs: update structure [skip ci]"
+          commit_message: "📊 docs: update statistics and structure [skip ci]"
           commit_user_name: "KotlinCookBot"
           commit_user_email: "41898282+github-actions[bot]@users.noreply.github.com"
           file_pattern: "README.md"
