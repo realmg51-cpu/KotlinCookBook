@@ -266,30 +266,28 @@ Now go cook some Kotlin! 🚀
 ## 📁 Project Structure
 
 ```
-src/kotlin/normal
-├── BreakAndContinue
-│   ├── Break.kt
-│   └── Continue.kt
-├── GettingStarted
-│   └── HelloWorld.kt
-├── IfChef
-│   └── IfChef.kt
-├── Loops
-│   ├── For
-│   │   └── ForStirring.kt
-│   └── While
-│       └── WhileStirring.kt
-├── Variables
-│   ├── WorkWithIt
-│   │   ├── StringSplitter.kt
-│   │   └── StringSplitterv2.kt
-│   ├── CommonVariables.kt
-│   ├── ImmutableVariables.kt
-│   └── MutableVariables.kt
-└── WhenChef
+src/kotlin/normal/
+├── BreakAndContinue/
+│   ├── Break.kt
+│   └── Continue.kt
+├── GettingStarted/
+│   ├── HelloWorld.kt
+├── IfChef/
+│   └── IfChef.kt
+├── Loops/
+│   ├── For/
+│   │   └── ForStirring.kt
+│   └── While/
+│       └── WhileStirring.kt
+├── Variables/
+│   ├── WorkWithIt/
+│   │   ├── StringSplitter.kt
+│   │   └── StringSplitterv2.kt
+│   ├── CommonVariables.kt
+│   ├── ImmutableVariables.kt
+│   └── MutableVariables.kt
+└── WhenChef/
     └── WhenChef.kt
-
-10 directories, 12 files
 ```
 
 ## 📊 Statistics
@@ -299,11 +297,27 @@ src/kotlin/normal
 | 🍳 **Total Recipes** | `12` Kotlin files |
 | 📁 **Categories** | `6` folders |
 | 📈 **Most recipes** | Variables (5 files) |
+| 🎯 **Progress** | `12/50` recipes (24%) |
+| 🆕 **Latest update** | 2026-04-21 |
+
+---
+
+### 🏆 Category Breakdown
+
+| Category | Recipes | Progress |
+|----------|---------|----------|
+| BreakAndContinue | 2 | ██░░░░░░░░ 20% |
+| GettingStarted | 1 | █░░░░░░░░░ 10% |
+| IfChef | 1 | █░░░░░░░░░ 10% |
+| Loops | 2 | ██░░░░░░░░ 20% |
+| Variables | 5 | █████░░░░░ 50% |
+| WhenChef | 1 | █░░░░░░░░░ 10% |
 
 ---
 
 <img src=".github/avatars/bot.svg" width="40">
 
 *Auto-updated by KotlinCookBot 🤖*
-*Last update: 2026-04-21 22:19:11 UTC*
+*Last update: 2026-04-21 22:25:07 UTC*
+
 <!-- STRUCTURE_END -->
