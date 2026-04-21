@@ -7,6 +7,7 @@
 ![Tests](https://github.com/realmg51-cpu/KotlinCookBook/actions/workflows/ci.yml/badge.svg)
 ![Stars](https://img.shields.io/github/stars/realmg51-cpu/KotlinCookBook)
 ![Forks](https://img.shields.io/github/forks/realmg51-cpu/KotlinCookBook)
+![Progress](https://img.shields.io/badge/Progress-50%25-orange)
 
 > *"Learn Kotlin the fun way – one recipe at a time!"*
 
@@ -59,6 +60,8 @@ Verify installation:
 kotlin -version
 ```
 
+For detailed setup instructions, see [InstallAndSetup.md](InstallAndSetup.md)
+
 ---
 
 ## 📚 Recipes so far
@@ -66,22 +69,24 @@ kotlin -version
 | Recipe | What you'll learn | Level | Status |
 |--------|-------------------|-------|--------|
 | `HelloWorld.kt` | Your first Kotlin program | 🍜 Beginner | ✅ Done |
-| `StringSplitter.kt` | String manipulation basics (substringBefore, substringAfter) | 🍜 Beginner | ✅ Done |
-| `ImmutableVariables.kt` / `MutableVariables.kt` | `val` vs `var` (why you can't recook) | 🍜 Beginner | ✅ Done |
+| `StringSplitter.kt` | String manipulation basics | 🍜 Beginner | ✅ Done |
+| `ImmutableVariables.kt` / `MutableVariables.kt` | `val` vs `var` | 🍜 Beginner | ✅ Done |
 | `DataTypes.kt` | Int, Char, String, Float, Double | 🍜 Beginner | ✅ Done |
-| `IfChef` | `if` and `else` in Kotlin (making decisions) | 🍜 Beginner | ✅ Done |
-| `WhenChef` | `when` expression (the spice rack) | 🍜 Beginner | ✅ Done |
+| `IfChef.kt` | `if` and `else` (making decisions) | 🍜 Beginner | ✅ Done |
+| `WhenChef.kt` | `when` expression (the spice rack) | 🍜 Beginner | ✅ Done |
+| `ForLoop.kt` | `for` loop (batch cooking) | 🍜 Beginner | ✅ Done |
+| `WhileLoop.kt` | `while` & `do-while` (automatic stirrer) | 🍜 Beginner | ✅ Done |
+| `BreakContinue.kt` | Control your loops (skip/stop) | 🍜 Beginner | ✅ Done |
 
 ### Coming Soon 🔜
 
 | Recipe | What you'll learn | Level |
 |--------|-------------------|-------|
-| `Loops` | `for`, `while`, `do-while` (automatic stirrer) | 🍜 Beginner |
-| `Functions` | Creating your own recipes | 🍜 Beginner |
-| `NullSafety` | Handling empty ingredients safely | 🍜 Beginner |
-| `Collections` | List, Set, Map (your pantry) | 🥘 Intermediate |
-| `Lambdas` | Cooking with shortcuts | 🥘 Intermediate |
-| `Classes` | Building your own kitchen tools | 🥘 Intermediate |
+| `Functions.kt` | Creating your own recipes | 🍜 Beginner |
+| `NullSafety.kt` | Handling empty ingredients safely | 🍜 Beginner |
+| `Collections.kt` | List, Set, Map (your pantry) | 🥘 Intermediate |
+| `Lambdas.kt` | Cooking with shortcuts | 🥘 Intermediate |
+| `Classes.kt` | Building your own kitchen tools | 🥘 Intermediate |
 
 ---
 
@@ -114,7 +119,8 @@ Some recipes use `readln()` to get input from you. Just follow the prompts!
 - [x] Data types (Int, Char, String, Float, Double)
 - [x] `if-else` decisions
 - [x] `when` expression
-- [ ] Loops (`for`, `while`, `do-while`)
+- [x] Loops (`for`, `while`, `do-while`)
+- [x] Break and Continue
 - [ ] Functions
 - [ ] Null safety (`?`, `?:`, `!!`)
 
@@ -129,6 +135,19 @@ Some recipes use `readln()` to get input from you. Just follow the prompts!
 - [ ] Kotlin 2.2.0 features
 - [ ] Android development basics
 - [ ] Multiplatform Magic
+
+---
+
+## ⏰ 30-Minute Quick Start
+
+- **5 min** - Setup kitchen ([InstallAndSetup.md](./src/kotlin/normal/GettingStarted/InstallAndSetup.md))
+- **5 min** - Cook `HelloWorld.kt`
+- **5 min** - Understand `val` vs `var`
+- **5 min** - Play with `DataTypes.kt`
+- **5 min** - Make decisions with `IfChef.kt`
+- **5 min** - Loop it with `ForLoop.kt`
+
+**Total:** 30 minutes to basic Kotlin fluency!
 
 ---
 
@@ -173,6 +192,18 @@ Your recipe should include:
 
 ---
 
+## 🏆 Kitchen Wall of Fame
+
+*Amazing chefs who added recipes:*
+
+| Chef | Recipe | Date |
+|------|--------|------|
+| @realmg51-cpu | HelloWorld, StringSplitter, Variables, DataTypes, IfChef, WhenChef | Apr 2026 |
+| @realmg51-cpu | ForLoop, WhileLoop, BreakContinue | Apr 2026 |
+| *Your name here* | *Your recipe* | *Coming soon* |
+
+---
+
 ## 📖 How to Use This CookBook
 
 1. **Start from the top** – recipes build on each other
@@ -193,6 +224,8 @@ Your recipe should include:
 | Missing `else` in `when` expression | Add `else -> ...` at the end |
 | `Float` without `f` (`3.14`) | Kotlin thinks it's `Double`. Use `3.14f` |
 | `Char` with double quotes (`"a"`) | Use single quotes: `'a'` |
+| Infinite loop | Make sure condition eventually becomes `false` |
+| Using `=` instead of `==` | Use `==` for comparison |
 
 ---
 
@@ -225,4 +258,4 @@ Have questions? Suggestions? Want to share your own recipe?
 
 **Happy cooking! 👨‍🍳🍳**
 
-Now go cook some Kotlin! 🚀DuuuKotlin
+Now go cook some Kotlin! 🚀
