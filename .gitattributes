@@ -1,0 +1,141 @@
+# 🍳 Kitchen Settings for KotlinCookBook
+# These rules help keep our recipes consistent across all kitchens (Windows, Mac, Linux)
+
+# ============================================
+# 📝 Text Files - Handle Line Endings
+# ============================================
+
+# Auto-convert line endings for all text files
+* text=auto
+
+# Force specific line endings for different OS
+*.kt text eol=lf          # Kotlin files use LF (Mac/Linux style)
+*.md text eol=lf          # Markdown files use LF
+*.gradle text eol=lf      # Gradle scripts use LF
+*.properties text eol=lf  # Properties files use LF
+*.xml text eol=lf         # XML files use LF
+*.json text eol=lf        # JSON files use LF
+*.yml text eol=lf         # YAML files use LF
+*.yaml text eol=lf        # YAML files use LF
+
+# Windows batch files must use CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Shell scripts must use LF (or they break!)
+*.sh text eol=lf
+*.bash text eol=lf
+
+# ============================================
+# 🔧 Git Config Files - Keep as-is
+# ============================================
+
+.gitattributes export-ignore
+.gitignore export-ignore
+.gitmodules export-ignore
+
+# ============================================
+# 📦 Binary Files - Don't mess with these!
+# ============================================
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+
+# Archives
+*.zip binary
+*.jar binary
+*.war binary
+*.tar binary
+*.gz binary
+
+# Executables
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+
+# Build outputs
+*.class binary
+*.apk binary
+*.aar binary
+
+# ============================================
+# 🎨 GitHub Linguist Overrides
+# (Helps GitHub count languages correctly)
+# ============================================
+
+# Tell GitHub that .kt files are Kotlin (duh!)
+*.kt linguist-language=Kotlin
+
+# Don't count these as code (they're documentation)
+*.md linguist-documentation=true
+docs/** linguist-documentation=true
+
+# Mark generated files (don't count in stats)
+*.out linguist-generated=true
+*.class linguist-generated=true
+build/** linguist-generated=true
+out/** linguist-generated=true
+.gradle/** linguist-generated=true
+
+# ============================================
+# 🧪 Testing & Coverage Files
+# ============================================
+
+# Ignore these for diff (too verbose)
+*.log binary
+*.lock binary
+package-lock.json binary -diff
+gradle.lockfile binary -diff
+
+# ============================================
+# 🛠️ Merge Strategies
+# ============================================
+
+# Always use "ours" for changelog (avoid conflicts)
+CHANGELOG.md merge=union
+
+# Use union merge for package.json (try to combine)
+package.json merge=union
+
+# Don't try to merge lock files (just take ours)
+*.lock merge=ours
+
+# ============================================
+# 🚀 Performance Optimizations
+# ============================================
+
+# Large binary files - disable delta compression
+*.zip -delta
+*.jar -delta
+*.mp4 -delta
+
+# ============================================
+# 📋 Special Cases
+# ============================================
+
+# Kotlin scripts can be executed
+*.kts text eol=lf
+
+# Gradle wrapper files
+gradlew text eol=lf
+gradlew.bat text eol=crlf
+
+# License files should keep original formatting
+LICENSE text -diff
+NOTICE text -diff
+
+# ============================================
+# 🔐 Sensitive files (if any)
+# ============================================
+
+# Don't expose these if they exist
+*.pem binary
+*.key binary
+*.crt binary
+secrets/** binary -diff -merge
