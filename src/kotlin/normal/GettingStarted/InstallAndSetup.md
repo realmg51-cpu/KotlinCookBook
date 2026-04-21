@@ -214,7 +214,7 @@ Now that your kitchen is ready, head back to the main README and start cooking:
 
 ## 💬 Need Help?
 
-- 📖 Check the main [README.md](.:README.md)
+- 📖 Check the main [README.md](./README.md)
 - 🐛 Open an [Issue](https://github.com/realmg51-cpu/KotlinCookBook/issues)
 - 🔧 See [CONTRIBUTING.md](./CONTRIBUTING.md) to add your own tips
 
