@@ -1,0 +1,95 @@
+name: Update Structure (Python)
+
+on:
+  push:
+    paths: ['src/kotlin/normal/**']
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Generate tree structure with Python
+        run: |
+          cat > /tmp/gen_tree.py << 'PYTHON_EOF'
+          import os
+          from pathlib import Path
+          from datetime import datetime
+          
+          def generate_tree(path, prefix="", is_last=True, level=0):
+              """Generate ASCII tree structure"""
+              if level > 5:  # Giới hạn depth
+                  return []
+              
+              lines = []
+              items = sorted([p for p in Path(path).iterdir() 
+                            if p.name not in ["introduction.md", ".DS_Store"]],
+                            key=lambda x: (not x.is_dir(), x.name))
+              
+              for i, item in enumerate(items):
+                  is_last_item = (i == len(items) - 1)
+                  current_prefix = "    " if is_last else "│   "
+                  
+                  if item.is_dir():
+                      lines.append(f"{prefix}├── {item.name}/")
+                      next_prefix = prefix + ("    " if is_last_item else "│   ")
+                      lines.extend(generate_tree(item, next_prefix, is_last_item, level + 1))
+                  else:
+                      if item.suffix == '.kt':
+                          lines.append(f"{prefix}├── {item.name}")
+              
+              return lines
+          
+          # Generate structure
+          print("## 📁 Project Structure\n")
+          print("```")
+          print("src/kotlin/normal/")
+          
+          tree_lines = generate_tree("src/kotlin/normal")
+          for line in tree_lines:
+              print(line)
+          
+          print("```\n")
+          
+          # Statistics
+          recipes = list(Path("src/kotlin/normal").rglob("*.kt"))
+          categories = [d for d in Path("src/kotlin/normal").iterdir() if d.is_dir()]
+          
+          print("📊 **Statistics:**")
+          print(f"- 🍳 Recipes: `{len(recipes)}` Kotlin files")
+          print(f"- 📁 Categories: `{len(categories)}` folders")
+          print(f"\n> ⚡ *Auto-updated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC*")
+          PYTHON_EOF
+          
+          python3 /tmp/gen_tree.py > structure.md
+      
+      - name: Update README
+        run: |
+          # Thêm markers nếu chưa có
+          if ! grep -q "<!-- STRUCTURE_START -->" README.md; then
+            echo -e "\n<!-- STRUCTURE_START -->\n<!-- STRUCTURE_END -->" >> README.md
+          fi
+          
+          # Cập nhật nội dung
+          sed -i '/<!-- STRUCTURE_START -->/,/<!-- STRUCTURE_END -->/{
+            /<!-- STRUCTURE_START -->/{
+              p
+              r structure.md
+            }
+            /<!-- STRUCTURE_END -->/p
+            d
+          }' README.md
+      
+      - name: Commit with cooldown
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "📁 docs: update structure [skip ci]"
+          commit_user_name: "KotlinCookBot"
+          commit_user_email: "bot@kotlincookbook.local"
+          # Chỉ commit tối đa 2 lần/ngày
+          skip_checkout: true
