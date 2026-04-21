@@ -1,0 +1,36 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Generate changelog
+        run: |
+          echo "# 🍳 KotlinCookBook ${{ github.ref_name }}" > CHANGELOG_NEW.md
+          echo "" >> CHANGELOG_NEW.md
+          echo "## What's New" >> CHANGELOG_NEW.md
+          echo "" >> CHANGELOG_NEW.md
+          git log --oneline --pretty="- %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD >> CHANGELOG_NEW.md
+          
+          # Count recipes
+          RECIPE_COUNT=$(find src/kotlin/normal -name "*.kt" | wc -l)
+          echo "" >> CHANGELOG_NEW.md
+          echo "## Statistics" >> CHANGELOG_NEW.md
+          echo "- 🍳 Total recipes: $RECIPE_COUNT" >> CHANGELOG_NEW.md
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: CHANGELOG_NEW.md
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
