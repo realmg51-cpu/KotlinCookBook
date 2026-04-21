@@ -435,7 +435,7 @@ fun isPrime(n: Int): Boolean {
 
 Now you can repeat tasks automatically! Next, learn about **`while` loops** – keep stirring until the soup is ready!
 
-👉 [While Loops: Keep Going Until Done](src/kotlin/normal/Loops/WhileStirring.md)
+👉 [While Loops: Keep Going Until Done](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/While/introduction.md)
 
 ---
 
