@@ -263,31 +263,31 @@ Have questions? Suggestions? Want to share your own recipe?
 Now go cook some Kotlin! 🚀
 
 <!-- STRUCTURE_START -->
-<!-- STRUCTURE_START -->
+
 ## 📁 Project Structure
 
 ```
-src/kotlin/normal/
-├── BreakAndContinue/
+src/kotlin/normal
+├── BreakAndContinue
 │   ├── Break.kt
 │   └── Continue.kt
-├── GettingStarted/
+├── GettingStarted
 │   └── HelloWorld.kt
-├── IfChef/
+├── IfChef
 │   └── IfChef.kt
-├── Loops/
-│   ├── For/
+├── Loops
+│   ├── For
 │   │   └── ForStirring.kt
-│   └── While/
+│   └── While
 │       └── WhileStirring.kt
-├── Variables/
-│   ├── WorkWithIt/
+├── Variables
+│   ├── WorkWithIt
 │   │   ├── StringSplitter.kt
 │   │   └── StringSplitterv2.kt
 │   ├── CommonVariables.kt
 │   ├── ImmutableVariables.kt
 │   └── MutableVariables.kt
-└── WhenChef/
+└── WhenChef
     └── WhenChef.kt
 
 10 directories, 12 files
@@ -297,21 +297,13 @@ src/kotlin/normal/
 
 | Metric | Value |
 |--------|-------|
-| 🍳 Recipes |  Kotlin files |
-| 📁 Categories |  folders |
-| 💾 Total size |  |
+| 🍳 Recipes | `12` files |
+| 📁 Categories | `6` folders |
 
 ---
 
-### 🤖 Maintained by
+<img src=".github/avatars/bot.svg" width="40">
 
-<img src=".github/avatars/bot.svg" width="50" height="50" style="border-radius: 50%;" alt="KotlinCookBot">
-
-*Structure auto-updated by [KotlinCookBot](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/.github/avatars/bot.svg)*
-
----
-
-*Last update: 2026-04-21 12:42:48 UTC*
+*Last update: 2026-04-21 13:33:16 UTC*
 
 <!-- STRUCTURE_END -->
-
