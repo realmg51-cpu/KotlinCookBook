@@ -1,17 +1,17 @@
 
-🍳 Recipe: While Loop - The Automatic Stirrer
 
-"Keep stirring until the soup is ready - that's a while loop!"
+## 🍳 Recipe: While Loop - The Automatic Stirrer
 
-📖 What you'll learn:
+> *"Keep stirring until the soup is rBest - that's a while loop!"*
 
-· How to repeat actions while a condition is true
-· Difference between while and do-while
-· When to use each type
+### 📖 What you'll learn:
+- How to repeat actions **while a condition is true**
+- Difference between `while` and `do-while`
+- When to use each type
 
 ---
 
-🥣 The Basic Recipe
+## 🥣 The Basic Recipe
 
 ```kotlin
 /**
@@ -36,8 +36,7 @@ fun main() {
 }
 ```
 
-Output:
-
+**Output:**
 ```
 Stirring soup... (stir #1)
 Stirring soup... (stir #2)
@@ -49,9 +48,9 @@ Stirring soup... (stir #5)
 
 ---
 
-🔄 Two Types of Loops
+## 🔄 Two Types of Loops
 
-1. While Loop - Check First, Then Cook
+### 1. **While Loop** - Check First, Then Cook
 
 ```kotlin
 while (condition) {
@@ -60,7 +59,7 @@ while (condition) {
 }
 ```
 
-Kitchen analogy: Check if you have eggs BEFORE making an omelette
+**Kitchen analogy:** Check if you have eggs BEFORE making an omelette
 
 ```kotlin
 var eggsInFridge = 3
@@ -73,7 +72,7 @@ while (eggsInFridge > 0) {
 // When eggsInFridge becomes 0, loop stops
 ```
 
-2. Do-While Loop - Cook First, Then Check
+### 2. **Do-While Loop** - Cook First, Then Check
 
 ```kotlin
 do {
@@ -82,7 +81,7 @@ do {
 } while (condition)
 ```
 
-Kitchen analogy: Taste the soup FIRST, then decide if it needs more salt
+**Kitchen analogy:** Taste the soup FIRST, then decide if it needs more salt
 
 ```kotlin
 var soupTasty = false
@@ -101,12 +100,13 @@ do {
 
 ---
 
-📊 While vs Do-While - The Difference
+## 📊 While vs Do-While - The Difference
 
-Feature while do-while
-Check timing Before first run After first run
-Minimum runs 0 (might never run) 1 (always runs once)
-Use when Condition might be false initially Must run at least once
+| Feature | `while` | `do-while` |
+|---------|---------|-------------|
+| **Check timing** | Before first run | After first run |
+| **Minimum runs** | 0 (might never run) | 1 (always runs once) |
+| **Use when** | Condition might be false initially | Must run at least once |
 
 ```kotlin
 // WHILE: Might not run at all
@@ -123,9 +123,9 @@ do {
 
 ---
 
-🍲 Real Kitchen Examples
+## 🍲 Real Kitchen Examples
 
-Example 1: Waiting for Water to Boil
+### Example 1: Waiting for Water to Boil
 
 ```kotlin
 fun waitForWaterToBoil() {
@@ -145,7 +145,7 @@ fun main() {
 }
 ```
 
-Example 2: Cutting Vegetables
+### Example 2: Cutting Vegetables
 
 ```kotlin
 fun chopVegetables() {
@@ -169,7 +169,7 @@ fun main() {
 }
 ```
 
-Example 3: Password Check (Do-While)
+### Example 3: Password Check (Do-While)
 
 ```kotlin
 fun secretRecipeAccess() {
@@ -197,14 +197,15 @@ fun secretRecipeAccess() {
 
 ---
 
-🎯 Try It Yourself!
+## 🎯 Try It Yourself!
 
-Challenge 1: Countdown Timer
-
+### Challenge 1: Countdown Timer
 Create a countdown from 10 to 1, then print "🎉 Happy Cooking!"
 
 <details>
-<summary>👨‍🍳 Click for solution</summary>```kotlin
+<summary>👨‍🍳 Click for solution</summary>
+
+```kotlin
 fun countdown() {
     var timer = 10
     while (timer > 0) {
@@ -215,13 +216,15 @@ fun countdown() {
     println("🎉 Happy Cooking!")
 }
 ```
+</details>
 
-</details>Challenge 2: Guess the Ingredient
-
+### Challenge 2: Guess the Ingredient
 Generate a random number (1-5) representing an ingredient. Let user guess until correct.
 
 <details>
-<summary>👨‍🍳 Click for solution</summary>```kotlin
+<summary>👨‍🍳 Click for solution</summary>
+
+```kotlin
 fun guessIngredient() {
     val secret = (1..5).random()
     var guess = 0
@@ -238,13 +241,15 @@ fun guessIngredient() {
     }
 }
 ```
+</details>
 
-</details>Challenge 3: Recipe Cost Calculator
-
+### Challenge 3: Recipe Cost Calculator
 Keep adding ingredient costs until user types "done", then show total.
 
 <details>
-<summary>👨‍🍳 Click for solution</summary>```kotlin
+<summary>👨‍🍳 Click for solution</summary>
+
+```kotlin
 fun calculateCost() {
     var total = 0.0
     var input: String
@@ -269,27 +274,29 @@ fun calculateCost() {
     println("💵 Total recipe cost: $$total")
 }
 ```
-
-</details>---
-
-🚨 Common Mistakes (Kitchen Fires)
-
-Mistake What Happens How to Fix
-Infinite loop Code runs forever! 😱 Make sure condition eventually becomes false
-kotlin while (true) { println("Stuck!") }  Never stops Add a way to break or change condition
-Forgetting to update Condition never changes Update your variable inside the loop
-kotlin var count = 0 while (count < 5) { // forgot count++ }  Infinite loop! Add count++
-Wrong condition Loop never runs Check your logic (use >, <, ==, !=)
-Using = instead of == Assignment, not comparison Use == for comparison
+</details>
 
 ---
 
-💡 Pro Tips
+## 🚨 Common Mistakes (Kitchen Fires)
 
-1. Always have an exit strategy - Ensure your condition will eventually become false
-2. Use break for emergencies - Exit loop immediately if something goes wrong
-3. Use continue to skip - Jump to next iteration without finishing current
-4. When in doubt, add print statements - Debug by printing values each iteration
+| Mistake | What Happens | How to Fix |
+|---------|--------------|------------|
+| **Infinite loop** | Code runs forever! 😱 | Make sure condition eventually becomes `false` |
+| ```kotlin while (true) { println("Stuck!") } ``` | Never stops | Add a way to break or change condition |
+| **Forgetting to update** | Condition never changes | Update your variable inside the loop |
+| ```kotlin var count = 0 while (count < 5) { // forgot count++ } ``` | Infinite loop! | Add `count++` |
+| **Wrong condition** | Loop never runs | Check your logic (use `>`, `<`, `==`, `!=`) |
+| **Using `=` instead of `==`** | Assignment, not comparison | Use `==` for comparison |
+
+---
+
+## 💡 Pro Tips
+
+1. **Always have an exit strategy** - Ensure your condition will eventually become false
+2. **Use `break` for emergencies** - Exit loop immediately if something goes wrong
+3. **Use `continue` to skip** - Jump to next iteration without finishing current
+4. **When in doubt, add print statements** - Debug by printing values each iteration
 
 ```kotlin
 // Emergency break example
@@ -305,27 +312,27 @@ while (true) {  // Looks infinite, but...
 
 ---
 
-🍽️ When to Use While vs Other Loops
+## 🍽️ When to Use While vs Other Loops
 
-Situation Best Choice Why
-Unknown number of iterations while Keep going until condition met
-Must run at least once do-while Check after first run
-Known number of iterations for loop Cleaner syntax
-Loop through collection for or forEach More readable
-Infinite until event while(true) + break Clear intent
+| Situation | Best Choice | Why |
+|-----------|-------------|-----|
+| Unknown number of iterations | `while` | Keep going until condition met |
+| Must run at least once | `do-while` | Check after first run |
+| Known number of iterations | `for` loop | Cleaner syntax |
+| Loop through collection | `for` or `forEach` | More readable |
+| Infinite until event | `while(true)` + `break` | Clear intent |
 
 ---
 
-📚 What's Next?
+## 📚 What's Next?
 
 Now that you know how to stir automatically (while loops), you're ready to learn:
-
-· For loops - When you know exactly how many times to stir
-· Break & Continue - How to stop early or skip steps
-· Nested loops - Stirring multiple pots at once!
+- **For loops** - When you know exactly how many times to stir
+- **Break & Continue** - How to stop early or skip steps
+- **Nested loops** - Stirring multiple pots at once!
 
 ---
 
-"A good chef knows when to keep stirring and when to stop. Now you know while loops!" 🚀
+> *"A good chef knows when to keep stirring and when to stop. Now you know while loops!"* 🚀
 
-Happy cooking with loops, chef! 👨‍🍳👩‍🍳
+**Happy cooking with loops, chef! 👨‍🍳👩‍🍳**
