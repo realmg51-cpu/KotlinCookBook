@@ -13,46 +13,71 @@ jobs:
       issues: write
     
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      
       - name: Get issue content
         id: issue
         run: |
           ISSUE_BODY=$(jq -r '.issue.body' $GITHUB_EVENT_PATH)
-          echo "body<<EOF" >> $GITHUB_OUTPUT
-          echo "$ISSUE_BODY" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          ISSUE_TITLE=$(jq -r '.issue.title' $GITHUB_EVENT_PATH)
+          
+          echo "title=$ISSUE_TITLE" >> $GITHUB_OUTPUT
+          
+          # Save body to file to avoid escaping issues
+          echo "$ISSUE_BODY" > /tmp/issue_body.txt
+          
+          # Get first 2000 chars only (API limit)
+          BODY_SHORT=$(head -c 2000 /tmp/issue_body.txt)
+          echo "body=$BODY_SHORT" >> $GITHUB_OUTPUT
       
-      - name: Review with Gemini
+      - name: Call Gemini API
         id: gemini
-        uses: google-github-actions/gemini@v1
-        with:
-          api_key: ${{ secrets.GEMINI_API_KEY }}
-          model: "gemini-2.0-flash"
-          prompt: |
-            You are KotlinCookBot, a friendly chef who helps with Kotlin questions.
-            
-            Analyze this GitHub issue and respond as a helpful cooking assistant.
-            
-            Issue: ${{ steps.issue.outputs.body }}
-            
-            Rules:
-            1. Be helpful and encouraging 🍳
-            2. If it's a bug, suggest fixes
-            3. If it's a feature request, ask clarifying questions
-            4. Keep response under 150 words
-            5. Use kitchen emojis
-            
-            Format your response as a GitHub comment.
+        run: |
+          # Create prompt
+          PROMPT="You are KotlinCookBot, a friendly chef assistant for a Kotlin learning repository.
+          
+          Issue title: ${{ steps.issue.outputs.title }}
+          Issue body: ${{ steps.issue.outputs.body }}
+          
+          Instructions:
+          - Be helpful and encouraging (use 🍳 emoji)
+          - If it's a bug, suggest fixes
+          - If it's a question, answer briefly
+          - If it's a feature request, ask clarifying questions
+          - Keep response under 150 words
+          
+          Reply as a GitHub comment (no markdown wrapper needed):"
+          
+          # Escape for JSON
+          ESCAPED_PROMPT=$(echo "$PROMPT" | jq -sR .)
+          
+          # Call Gemini API
+          RESPONSE=$(curl -s -X POST \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"contents\": [{
+                \"parts\": [{
+                  \"text\": $ESCAPED_PROMPT
+                }]
+              }]
+            }")
+          
+          # Extract response text
+          TEXT=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Sorry, I had trouble processing that. Please try again!"')
+          
+          echo "response=$TEXT" >> $GITHUB_OUTPUT
+          
+          # Debug log (optional)
+          echo "Response received: ${#TEXT} characters"
       
-      - name: Add comment
+      - name: Add comment to issue
         uses: actions/github-script@v7
         with:
           script: |
+            const response = `🤖 **KotlinCookBot (Gemini)** says:\n\n${{ steps.gemini.outputs.response }}`;
+            
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🤖 **KotlinCookBot (Gemini)** says:\n\n${{ steps.gemini.outputs.response }}`
-            })
+              body: response
+            });
