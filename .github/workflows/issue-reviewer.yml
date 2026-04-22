@@ -2,9 +2,17 @@ name: Issue Reviewer (Gemini)
 
 on:
   issues:
-    types: [opened, edited]
-  issue_comment:
-    types: [created]
+    types: [opened]           # Tự động khi có issue mới
+  workflow_dispatch:          # 👈 Cho phép chạy tay
+    inputs:
+      issue_number:
+        description: 'Issue number to review'
+        required: true
+        type: number
+      custom_message:
+        description: 'Custom message (optional)'
+        required: false
+        type: string
 
 jobs:
   review-issue:
@@ -14,42 +22,39 @@ jobs:
     
     steps:
       - name: Get issue content
-        id: issue
         run: |
-          ISSUE_BODY=$(jq -r '.issue.body' $GITHUB_EVENT_PATH)
-          ISSUE_TITLE=$(jq -r '.issue.title' $GITHUB_EVENT_PATH)
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            # Chạy tay: lấy issue từ input
+            ISSUE_NUM=${{ inputs.issue_number }}
+            echo "Manual trigger for issue #$ISSUE_NUM"
+            
+            curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUM" > /tmp/issue.json
+          else
+            # Tự động: lấy từ event
+            cat $GITHUB_EVENT_PATH > /tmp/issue.json
+          fi
           
-          echo "title=$ISSUE_TITLE" >> $GITHUB_OUTPUT
-          
-          # Save body to file to avoid escaping issues
-          echo "$ISSUE_BODY" > /tmp/issue_body.txt
-          
-          # Get first 2000 chars only (API limit)
-          BODY_SHORT=$(head -c 2000 /tmp/issue_body.txt)
-          echo "body=$BODY_SHORT" >> $GITHUB_OUTPUT
+          jq -r '.title' /tmp/issue.json > /tmp/issue_title.txt
+          jq -r '.body' /tmp/issue.json > /tmp/issue_body.txt
+          jq -r '.number' /tmp/issue.json > /tmp/issue_number.txt
       
       - name: Call Gemini API
         id: gemini
         run: |
-          # Create prompt
-          PROMPT="You are KotlinCookBot, a friendly chef assistant for a Kotlin learning repository.
+          TITLE=$(cat /tmp/issue_title.txt)
+          BODY=$(head -c 1500 /tmp/issue_body.txt)
+          CUSTOM="${{ inputs.custom_message }}"
           
-          Issue title: ${{ steps.issue.outputs.title }}
-          Issue body: ${{ steps.issue.outputs.body }}
+          PROMPT="You are KotlinCookBot. Respond to this issue:
+          Title: $TITLE
+          Body: $BODY
+          ${CUSTOM:+Additional context: $CUSTOM}
           
-          Instructions:
-          - Be helpful and encouraging (use 🍳 emoji)
-          - If it's a bug, suggest fixes
-          - If it's a question, answer briefly
-          - If it's a feature request, ask clarifying questions
-          - Keep response under 150 words
+          Keep response short, friendly, use emojis."
           
-          Reply as a GitHub comment (no markdown wrapper needed):"
-          
-          # Escape for JSON
           ESCAPED_PROMPT=$(echo "$PROMPT" | jq -sR .)
           
-          # Call Gemini API
           RESPONSE=$(curl -s -X POST \
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
             -H "Content-Type: application/json" \
@@ -61,23 +66,19 @@ jobs:
               }]
             }")
           
-          # Extract response text
-          TEXT=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Sorry, I had trouble processing that. Please try again!"')
-          
-          echo "response=$TEXT" >> $GITHUB_OUTPUT
-          
-          # Debug log (optional)
-          echo "Response received: ${#TEXT} characters"
+          echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Sorry, error!"' > /tmp/gemini_response.txt
       
-      - name: Add comment to issue
+      - name: Add comment
         uses: actions/github-script@v7
         with:
           script: |
-            const response = `🤖 **KotlinCookBot (Gemini)** says:\n\n${{ steps.gemini.outputs.response }}`;
+            const fs = require('fs');
+            const issueNum = parseInt(fs.readFileSync('/tmp/issue_number.txt', 'utf8'));
+            const response = fs.readFileSync('/tmp/gemini_response.txt', 'utf8');
             
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
+            await github.rest.issues.createComment({
+              issue_number: issueNum,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: response
+              body: `🤖 **KotlinCookBot (Gemini)** says:\n\n${response}\n\n---\n*🔧 Manual run by @${{ github.actor }}*`
             });
