@@ -102,7 +102,7 @@ jobs:
           print("✅ README updated at correct position")
           PYTHON_EOF
       
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "📊 docs: update structure [skip ci]"
           commit_user_name: "KotlinCookBot"
