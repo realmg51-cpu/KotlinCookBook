@@ -18,11 +18,15 @@ fun main() {
     
     // ===== PART 1: GETTING USER INPUT =====
     println("\n📝 What's your favorite dish?")
-    val dish = readln()  // Safe - readln() never returns null
+    // val dish = readln()  
+	val dish = "fish"
+	// Safe - readln() never returns 
+	// because Input doesn't work CI enviroment so I'll comment it.
     
     println("How many years have you been cooking?")
-    val input = readln()
-    val years = input.toIntOrNull()  // Returns null if not a number
+	val years = 3
+    // val input = readln()
+    //val years = input.toIntOrNull()  // Returns null if not a number
     
     // ===== PART 2: HANDLING NULL WITH ELVIS =====
     val experience = years ?: 0  // Elvis operator: if years is null, use 0
