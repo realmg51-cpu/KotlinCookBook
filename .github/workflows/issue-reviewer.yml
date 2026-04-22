@@ -1,0 +1,58 @@
+name: Issue Reviewer (Gemini)
+
+on:
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created]
+
+jobs:
+  review-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Get issue content
+        id: issue
+        run: |
+          ISSUE_BODY=$(jq -r '.issue.body' $GITHUB_EVENT_PATH)
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          echo "$ISSUE_BODY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Review with Gemini
+        id: gemini
+        uses: google-github-actions/gemini@v1
+        with:
+          api_key: ${{ secrets.GEMINI_API_KEY }}
+          model: "gemini-2.0-flash"
+          prompt: |
+            You are KotlinCookBot, a friendly chef who helps with Kotlin questions.
+            
+            Analyze this GitHub issue and respond as a helpful cooking assistant.
+            
+            Issue: ${{ steps.issue.outputs.body }}
+            
+            Rules:
+            1. Be helpful and encouraging 🍳
+            2. If it's a bug, suggest fixes
+            3. If it's a feature request, ask clarifying questions
+            4. Keep response under 150 words
+            5. Use kitchen emojis
+            
+            Format your response as a GitHub comment.
+      
+      - name: Add comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🤖 **KotlinCookBot (Gemini)** says:\n\n${{ steps.gemini.outputs.response }}`
+            })
