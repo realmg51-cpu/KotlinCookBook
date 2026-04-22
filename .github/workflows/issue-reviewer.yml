@@ -1,4 +1,4 @@
-name: Manual Issue Reviewer
+name: Manual Issue Reviewer (Fixed)
 
 on:
   workflow_dispatch:
@@ -13,53 +13,41 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       issues: write
-      contents: read
     
     steps:
-      - name: Debug - Print issue number
-        run: |
-          echo "Issue number: ${{ inputs.issue_number }}"
-          echo "Type check: ${{ github.event.inputs.issue_number }}"
-      
       - name: Get issue content
         id: issue
         run: |
-          # Lấy issue number từ input (quan trọng!)
           ISSUE_NUM="${{ inputs.issue_number }}"
           
-          if [ -z "$ISSUE_NUM" ] || [ "$ISSUE_NUM" == "null" ]; then
-            echo "❌ No issue number provided!"
-            exit 1
-          fi
-          
-          echo "Fetching issue #$ISSUE_NUM"
-          
-          # Gọi API để lấy issue
           curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUM" \
             -o /tmp/issue.json
           
-          # Lưu issue number vào file
           echo "$ISSUE_NUM" > /tmp/issue_number.txt
           
-          # Kiểm tra nếu issue không tồn tại
+          # Check if issue exists
           if grep -q "Not Found" /tmp/issue.json; then
             echo "❌ Issue #$ISSUE_NUM not found!"
             exit 1
           fi
-          
-          echo "✅ Issue found"
       
-      - name: Call Gemini API
+      - name: Call Gemini API (with debug)
         run: |
-          BODY=$(jq -r '.body' /tmp/issue.json)
+          BODY=$(jq -r '.body' /tmp/issue.json | head -c 1000)
           TITLE=$(jq -r '.title' /tmp/issue.json)
           
-          PROMPT="You are KotlinCookBot. Reply to issue: $TITLE - $BODY. Keep it short (max 100 words). Use emojis."
+          # Simple prompt
+          PROMPT="Reply to this GitHub issue (keep under 100 words, use 🍳 emoji):
           
+          Title: $TITLE
+          Body: $BODY"
+          
+          # Escape for JSON
           ESCAPED_PROMPT=$(echo "$PROMPT" | jq -sR .)
           
-          RESPONSE=$(curl -s -X POST \
+          # Call Gemini
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d "{
@@ -70,30 +58,35 @@ jobs:
               }]
             }")
           
-          echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Sorry, I had trouble processing that!"' > /tmp/reply.txt
+          # Get status code (last line)
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          RESPONSE_BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "HTTP Status: $HTTP_CODE"
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            # Success - extract text
+            TEXT=$(echo "$RESPONSE_BODY" | jq -r '.candidates[0].content.parts[0].text // "No response"')
+            echo "$TEXT" > /tmp/reply.txt
+            echo "✅ API call successful"
+          else
+            # Error - show details
+            echo "❌ API call failed with status $HTTP_CODE"
+            echo "Response: $RESPONSE_BODY"
+            echo "I'm currently having technical difficulties. Please try again later! 🍳" > /tmp/reply.txt
+          fi
       
-      - name: Add comment
+      - name: Post comment
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            
-            // Đọc issue number từ file
             const issueNumber = parseInt(fs.readFileSync('/tmp/issue_number.txt', 'utf8').trim());
             const reply = fs.readFileSync('/tmp/reply.txt', 'utf8');
-            
-            console.log(`Posting comment to issue #${issueNumber}`);
-            
-            if (isNaN(issueNumber)) {
-              console.error('Invalid issue number!');
-              throw new Error('Issue number is NaN');
-            }
             
             await github.rest.issues.createComment({
               issue_number: issueNumber,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🍳 **KotlinCookBot:**\n\n${reply}\n\n---\n*🔧 Manual run by @${{ github.actor }}*`
+              body: `🍳 **KotlinCookBot:**\n\n${reply}\n\n---\n*🤖 Manual run by @${{ github.actor }}*`
             });
-            
-            console.log('✅ Comment posted successfully!');
