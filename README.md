@@ -140,6 +140,8 @@ src/kotlin/normal/
 │   ├── HelloWorld.kt
 ├── IfChef/
 │   └── IfChef.kt
+├── InputAndNullSafety/
+│   └── InputAndNullSafety.kt
 ├── Loops/
 │   ├── For/
 │   │   └── ForStirring.kt
@@ -160,13 +162,13 @@ src/kotlin/normal/
 
 | Metric | Value |
 |--------|-------|
-| 🍳 **Total Recipes** | `12` Kotlin files |
-| 📁 **Categories** | `6` folders |
+| 🍳 **Total Recipes** | `13` Kotlin files |
+| 📁 **Categories** | `7` folders |
 | 🆕 **Latest update** | 2026-04-22 |
 
 <img src=".github/avatars/bot.svg" width="30">
 
-*Auto-updated: 2026-04-22 08:00:59 UTC*
+*Auto-updated: 2026-04-22 10:48:08 UTC*
 <!-- STRUCTURE_END -->
 
 ## 🤝 How to Contribute
