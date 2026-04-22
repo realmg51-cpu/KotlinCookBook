@@ -2,7 +2,7 @@
 # Kotlin CookBook 🍳
 
 [![Release](https://img.shields.io/github/v/release/realmg51-cpu/KotlinCookBook)](https://github.com/realmg51-cpu/KotlinCookBook/releases)
-[![Docker CI](https://github.com/realmg51-cpu/KotlinCookBook/actions/workflows/docker-ci.yml/badge.svg)]
+[![Docker CI](https://github.com/realmg51-cpu/KotlinCookBook/actions/workflows/docker-ci.yml/badge.svg)](https://github.com/realmg51-cpu/KotlinCookBook/actions/workflows/docker-ci.yml)
 ![Kotlin Version](https://img.shields.io/badge/Kotlin-2.3.20-blue)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
@@ -101,10 +101,10 @@ git clone https://github.com/realmg51-cpu/KotlinCookBook
 cd KotlinCookBook
 
 # Run a recipe
-kotlin src/kotlin/normal/HelloWorld.kt
+kotlin src/kotlin/normal/GettingStarted/HelloWorld.kt
 
-# Or run with Java (if Kotlin is not in PATH)
-kotlinc -script src/kotlin/normal/HelloWorld.kt
+# Or run with script mode
+kotlinc -script src/kotlin/normal/GettingStarted/HelloWorld.kt
 ```
 
 ### Running interactive examples:
@@ -113,37 +113,9 @@ Some recipes use `readln()` to get input from you. Just follow the prompts!
 
 ---
 
-## 🗺️ Roadmap
-
-### Phase 1: Kotlin Basics (In Progress)
-- [x] Hello World
-- [x] String manipulation
-- [x] Variables (`val` vs `var`)
-- [x] Data types (Int, Char, String, Float, Double)
-- [x] `if-else` decisions
-- [x] `when` expression
-- [x] Loops (`for`, `while`, `do-while`)
-- [x] Break and Continue
-- [ ] Functions
-- [ ] Null safety (`?`, `?:`, `!!`)
-
-### Phase 2: Intermediate
-- [ ] Collections (List, Set, Map)
-- [ ] Lambdas and higher-order functions
-- [ ] Scope functions (`let`, `run`, `with`, `apply`, `also`)
-- [ ] Extension functions
-
-### Phase 3: Advanced
-- [ ] Coroutines (async cooking!)
-- [ ] Kotlin 2.2.0 features
-- [ ] Android development basics
-- [ ] Multiplatform Magic
-
----
-
 ## ⏰ 30-Minute Quick Start
 
-- **5 min** - Setup kitchen ([InstallAndSetup.md](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/GettingStarted/InstallAndSetup.https))
+- **5 min** - Setup kitchen ([InstallAndSetup.md](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/GettingStarted/InstallAndSetup.md))
 - **5 min** - Cook `HelloWorld.kt`
 - **5 min** - Understand `val` vs `var`
 - **5 min** - Play with `DataTypes.kt`
@@ -151,47 +123,6 @@ Some recipes use `readln()` to get input from you. Just follow the prompts!
 - **5 min** - Loop it with `ForLoop.kt`
 
 **Total:** 30 minutes to basic Kotlin fluency!
-
----
-
-## 🤝 How to Contribute
-
-Want to add your own recipe? Awesome! Here's how:
-
-1. **Fork** this repo
-2. Add your own recipe (following the style below)
-3. Submit a **Pull Request**
-
-### Recipe Template:
-
-```kotlin
-/**
- * Recipe: [Name of your recipe]
- * 
- * What you'll learn:
- * - Concept 1
- * - Concept 2
- * 
- * Kitchen analogy:
- * [Explain it like you're in a kitchen]
- */
-
-fun main() {
-    // Your code here with clear comments
-}
-```
-
-Your recipe should include:
-- A `.kt` file with working code
-- Clear comments explaining each step
-- (Optional) An `introduction.md` for deeper explanation
-- Examples or challenges at the end
-
-### Style Guide:
-- Use emojis to make it fun 🍳
-- Add comments like a chef talking
-- Include "Try it yourself" sections
-- End with a small challenge
 
 ---
 
@@ -255,8 +186,49 @@ src/kotlin/normal/
 
 <!-- STRUCTURE_END -->
 
+---
+
+## 🤝 How to Contribute
+
+Want to add your own recipe? Awesome! Here's how:
+
+1. **Fork** this repo
+2. Add your own recipe (following the style below)
+3. Submit a **Pull Request**
+
+### Recipe Template:
+
+```kotlin
+/**
+ * Recipe: [Name of your recipe]
+ * 
+ * What you'll learn:
+ * - Concept 1
+ * - Concept 2
+ * 
+ * Kitchen analogy:
+ * [Explain it like you're in a kitchen]
+ */
+
+fun main() {
+    // Your code here with clear comments
+}
+```
+
+Your recipe should include:
+- A `.kt` file with working code
+- Clear comments explaining each step
+- (Optional) An `introduction.md` for deeper explanation
+- Examples or challenges at the end
+
+### Style Guide:
+- Use emojis to make it fun 🍳
+- Add comments like a chef talking
+- Include "Try it yourself" sections
+- End with a small challenge
 
 ---
+
 ## 🏆 Kitchen Wall of Fame
 
 *Amazing chefs who added recipes:*
@@ -264,8 +236,8 @@ src/kotlin/normal/
 | Chef | Recipe | Date |
 |------|--------|------|
 | @realmg51-cpu | HelloWorld, StringSplitter, Variables, DataTypes, IfChef, WhenChef | Apr 2026 |
-| @realmg51-cpu | ForLoop, WhileLoop, BreakContinue | Apr 2026 |
-| *Your name here* | *Your recipe* | *Coming soon* |
+| @realmg51-cpu | ForLoop, WhileLoop | Apr 2026 |
+| @sunnn338 | Break and Continue | Apr 2026 |
 
 ---
 
@@ -276,6 +248,34 @@ src/kotlin/normal/
 3. **Experiment** – change values and see what happens
 4. **Try the challenges** – they make you a better chef
 5. **Break things** – then fix them. That's how you learn!
+
+---
+
+## 🗺️ Roadmap
+
+### Phase 1: Kotlin Basics (In Progress)
+- [x] Hello World
+- [x] String manipulation
+- [x] Variables (`val` vs `var`)
+- [x] Data types (Int, Char, String, Float, Double)
+- [x] `if-else` decisions
+- [x] `when` expression
+- [x] Loops (`for`, `while`, `do-while`)
+- [x] Break and Continue
+- [ ] Functions
+- [ ] Null safety (`?`, `?:`, `!!`)
+
+### Phase 2: Intermediate
+- [ ] Collections (List, Set, Map)
+- [ ] Lambdas and higher-order functions
+- [ ] Scope functions (`let`, `run`, `with`, `apply`, `also`)
+- [ ] Extension functions
+
+### Phase 3: Advanced
+- [ ] Coroutines (async cooking!)
+- [ ] Kotlin 2.2.0 features
+- [ ] Android development basics
+- [ ] Multiplatform Magic
 
 ---
 
@@ -324,4 +324,3 @@ Have questions? Suggestions? Want to share your own recipe?
 **Happy cooking! 👨‍🍳🍳**
 
 Now go cook some Kotlin! 🚀
-
