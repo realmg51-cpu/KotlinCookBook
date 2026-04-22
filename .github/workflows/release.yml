@@ -9,6 +9,7 @@ on:
       tag_name:
         description: 'Tag name (e.g., v1.0.0)'
         required: true
+        type: string
 
 jobs:
   release:
@@ -19,38 +20,57 @@ jobs:
     
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       
       - name: Get version
         id: version
         run: |
-          TAG_NAME=${GITHUB_REF_NAME}
-          if [ -z "$TAG_NAME" ]; then
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             TAG_NAME="${{ github.event.inputs.tag_name }}"
+            # Create tag if not exists
+            if ! git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+              git tag "$TAG_NAME"
+              git push origin "$TAG_NAME"
+            fi
+          else
+            TAG_NAME="${GITHUB_REF_NAME}"
           fi
           echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "version=${TAG_NAME#v}" >> $GITHUB_OUTPUT
       
       - name: Count recipes
         id: stats
         run: |
           COUNT=$(find src/kotlin/normal -name "*.kt" -type f | wc -l)
+          CATEGORIES=$(find src/kotlin/normal -mindepth 1 -maxdepth 1 -type d | wc -l)
           echo "recipes=$COUNT" >> $GITHUB_OUTPUT
+          echo "categories=$CATEGORIES" >> $GITHUB_OUTPUT
+      
+      - name: Get previous tag
+        id: previous
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          echo "tag=$PREV_TAG" >> $GITHUB_OUTPUT
       
       - name: Generate release notes
         run: |
           cat > release_notes.md << EOF
           ## 🍳 KotlinCookBook ${{ steps.version.outputs.tag }}
           
-          ### What's New
+          | Metric | Value |
+          |--------|-------|
+          | 🍽️ Total Recipes | ${{ steps.stats.outputs.recipes }} |
+          | 📁 Categories | ${{ steps.stats.outputs.categories }} |
           
-          $(git log --oneline --pretty="- %s" $(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "HEAD")..HEAD)
+          ---
           
-          ### 📊 Statistics
+          ### 🆕 What's New
           
-          - 🍽️ Total recipes: ${{ steps.stats.outputs.recipes }}
-          - 📁 Categories: $(find src/kotlin/normal -mindepth 1 -maxdepth 1 -type d | wc -l)
+          $(git log --oneline --pretty="- %s" ${{ steps.previous.outputs.tag }}..HEAD 2>/dev/null || git log --oneline --pretty="- %s" -10)
+          
+          ---
           
           ### 🤖 Maintained by KotlinCookBot
           
@@ -58,16 +78,41 @@ jobs:
           
           ---
           
+          ### 🚀 How to Use
+          
+          \`\`\`bash
+          # Pull from GHCR
+          docker pull ghcr.io/${{ github.repository }}:${{ steps.version.outputs.version }}
+          
+          # Run a recipe
+          docker run --rm ghcr.io/${{ github.repository }}:${{ steps.version.outputs.version }} \\
+            kotlin src/kotlin/normal/GettingStarted/HelloWorld.kt
+          \`\`\`
+          
+          ---
+          
           *Happy cooking! 🍳*
           EOF
       
       - name: Create Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v2
         with:
           body_path: release_notes.md
           name: "🍳 ${{ steps.version.outputs.tag }}"
           draft: false
           prerelease: false
           generate_release_notes: false
+          make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Summary
+        run: |
+          echo "## 🚀 Release Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Tag | \`${{ steps.version.outputs.tag }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Recipes | ${{ steps.stats.outputs.recipes }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }})" >> $GITHUB_STEP_SUMMARY
