@@ -1,13 +1,13 @@
-# 🍳 KotlinCookBook - Hoàn toàn tự cài Kotlin
-# Không cần login, không lỗi authentication
+# 🍳 KotlinCookBook Dockerfile
+# Multi-arch build for GHCR
 
 FROM eclipse-temurin:17-jdk-alpine
 
-# Cài đặt công cụ cần thiết
+# Install Kotlin
 RUN apk add --no-cache curl unzip bash
 
-# Tải và cài Kotlin 2.0.20 trực tiếp từ GitHub
-RUN curl -L "https://github.com/JetBrains/kotlin/releases/download/v2.3.20/kotlin-compiler-2.3.20.zip" -o /tmp/kotlin.zip \
+ENV KOTLIN_VERSION=2.3.20
+RUN curl -L "https://github.com/JetBrains/kotlin/releases/download/v${KOTLIN_VERSION}/kotlin-compiler-${KOTLIN_VERSION}.zip" -o /tmp/kotlin.zip \
     && unzip /tmp/kotlin.zip -d /opt \
     && ln -s /opt/kotlinc/bin/kotlin /usr/local/bin/kotlin \
     && ln -s /opt/kotlinc/bin/kotlinc /usr/local/bin/kotlinc \
@@ -15,8 +15,16 @@ RUN curl -L "https://github.com/JetBrains/kotlin/releases/download/v2.3.20/kotli
 
 WORKDIR /app
 
-# Copy recipes
+# Copy source
 COPY src/ ./src/
+COPY README.md ./
+COPY LICENSE ./
 
-# Hiển thị thông tin khi chạy container
-CMD sh -c "echo '🍳 KotlinCookBook' && echo '================' && kotlin -version && echo '' && echo '📚 Recipes:' && ls -1 src/kotlin/normal/*.kt 2>/dev/null | sed 's/.*\///'"
+# Labels for GHCR
+LABEL org.opencontainers.image.title="KotlinCookBook"
+LABEL org.opencontainers.image.description="Learn Kotlin the fun way – one recipe at a time!"
+LABEL org.opencontainers.image.source="https://github.com/realmg51-cpu/KotlinCookBook"
+LABEL org.opencontainers.image.licenses="Apache-2.0"
+
+# Default command
+CMD sh -c "echo '🍳 KotlinCookBook' && kotlin -version && echo '' && echo '📚 Recipes:' && ls -1 src/kotlin/normal/*/**.kt 2>/dev/null | head -10"
