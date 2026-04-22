@@ -78,7 +78,8 @@ For detailed setup instructions, see [InstallAndSetup.md](https://github.com/rea
 | `WhenChef.kt` | `when` expression (the spice rack) | 🍜 Beginner | ✅ Done |
 | `ForLoop.kt` | `for` loop (batch cooking) | 🍜 Beginner | ✅ Done |
 | `WhileLoop.kt` | `while` & `do-while` (automatic stirrer) | 🍜 Beginner | ✅ Done |
-| `BreakContinue.kt` | Control your loops (skip/stop) | 🍜 Beginner | ✅ Done |
+| `Break.kt` | Control your loops (stop) | 🍜 Beginner | ✅ Done |
+| `Continue.kt` | Control your loops (skip) | 🍜 Beginner | ✅ Done |
 
 ### Coming Soon 🔜
 
@@ -194,6 +195,68 @@ Your recipe should include:
 
 ---
 
+<!-- STRUCTURE_START -->
+## 📁 Project Structure
+
+```
+src/kotlin/normal/
+├── BreakAndContinue/
+│   ├── Break.kt
+│   └── Continue.kt
+├── GettingStarted/
+│   ├── HelloWorld.kt
+├── IfChef/
+│   └── IfChef.kt
+├── Loops/
+│   ├── For/
+│   │   └── ForStirring.kt
+│   └── While/
+│       └── WhileStirring.kt
+├── Variables/
+│   ├── WorkWithIt/
+│   │   ├── StringSplitter.kt
+│   │   └── StringSplitterv2.kt
+│   ├── CommonVariables.kt
+│   ├── ImmutableVariables.kt
+│   └── MutableVariables.kt
+└── WhenChef/
+    └── WhenChef.kt
+```
+
+## 📊 Statistics
+
+| Metric | Value |
+|--------|-------|
+| 🍳 **Total Recipes** | `12` Kotlin files |
+| 📁 **Categories** | `6` folders |
+| 📈 **Most recipes** | Variables (5 files) |
+| 🎯 **Progress** | `12/50` recipes (24%) |
+| 🆕 **Latest update** | 2026-04-21 |
+
+---
+
+### 🏆 Category Breakdown
+
+| Category | Recipes | Progress |
+|----------|---------|----------|
+| BreakAndContinue | 2 | ██░░░░░░░░ 20% |
+| GettingStarted | 1 | █░░░░░░░░░ 10% |
+| IfChef | 1 | █░░░░░░░░░ 10% |
+| Loops | 2 | ██░░░░░░░░ 20% |
+| Variables | 5 | █████░░░░░ 50% |
+| WhenChef | 1 | █░░░░░░░░░ 10% |
+
+---
+
+<img src=".github/avatars/bot.svg" width="40">
+
+*Auto-updated by KotlinCookBot 🤖*
+*Last update: 2026-04-21 22:25:07 UTC*
+
+<!-- STRUCTURE_END -->
+
+
+---
 ## 🏆 Kitchen Wall of Fame
 
 *Amazing chefs who added recipes:*
@@ -262,62 +325,3 @@ Have questions? Suggestions? Want to share your own recipe?
 
 Now go cook some Kotlin! 🚀
 
-<!-- STRUCTURE_START -->
-## 📁 Project Structure
-
-```
-src/kotlin/normal/
-├── BreakAndContinue/
-│   ├── Break.kt
-│   └── Continue.kt
-├── GettingStarted/
-│   ├── HelloWorld.kt
-├── IfChef/
-│   └── IfChef.kt
-├── Loops/
-│   ├── For/
-│   │   └── ForStirring.kt
-│   └── While/
-│       └── WhileStirring.kt
-├── Variables/
-│   ├── WorkWithIt/
-│   │   ├── StringSplitter.kt
-│   │   └── StringSplitterv2.kt
-│   ├── CommonVariables.kt
-│   ├── ImmutableVariables.kt
-│   └── MutableVariables.kt
-└── WhenChef/
-    └── WhenChef.kt
-```
-
-## 📊 Statistics
-
-| Metric | Value |
-|--------|-------|
-| 🍳 **Total Recipes** | `12` Kotlin files |
-| 📁 **Categories** | `6` folders |
-| 📈 **Most recipes** | Variables (5 files) |
-| 🎯 **Progress** | `12/50` recipes (24%) |
-| 🆕 **Latest update** | 2026-04-21 |
-
----
-
-### 🏆 Category Breakdown
-
-| Category | Recipes | Progress |
-|----------|---------|----------|
-| BreakAndContinue | 2 | ██░░░░░░░░ 20% |
-| GettingStarted | 1 | █░░░░░░░░░ 10% |
-| IfChef | 1 | █░░░░░░░░░ 10% |
-| Loops | 2 | ██░░░░░░░░ 20% |
-| Variables | 5 | █████░░░░░ 50% |
-| WhenChef | 1 | █░░░░░░░░░ 10% |
-
----
-
-<img src=".github/avatars/bot.svg" width="40">
-
-*Auto-updated by KotlinCookBot 🤖*
-*Last update: 2026-04-21 22:25:07 UTC*
-
-<!-- STRUCTURE_END -->
