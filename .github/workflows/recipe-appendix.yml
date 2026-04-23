@@ -1,0 +1,124 @@
+name: Update Recipe Appendix
+
+on:
+  push:
+    paths:
+      - 'src/kotlin/normal/**/*.kt'
+  workflow_dispatch:
+
+jobs:
+  update-appendix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Generate APPENDIX.md
+        run: |
+          cat > APPENDIX.md << 'EOF'
+          # 📚 KotlinCookBook - Complete Recipe Appendix
+          
+          > *"All recipes in one place - your complete Kotlin cookbook index!"* 🍳
+          
+          EOF
+          
+          # Function to add category
+          add_category() {
+            echo "" >> APPENDIX.md
+            echo "## $1" >> APPENDIX.md
+            echo "" >> APPENDIX.md
+            echo "| Recipe | Description | Link |" >> APPENDIX.md
+            echo "|--------|-------------|------|" >> APPENDIX.md
+          }
+          
+          # Getting Started
+          add_category "Getting Started"
+          echo "| \`HelloWorld.kt\` | Your first Kotlin program | [🔗 View](https://github.com/${{ github.repository }}/blob/main/src/kotlin/normal/GettingStarted/HelloWorld.kt) |" >> APPENDIX.md
+          
+          # Variables
+          add_category "Variables"
+          echo "| \`CommonVariables.kt\` | Int, Char, String, Float, Double | [🔗 View](https://github.com/${{ github.repository }}/blob/main/src/kotlin/normal/Variables/CommonVariables.kt) |" >> APPENDIX.md
+          echo "| \`ImmutableVariables.kt\` | \`val\` (cannot change) | [🔗 View](https://github.com/${{ github.repository }}/blob/main/src/kotlin/normal/Variables/ImmutableVariables.kt) |" >> APPENDIX.md
+          echo "| \`MutableVariables.kt\` | \`var\` (can change) | [🔗 View](https://github.com/${{ github.repository }}/blob/main/src/kotlin/normal/Variables/MutableVariables.kt) |" >> APPENDIX.md
+          echo "| \`StringSplitter.kt\` | String manipulation | [🔗 View](https://github.com/${{ github.repository }}/blob/main/src/kotlin/normal/Variables/WorkWithIt/StringSplitter.kt) |" >> APPENDIX.md
+          echo "| \`StringSplitterv2.kt\` | Advanced string splitting | [🔗 View](https://github.com/${{ github.repository }}/blob/main/src/kotlin/normal/Variables/WorkWithIt/StringSplitterv2.kt) |" >> APPENDIX.md
+          
+          # If/When
+          add_category "If/When"
+          echo "| \`IfChef.kt\` | \`if\` and \`else\` decisions | [🔗 View](https://github.com/${{ github.repository }}/blob/main/src/kotlin/normal/IfChef/IfChef.kt) |" >> APPENDIX.md
+          echo "| \`WhenChef.kt\` | \`when\` expression (spice rack) | [🔗 View](https://github.com/${{ github.repository }}/blob/main/src/kotlin/normal/WhenChef/WhenChef.kt) |" >> APPENDIX.md
+          
+          # Loops
+          add_category "Loops"
+          echo "| \`ForStirring.kt\` | \`for\` loop (batch cooking) | [🔗 View](https://github.com/${{ github.repository }}/blob/main/src/kotlin/normal/Loops/For/ForStirring.kt) |" >> APPENDIX.md
+          echo "| \`WhileStirring.kt\` | \`while\` loop (check first) | [🔗 View](https://github.com/${{ github.repository }}/blob/main/src/kotlin/normal/Loops/While/WhileStirring.kt) |" >> APPENDIX.md
+          echo "| \`DoWhileStirring.kt\` | \`do-while\` loop (taste first) | [🔗 View](https://github.com/${{ github.repository }}/blob/main/src/kotlin/normal/Loops/DoWhile/DoWhileStirring.kt) |" >> APPENDIX.md
+          
+          # Break/Continue
+          add_category "Break/Continue"
+          echo "| \`Break.kt\` | Stop loop entirely | [🔗 View](https://github.com/${{ github.repository }}/blob/main/src/kotlin/normal/BreakAndContinue/Break.kt) |" >> APPENDIX.md
+          echo "| \`Continue.kt\` | Skip one iteration | [🔗 View](https://github.com/${{ github.repository }}/blob/main/src/kotlin/normal/BreakAndContinue/Continue.kt) |" >> APPENDIX.md
+          
+          # Null Safety
+          add_category "Null Safety"
+          echo "| \`InputAndNullSafety.kt\` | User input & null safety (\`?.\`, \`?:\`, \`let\`) | [🔗 View](https://github.com/${{ github.repository }}/blob/main/src/kotlin/normal/InputAndNullSafety/InputAndNullSafety.kt) |" >> APPENDIX.md
+          
+          # Functions
+          add_category "Functions"
+          echo "| \`BasicFunction.kt\` | Creating basic functions | [🔗 View](https://github.com/${{ github.repository }}/blob/main/src/kotlin/normal/Functions/BasicFunction/BasicFunction.kt) |" >> APPENDIX.md
+          echo "| \`LambdaFunction.kt\` | Lambda expressions | [🔗 View](https://github.com/${{ github.repository }}/blob/main/src/kotlin/normal/Functions/LambdaFunction/LambdaFunction.kt) |" >> APPENDIX.md
+          
+          # Statistics
+          TOTAL=$(find src/kotlin/normal -name "*.kt" -type f | grep -v "introduction" | wc -l)
+          CATEGORIES=$(find src/kotlin/normal -mindepth 1 -maxdepth 1 -type d | wc -l)
+          
+          cat >> APPENDIX.md << EOF
+          
+          ## Statistics
+          
+          | Metric | Value |
+          |--------|-------|
+          | 🍳 **Total Recipes** | \`$TOTAL\` |
+          | 📁 **Categories** | \`$CATEGORIES\` |
+          | 🆕 **Last Updated** | $(date +'%Y-%m-%d') |
+          
+          ---
+          
+          > *"Bookmark this page - it's your complete Kotlin recipe collection!"* 🚀
+          EOF
+          
+          echo "✅ Generated APPENDIX.md with $TOTAL recipes"
+      
+      - name: Update README with link to appendix
+        run: |
+          # Check if appendix section exists
+          if grep -q "### 📖 Recipe Appendix" README.md; then
+            # Replace with shorter version + link
+            sed -i '/### 📖 Recipe Appendix/,/> 💡/c\
+            ### 📖 Recipe Appendix\n\
+            \n\
+            For a complete list of all recipes with direct links, check out the [**Full Recipe Appendix**](APPENDIX.md) 📚\n\
+            \n\
+            > 💡 **Tip:** The appendix contains every recipe organized by category with one-click access!
+            ' README.md
+          else
+            # Add new section
+            cat >> README.md << 'EOF'
+            
+            ### 📖 Recipe Appendix
+            
+            For a complete list of all recipes with direct links, check out the [**Full Recipe Appendix**](APPENDIX.md) 📚
+            
+            > 💡 **Tip:** The appendix contains every recipe organized by category with one-click access!
+            EOF
+          fi
+      
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "📚 docs: update recipe appendix [skip ci]"
+          commit_user_name: "KotlinCookBot"
+          commit_user_email: "41898282+github-actions[bot]@users.noreply.github.com"
+          file_pattern: "README.md APPENDIX.md"
