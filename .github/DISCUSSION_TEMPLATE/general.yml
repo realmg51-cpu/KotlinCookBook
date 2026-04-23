@@ -14,8 +14,7 @@ body:
     id: topic
     attributes:
       label: "📌 Topic"
-      description: "What would you like to discuss?"
-      placeholder: "e.g., Kotlin best practices, learning resources, cooking analogies"
+      placeholder: "What would you like to discuss?"
     validations:
       required: true
   
@@ -23,11 +22,7 @@ body:
     id: content
     attributes:
       label: "💬 Discussion"
-      description: "Share your thoughts, questions, or ideas"
-      placeholder: |
-        I've been learning Kotlin and discovered that...
-        
-        What do you all think about...
+      placeholder: "Share your thoughts, questions, or ideas..."
     validations:
       required: true
   
@@ -40,16 +35,13 @@ body:
         - "🍜 Learning Kotlin"
         - "👨‍🍳 Comfortable with basics"
         - "🔥 Kotlin Master"
-        - "🤖 Just curious"
     validations:
       required: false
   
   - type: checkboxes
     id: guidelines
     attributes:
-      label: "📋 Community Guidelines"
+      label: "📋 Guidelines"
       options:
         - label: "I have read and agree to follow the [Code of Conduct](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/CODE_OF_CONDUCT.md)"
-          required: true
-        - label: "I will be respectful and helpful to others"
           required: true
