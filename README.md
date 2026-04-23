@@ -137,6 +137,9 @@ src/kotlin/normal/
 ├── BreakAndContinue/
 │   ├── Break.kt
 │   └── Continue.kt
+├── Funcions/
+│   └── BasicFuncions/
+│       └── BasicFuncion.kt
 ├── GettingStarted/
 │   ├── HelloWorld.kt
 ├── IfChef/
@@ -165,13 +168,13 @@ src/kotlin/normal/
 
 | Metric | Value |
 |--------|-------|
-| 🍳 **Total Recipes** | `14` Kotlin files |
-| 📁 **Categories** | `7` folders |
+| 🍳 **Total Recipes** | `15` Kotlin files |
+| 📁 **Categories** | `8` folders |
 | 🆕 **Latest update** | 2026-04-23 |
 
 <img src=".github/avatars/bot.svg" width="30">
 
-*Auto-updated: 2026-04-23 13:26:06 UTC*
+*Auto-updated: 2026-04-23 13:33:46 UTC*
 <!-- STRUCTURE_END -->
 
 ## 🤝 How to Contribute
