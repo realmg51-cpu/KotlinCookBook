@@ -144,6 +144,8 @@ src/kotlin/normal/
 ├── InputAndNullSafety/
 │   └── InputAndNullSafety.kt
 ├── Loops/
+│   ├── Do-While/
+│   │   └── DoWhileStirring.kt
 │   ├── For/
 │   │   └── ForStirring.kt
 │   └── While/
@@ -163,13 +165,13 @@ src/kotlin/normal/
 
 | Metric | Value |
 |--------|-------|
-| 🍳 **Total Recipes** | `13` Kotlin files |
+| 🍳 **Total Recipes** | `14` Kotlin files |
 | 📁 **Categories** | `7` folders |
 | 🆕 **Latest update** | 2026-04-23 |
 
 <img src=".github/avatars/bot.svg" width="30">
 
-*Auto-updated: 2026-04-23 05:47:44 UTC*
+*Auto-updated: 2026-04-23 13:22:57 UTC*
 <!-- STRUCTURE_END -->
 
 ## 🤝 How to Contribute
