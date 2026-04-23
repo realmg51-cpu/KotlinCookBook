@@ -1,0 +1,67 @@
+title: "Recipe Ideas 💡"
+labels: ["idea", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 💡 Got an idea for a new recipe?
+        
+        Share your suggestion for a new Kotlin concept we should cover! 🍳
+        
+        ---
+  
+  - type: input
+    id: concept
+    attributes:
+      label: "🍽️ Recipe Concept"
+      placeholder: "e.g., Extension functions, Sealed classes, Coroutines"
+    validations:
+      required: true
+  
+  - type: textarea
+    id: description
+    attributes:
+      label: "📖 Description"
+      description: "What would this recipe teach?"
+      placeholder: |
+        This recipe would teach...
+        The kitchen analogy could be...
+    validations:
+      required: true
+  
+  - type: textarea
+    id: example
+    attributes:
+      label: "💻 Example Code (optional)"
+      render: kotlin
+      placeholder: |
+        fun example() {
+            // Sample code here
+        }
+  
+  - type: dropdown
+    id: difficulty
+    attributes:
+      label: "📊 Difficulty Level"
+      options:
+        - "🍜 Beginner"
+        - "🥘 Intermediate"
+        - "🔥 Advanced"
+    validations:
+      required: true
+  
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: "🤝 Would you like to contribute this recipe?"
+      options:
+        - label: "Yes, I can write this recipe"
+        - label: "No, just suggesting"
+  
+  - type: checkboxes
+    id: guidelines
+    attributes:
+      label: "📋 Guidelines"
+      options:
+        - label: "This concept is not already covered in existing recipes"
+          required: true
