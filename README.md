@@ -85,32 +85,6 @@ For detailed setup instructions, see [InstallAndSetup.md](https://github.com/rea
 | `BasicFunction.kt` | Creating basic functions | 🍜 Beginner | ✅ Done |
 | `LambdaFunction.kt` | Lambda expressions | 🥘 Intermediate | ✅ Done |
 
-### 📖 Recipe Appendix
-
-For quick access, here are direct links to all recipes:
-
-| Category | Recipe | Direct Link |
-|----------|--------|-------------|
-| **Getting Started** | HelloWorld.kt | [🔗 View](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/GettingStarted/HelloWorld.kt) |
-| **Variables** | CommonVariables.kt | [🔗 View](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/CommonVariables.kt) |
-| | ImmutableVariables.kt | [🔗 View](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/ImmutableVariables.kt) |
-| | MutableVariables.kt | [🔗 View](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/MutableVariables.kt) |
-| | StringSplitter.kt | [🔗 View](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/WorkWithIt/StringSplitter.kt) |
-| | StringSplitterv2.kt | [🔗 View](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/WorkWithIt/StringSplitterv2.kt) |
-| **If/When** | IfChef.kt | [🔗 View](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/IfChef/IfChef.kt) |
-| | WhenChef.kt | [🔗 View](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/WhenChef/WhenChef.kt) |
-| **Loops** | ForStirring.kt | [🔗 View](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/For/ForStirring.kt) |
-| | WhileStirring.kt | [🔗 View](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/While/WhileStirring.kt) |
-| | DoWhileStirring.kt | [🔗 View](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/DoWhile/DoWhileStirring.kt) |
-| **Break/Continue** | Break.kt | [🔗 View](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/BreakAndContinue/Break.kt) |
-| | Continue.kt | [🔗 View](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/BreakAndContinue/Continue.kt) |
-| **Null Safety** | InputAndNullSafety.kt | [🔗 View](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/InputAndNullSafety/InputAndNullSafety.kt) |
-| **Functions** | BasicFunction.kt | [🔗 View](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Functions/BasicFunction/BasicFunction.kt) |
-| | LambdaFunction.kt | [🔗 View](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Functions/LambdaFunction/LambdaFunction.kt) |
-
----
-
-> 💡 **Tip:** Click any [🔗 View] link to see the recipe source code directly on GitHub!
 > 
 ---
 
@@ -333,3 +307,9 @@ Have questions? Suggestions? Want to share your own recipe?
 **Happy cooking! 👨‍🍳🍳**
 
 Now go cook some Kotlin! 🚀
+
+### 📖 Recipe Appendix
+
+For a complete list of all recipes with direct links, check out the [**Full Recipe Appendix**](APPENDIX.md) 📚
+
+> 💡 **Tip:** The appendix contains every recipe organized by category with one-click access!
