@@ -1,53 +1,47 @@
 # 🍳 Pull Request
 
-> *"Every great recipe started with someone willing to share their secret."*
+> *"Even small improvements make the kitchen better!"*
 
 ---
 
-## 📋 Recipe Information
+## 📋 Change Type
 
-| Field | Details |
-|-------|---------|
-| **Recipe Name** | <!-- e.g., WhileStirring.kt --> |
-| **Category** | <!-- Basics / Loops / Functions / Collections / Advanced --> |
-| **Teaches** | <!-- What concept does this recipe teach? --> |
+<!-- Check one or more that apply -->
+
+- [ ] 📝 Documentation fix (README, comments, typos)
+- [ ] 🔧 Workflow/CI fix (GitHub Actions, Docker)
+- [ ] 🐛 Bug fix 
+- [ ] ♻️ Refactor 
+- [ ] 🎨 Style/Formatting
+- [ ] 📚 New recipe
+- [ ] ✅ Test update
+- [ ] Other: <!-- please specify -->
+
+---
+
+## 📝 Description
+
+<!-- Briefly describe what you changed and why -->
+
+...
 
 ---
 
 ## ✅ Checklist
 
-Please check all that apply:
-
-- [ ] My code compiles and runs without errors
-- [ ] I have tested my recipe locally (`kotlinc -script myfile.kt`)
-- [ ] My code includes clear, helpful comments
-- [ ] I have used emojis to make it fun 🍳
-- [ ] I have included a "Try it yourself" or "Challenge" section
-- [ ] I have updated the `README.md` "Recipes so far" table
-- [ ] I have followed the style guide (spacing, naming, etc.)
-- [ ] My recipe teaches ONE concept clearly
+- [ ] My changes don't break existing recipes
+- [ ] I have tested that everything still works
+- [ ] I have updated documentation if needed
 
 ---
 
-## 🧪 Test Output
+## 🧪 Testing Performed
 
-Please paste the output of running your recipe:
+<!-- What did you test? -->
 
-<!-- Run your recipe and paste the output here -->
-
----
-
-## 🔥 Kitchen Analogy
-
-Briefly explain your concept using a kitchen analogy:
-
-<!-- e.g., "A for loop is like an automatic stirrer..." -->
-
----
-
-## 📸 Screenshot (optional)
-
-<!-- If applicable, add a screenshot of your code running -->
+- [ ] Ran `./run.sh --all` (all recipes pass)
+- [ ] Checked Docker build (`docker build -t kotlincookbook .`)
+- [ ] Other: <!-- specify -->
 
 ---
 
@@ -59,23 +53,7 @@ Closes #(issue number)
 
 ---
 
-## 👨‍🍳 Additional Notes
-
-<!-- Any extra information for the reviewer? -->
-
----
-
-> *"Thank you for contributing to Kotlin CookBook! Your recipe will help someone learn something new today."* 🎉
-
----
-
-## 📝 For Reviewers
-
-- [ ] Code runs without errors
-- [ ] Comments are clear and helpful
-- [ ] Recipe teaches one concept well
-- [ ] Kitchen analogy makes sense
-- [ ] No sensitive or inappropriate content
+> *"Thanks for helping maintain the kitchen!"* 🍳
 
 ---
 
