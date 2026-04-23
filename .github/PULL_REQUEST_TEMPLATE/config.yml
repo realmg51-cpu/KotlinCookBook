@@ -1,0 +1,26 @@
+# PR template configuration
+# This file controls which template is used by default
+
+blank_issues_enabled: true
+
+# Define templates for different PR types
+template:
+  - name: New Recipe 🍳
+    about: Add a new Kotlin recipe
+    path: new_recipe.md
+  
+  - name: Other Changes 🔧
+    about: Bug fixes, documentation, workflows
+    path: other_changes.md
+
+# Default template cho các trường hợp đặc biệt
+default_template:
+  - path: other_changes.md
+    when:
+      - labels: bug
+      - labels: documentation
+      - labels: dependencies
+  
+  - path: new_recipe.md
+    when:
+      - labels: enhancement
