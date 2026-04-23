@@ -1,0 +1,11 @@
+# PR reviewer assignment
+* @realmg51-cpu
+
+# Recipe changes need maintainer review
+src/kotlin/normal/**/*.kt @realmg51-cpu
+
+# Workflow changes need maintainer review
+.github/workflows/*.yml @realmg51-cpu
+
+# Documentation can be reviewed by anyone
+*.md @realmg51-cpu
