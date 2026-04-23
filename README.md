@@ -246,7 +246,7 @@ Your recipe should include:
 - [x] Loops (`for`, `while`, `do-while`)
 - [x] Break and Continue
 - [ ] Functions
-- [ ] Null safety (`?`, `?:`, `!!`)
+- [x] Null safety (`?`, `?:`, `!!`)
 
 ### Phase 2: Intermediate
 - [ ] Collections (List, Set, Map)
