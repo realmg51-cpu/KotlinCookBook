@@ -1,0 +1,57 @@
+title: "Help Wanted 🤝"
+labels: ["help", "question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🆘 Need help with Kotlin?
+        
+        Ask your question here! The community will help you out. 🍳
+        
+        ---
+  
+  - type: input
+    id: problem
+    attributes:
+      label: "❓ What do you need help with?"
+      placeholder: "I'm trying to understand null safety..."
+    validations:
+      required: true
+  
+  - type: textarea
+    id: code
+    attributes:
+      label: "📝 Code snippet (if applicable)"
+      render: kotlin
+      placeholder: |
+        fun example() {
+            val name: String? = null
+            println(name?.length)
+        }
+  
+  - type: textarea
+    id: attempts
+    attributes:
+      label: "🔍 What have you tried?"
+      placeholder: "I already tried... but got this error..."
+  
+  - type: dropdown
+    id: status
+    attributes:
+      label: "📊 Status"
+      options:
+        - "🟡 Still stuck"
+        - "🟢 Resolved (will share solution)"
+        - "🔴 Blocked"
+    validations:
+      required: false
+  
+  - type: checkboxes
+    id: guidelines
+    attributes:
+      label: "📋 Guidelines"
+      options:
+        - label: "I have searched existing discussions before posting"
+          required: true
+        - label: "I have included relevant code/error messages"
+          required: true
