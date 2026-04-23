@@ -1,4 +1,4 @@
-title: "Recipe Ideas 💡"
+title: "Recipe Ideas"
 labels: ["idea", "enhancement"]
 body:
   - type: markdown
@@ -22,10 +22,7 @@ body:
     id: description
     attributes:
       label: "📖 Description"
-      description: "What would this recipe teach?"
-      placeholder: |
-        This recipe would teach...
-        The kitchen analogy could be...
+      placeholder: "What would this recipe teach? The kitchen analogy could be..."
     validations:
       required: true
   
