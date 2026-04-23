@@ -304,12 +304,18 @@ Have questions? Suggestions? Want to share your own recipe?
 ---
 
 
+### 📖 Recipe Appendix
+
+
+
+For a complete list of all recipes, check out the [**Full Recipe Appendix**](APPENDIX.md) 📚
+
+
+
+> 💡 **Tip:** The appendix contains every recipe with direct links to source code!
+
+
 **Happy cooking! 👨‍🍳🍳**
 
 Now go cook some Kotlin! 🚀
 
-### 📖 Recipe Appendix
-
-For a complete list of all recipes with direct links, check out the [**Full Recipe Appendix**](APPENDIX.md) 📚
-
-> 💡 **Tip:** The appendix contains every recipe organized by category with one-click access!
