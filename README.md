@@ -276,6 +276,10 @@ Have questions? Suggestions? Want to share your own recipe?
 
 
 
+
+
+
+
 <!-- STRUCTURE_START -->
 ## 📁 Project Structure
 
@@ -285,8 +289,10 @@ src/kotlin/normal
 │   ├── Break.kt
 │   └── Continue.kt
 ├── Functions
-│   └── BasicFunctions
-│       └── BasicFuncions.kt
+│   ├── BasicFunctions
+│   │   └── BasicFuncions.kt
+│   └── LambdaFunctions
+│       └── LambdaFunctions.kt
 ├── GettingStarted
 │   └── HelloWorld.kt
 ├── IfChef
@@ -310,14 +316,14 @@ src/kotlin/normal
 └── WhenChef
     └── WhenChef.kt
 
-14 directories, 15 files
+15 directories, 16 files
 ```
 
 ### 📊 Statistics
 
 | Metric | Value |
 |--------|-------|
-| 🍳 **Total Recipes** | `15` files |
+| 🍳 **Total Recipes** | `16` files |
 | 📁 **Categories** | `8` folders |
 
 ---
@@ -325,7 +331,7 @@ src/kotlin/normal
 <img src=".github/avatars/bot.svg" width="40">
 
 *Auto-updated by KotlinCookBot 🤖*
-*Last update: 2026-04-24 13:05:46 UTC*
+*Last update: 2026-04-24 13:43:28 UTC*
 <!-- STRUCTURE_END -->
 
 ### 📖 Recipe Appendix
