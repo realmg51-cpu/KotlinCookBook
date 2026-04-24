@@ -1,22 +1,57 @@
-name: Update Recipe Appendix
+
+name: Update Documentation
 
 on:
   push:
     paths:
-      - 'src/kotlin/normal/**/*.kt'
-      - 'src/kotlin/normal/**/introduction.md'
+      - 'src/kotlin/normal/**'
+      - '.github/workflows/update-docs.yml'
   workflow_dispatch:
 
 jobs:
-  update-appendix:
+  update-docs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       
-      - name: Generate APPENDIX.md
+      - name: Install tree
+        run: sudo apt-get install -y tree
+      
+      - name: Generate Project Structure
+        id: structure
+        run: |
+          cat > /tmp/structure.md << 'EOF'
+          ## 📁 Project Structure
+          
+          ```
+          EOF
+          
+          tree src/kotlin/normal --dirsfirst -I "*.md" -L 4 >> /tmp/structure.md
+          
+          cat >> /tmp/structure.md << 'EOF'
+          ```
+          
+          ### 📊 Statistics
+          
+          | Metric | Value |
+          |--------|-------|
+          | 🍳 **Total Recipes** | `$(find src/kotlin/normal -name "*.kt" -type f | wc -l)` files |
+          | 📁 **Categories** | `$(find src/kotlin/normal -mindepth 1 -maxdepth 1 -type d | wc -l)` folders |
+          
+          ---
+          
+          <img src=".github/avatars/bot.svg" width="40">
+          
+          *Auto-updated by KotlinCookBot 🤖*
+          *Last update: $(date +'%Y-%m-%d %H:%M:%S UTC')*
+          
+          EOF
+      
+      - name: Generate Recipe Appendix
+        id: appendix
         run: |
           python3 << 'PYTHON_EOF'
           import os
@@ -33,9 +68,9 @@ jobs:
           lines.append("| Recipe | Code | Introduction |")
           lines.append("|--------|------|--------------|")
           
-          # Find all directories with .kt files
           base = Path("src/kotlin/normal")
           count = 0
+          intro_count = 0
           
           for kt_file in sorted(base.rglob("*.kt")):
               if "introduction" in str(kt_file).lower():
@@ -45,14 +80,13 @@ jobs:
               dir_path = kt_file.parent
               intro_file = dir_path / "introduction.md"
               
-              # Code link
               code_url = f"https://github.com/{repo}/blob/main/{kt_file}"
               code_link = f"[🔗 Code]({code_url})"
               
-              # Introduction link (if exists)
               if intro_file.exists():
                   intro_url = f"https://github.com/{repo}/blob/main/{intro_file}"
                   intro_link = f"[📖 Intro]({intro_url})"
+                  intro_count += 1
               else:
                   intro_link = "❌ No intro"
               
@@ -65,7 +99,7 @@ jobs:
           lines.append("| Metric | Value |")
           lines.append("|--------|-------|")
           lines.append(f"| 🍳 **Total Recipes** | `{count}` |")
-          lines.append(f"| 📖 **With Introduction** | `{sum(1 for _ in base.rglob('introduction.md'))}` |")
+          lines.append(f"| 📖 **With Introduction** | `{intro_count}` |")
           lines.append(f"| 🆕 **Last Updated** | {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')} |")
           lines.append("")
           lines.append("---")
@@ -75,27 +109,54 @@ jobs:
           with open("APPENDIX.md", "w") as f:
               f.write("\n".join(lines))
           
-          print(f"✅ Generated APPENDIX.md with {count} recipes")
+          print(f"✅ Generated APPENDIX.md with {count} recipes ({intro_count} with intro)")
           PYTHON_EOF
       
       - name: Update README
         run: |
+          # Remove old structure section
+          sed -i '/<!-- STRUCTURE_START -->/,/<!-- STRUCTURE_END -->/d' README.md
+          
+          # Insert new structure before "Happy cooking"
+          sed -i '/\*\*Happy cooking! 👨‍🍳🍳\*\*/i\
+          <!-- STRUCTURE_START -->\
+          '"$(cat /tmp/structure.md)"'\
+          <!-- STRUCTURE_END -->\
+          ' README.md
+          
           # Remove old appendix section
           sed -i '/### 📖 Recipe Appendix/,/<!-- APPENDIX_END -->/d' README.md
           
-          # Insert before "Happy cooking"
+          # Insert appendix before "Happy cooking" (after structure)
           sed -i '/\*\*Happy cooking! 👨‍🍳🍳\*\*/i\
           ### 📖 Recipe Appendix\n\
           \n\
           For a complete list of all recipes with code and introduction links, check out the [**Full Recipe Appendix**](APPENDIX.md) 📚\n\
           \n\
           > 💡 **Tip:** Each recipe includes a direct link to the code file and introduction (if available)!\n\
+          \n\
+          <!-- APPENDIX_END -->\n\
           ' README.md
       
       - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v7
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "📚 docs: update recipe appendix with intro links [skip ci]"
+          commit_message: "📚 docs: update project structure and recipe appendix [skip ci]"
           commit_user_name: "KotlinCookBot"
           commit_user_email: "41898282+github-actions[bot]@users.noreply.github.com"
+          commit_author: "KotlinCookBot <41898282+github-actions[bot]@users.noreply.github.com>"
           file_pattern: "README.md APPENDIX.md"
+      
+      - name: Summary
+        run: |
+          echo "## 📚 Documentation Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Project Structure | ✅ Updated |" >> $GITHUB_STEP_SUMMARY
+          echo "| Recipe Appendix | ✅ Updated |" >> $GITHUB_STEP_SUMMARY
+          echo "| README | ✅ Updated |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 **Statistics:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Recipes: $(find src/kotlin/normal -name "*.kt" -type f | wc -l)" >> $GITHUB_STEP_SUMMARY
+          echo "- Categories: $(find src/kotlin/normal -mindepth 1 -maxdepth 1 -type d | wc -l)" >> $GITHUB_STEP_SUMMARY
