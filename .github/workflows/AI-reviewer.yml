@@ -120,7 +120,7 @@ jobs:
       
       - name: Add labels (Issue)
         if: github.event_name == 'issues'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
@@ -139,7 +139,7 @@ jobs:
       
       - name: Add comment (Issue)
         if: github.event_name == 'issues'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
@@ -155,7 +155,7 @@ jobs:
       
       - name: Add review (PR)
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
