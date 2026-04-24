@@ -1,35 +1,163 @@
-name: Docker CI - Compile & Run
+name: Docker Build, Test & Deploy
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  test:
+  docker:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    
     steps:
-      - uses: actions/checkout@v6
-      - name: Build Docker image
-        run: docker build -t kotlincookbook .
+      - name: Checkout code
+        uses: actions/checkout@v4
       
-      - name: Compile and run all recipes
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,format=short
+      
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Test all recipes in Docker container
         run: |
-          docker run --rm kotlincookbook sh -c '
-            failed=0
-            for f in $(find src/kotlin/normal -name "*.kt"); do
-              name=$(basename "$f" .kt)
-              echo "🔨 Compiling $name..."
-              
-              # Compile to jar
-              kotlinc "$f" -include-runtime -d "/tmp/$name.jar"
-              
-              # Run the jar
-              if java -jar "/tmp/$name.jar"; then
-                echo "✅ $name passed"
-              else
-                echo "❌ $name failed"
-                failed=$((failed + 1))
-              fi
-              echo ""
-              rm -f "/tmp/$name.jar"
-            done
-            exit $failed
-          '
+          echo "🍳 Testing all recipes with Docker..."
+          echo "===================================="
+          
+          failed=0
+          total=0
+          
+          # Get image name (use built image)
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}"
+          else
+            IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+          fi
+          
+          # Run tests
+          for recipe in $(docker run --rm "$IMAGE" find src/kotlin/normal -name "*.kt" -type f 2>/dev/null); do
+            total=$((total + 1))
+            name=$(basename "$recipe")
+            echo -n "Testing $name... "
+            
+            if docker run --rm "$IMAGE" kotlinc -script "$recipe" > /dev/null 2>&1; then
+              echo "✅ PASS"
+            else
+              echo "❌ FAIL"
+              failed=$((failed + 1))
+            fi
+          done
+          
+          echo "===================================="
+          echo "📊 Results: $((total - failed))/$total passed"
+          
+          if [ $failed -eq 0 ]; then
+            echo "🎉 All recipes passed!"
+            exit 0
+          else
+            echo "💥 $failed recipe(s) failed!"
+            exit 1
+          fi
+        if: github.event_name != 'pull_request'
+      
+      - name: Test (PR only - no push)
+        run: |
+          echo "🍳 Testing recipes in PR (using local build)..."
+          echo "===================================="
+          
+          # Build locally for testing
+          docker build -t kotlincookbook-test .
+          
+          failed=0
+          total=0
+          
+          for recipe in $(docker run --rm kotlincookbook-test find src/kotlin/normal -name "*.kt" -type f); do
+            total=$((total + 1))
+            name=$(basename "$recipe")
+            echo -n "Testing $name... "
+            
+            if docker run --rm kotlincookbook-test kotlinc -script "$recipe" > /dev/null 2>&1; then
+              echo "✅ PASS"
+            else
+              echo "❌ FAIL"
+              failed=$((failed + 1))
+            fi
+          done
+          
+          echo "===================================="
+          echo "📊 Results: $((total - failed))/$total passed"
+          
+          if [ $failed -eq 0 ]; then
+            echo "🎉 All recipes passed!"
+            exit 0
+          else
+            echo "💥 $failed recipe(s) failed!"
+            exit 1
+          fi
+        if: github.event_name == 'pull_request'
+      
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v1
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+      
+      - name: Summary
+        run: |
+          echo "## 🐳 Docker Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Registry | \`${{ env.REGISTRY }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Image | \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tags | \`${{ steps.meta.outputs.tags }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Pull the image" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
