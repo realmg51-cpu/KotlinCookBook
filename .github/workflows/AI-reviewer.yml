@@ -1,0 +1,145 @@
+name: AI Reviewer & Labeler
+
+on:
+  issues:
+    types: [opened, edited]
+  pull_request:
+    types: [opened, synchronize]
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  ai-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Get content (Issue or PR)
+        id: content
+        run: |
+          if [ "${{ github.event_name }}" == "issues" ] || [ "${{ github.event_name }}" == "issue_comment" ]; then
+            TYPE="issue"
+            TITLE=$(jq -r '.issue.title' $GITHUB_EVENT_PATH)
+            BODY=$(jq -r '.issue.body' $GITHUB_EVENT_PATH | head -c 1500)
+            NUMBER=$(jq -r '.issue.number' $GITHUB_EVENT_PATH)
+          else
+            TYPE="pr"
+            TITLE=$(jq -r '.pull_request.title' $GITHUB_EVENT_PATH)
+            BODY=$(jq -r '.pull_request.body' $GITHUB_EVENT_PATH | head -c 1500)
+            NUMBER=$(jq -r '.pull_request.number' $GITHUB_EVENT_PATH)
+          fi
+          
+          echo "type=$TYPE" >> $GITHUB_OUTPUT
+          echo "title=$TITLE" >> $GITHUB_OUTPUT
+          echo "body=$BODY" >> $GITHUB_OUTPUT
+          echo "number=$NUMBER" >> $GITHUB_OUTPUT
+          
+          echo "$BODY" > /tmp/body.txt
+          echo "$TITLE" > /tmp/title.txt
+      
+      - name: Call Gemini API
+        id: gemini
+        run: |
+          TYPE="${{ steps.content.outputs.type }}"
+          TITLE=$(cat /tmp/title.txt)
+          BODY=$(cat /tmp/body.txt)
+          
+          if [ "$TYPE" == "issue" ]; then
+            PROMPT="You are KotlinCookBot. Analyze this issue and respond with:
+            1. ONE label from: bug, enhancement, question, documentation
+            2. A brief helpful reply (max 100 words, use 🍳)
+            
+            Title: $TITLE
+            Body: $BODY
+            
+            Format:
+            LABEL: <label>
+            REPLY: <reply>"
+          else
+            PROMPT="You are KotlinCookBot. Review this PR and respond with:
+            1. Status: APPROVE or REQUEST_CHANGES
+            2. Brief review (max 100 words, use 🍳)
+            
+            Title: $TITLE
+            Body: $BODY
+            
+            Format:
+            STATUS: <status>
+            REVIEW: <review>"
+          fi
+          
+          ESCAPED=$(echo "$PROMPT" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')
+          
+          RESPONSE=$(curl -s -X POST \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"contents\":[{\"parts\":[{\"text\":$ESCAPED}]}]}")
+          
+          echo "$RESPONSE" | python3 -c '
+          import sys, json, re
+          data = json.load(sys.stdin)
+          text = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+          
+          if "LABEL:" in text:
+              label = re.search(r"LABEL:\s*(\w+)", text, re.IGNORECASE)
+              reply = re.search(r"REPLY:\s*(.*)", text, re.DOTALL | re.IGNORECASE)
+              print(f"label={label.group(1).lower() if label else question}")
+              print(f"reply={reply.group(1).strip() if reply else text[:300]}")
+          else:
+              status = re.search(r"STATUS:\s*(\w+)", text, re.IGNORECASE)
+              review = re.search(r"REVIEW:\s*(.*)", text, re.DOTALL | re.IGNORECASE)
+              print(f"status={status.group(1).upper() if status else APPROVE}")
+              print(f"review={review.group(1).strip() if review else text[:300]}")
+          ' >> $GITHUB_OUTPUT
+      
+      - name: Add labels (Issues only)
+        if: steps.content.outputs.type == 'issue'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const label = '${{ steps.gemini.outputs.label }}';
+            const valid = ['bug', 'enhancement', 'question', 'documentation'];
+            if (valid.includes(label)) {
+              await github.rest.issues.addLabels({
+                issue_number: ${{ steps.content.outputs.number }},
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: [label, 'Resolving']
+              });
+            }
+      
+      - name: Add comment (Issue)
+        if: steps.content.outputs.type == 'issue'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const reply = `🤖 **KotlinCookBot (Gemini)** says:\n\n${{ steps.gemini.outputs.reply }}\n\n---\n*🤖 Auto-generated, please verify*`;
+            await github.rest.issues.createComment({
+              issue_number: ${{ steps.content.outputs.number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: reply
+            });
+      
+      - name: Add review (PR only)
+        if: steps.content.outputs.type == 'pr'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ steps.gemini.outputs.status }}';
+            const review = `🤖 **KotlinCookBot (Gemini)** reviewed:\n\n${{ steps.gemini.outputs.review }}`;
+            
+            const event = status === 'REQUEST_CHANGES' ? 'REQUEST_CHANGES' : 'APPROVE';
+            
+            await github.rest.pulls.createReview({
+              pull_number: ${{ steps.content.outputs.number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: review,
+              event: event
+            });
