@@ -142,7 +142,7 @@ jobs:
           PYTHON_EOF
       
       - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "📚 docs: update structure and appendix [skip ci]"
           commit_user_name: "KotlinCookBot"
