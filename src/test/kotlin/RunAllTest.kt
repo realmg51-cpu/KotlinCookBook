@@ -61,7 +61,7 @@ fun testLoops() {
     val paths = listOf(
         "src/kotlin/normal/Loops/For/ForStirring.kt",
         "src/kotlin/normal/Loops/While/WhileStirring.kt",
-        "src/kotlin/normal/Loops/DoWhile/DoWhileStirring.kt",
+        "src/kotlin/normal/Loops/Do-While/DoWhileStirring.kt",
         "src/kotlin/normal/BreakAndContinue/Break.kt",
         "src/kotlin/normal/BreakAndContinue/Continue.kt"
     )
@@ -92,8 +92,8 @@ fun testNullSafety() {
 
 fun testFunctions() {
     val paths = listOf(
-        "src/kotlin/normal/Functions/BasicFunction/BasicFunction.kt",
-        "src/kotlin/normal/Functions/LambdaFunction/LambdaFunction.kt"
+        "src/kotlin/normal/Functions/BasicFunctions/BasicFunctions.kt",
+        "src/kotlin/normal/Functions/LambdaFunctions/LambdaFunctions.kt"
     )
     
     for (path in paths) {
