@@ -19,16 +19,8 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       
-      - name: Setup Kotlin
-        uses: actions/setup-kotlin@v1
-        with:
-          kotlin-version: '2.0.20'
-      
-      - name: Compile tests
-        run: |
-          mkdir -p build/classes
-          kotlinc src/test/kotlin/*.kt -d build/classes
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
       
       - name: Run tests
-        run: |
-          kotlin -cp build/classes org.junit.platform.console.ConsoleLauncher execute --scan-classpath
+        run: gradle test
