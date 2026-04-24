@@ -73,76 +73,58 @@ jobs:
           BODY=$(cat /tmp/body.txt)
           
           if [ "$TYPE" == "issue" ]; then
-            PROMPT="You are KotlinCookBot. Analyze this issue. Return ONLY a JSON object.
-            Label: bug, enhancement, question, documentation.
-            Reply: helpful, max 100 words, use emoji.
-            
-            Title: $TITLE
-            Body: $BODY
-            
-            Format: {\"label\": \"...\", \"reply\": \"...\"}"
+            PROMPT="You are KotlinCookBot. Analyze this issue. Return a JSON object with label and reply. Label: bug, enhancement, question, documentation. Reply: helpful, max 100 words. Title: $TITLE Body: $BODY"
           else
-            PROMPT="You are KotlinCookBot. Review this PR. Return ONLY a JSON object.
-            Status: APPROVE or REQUEST_CHANGES.
-            Review: max 100 words, use emoji.
-            
-            Title: $TITLE
-            Body: $BODY
-            
-            Format: {\"status\": \"...\", \"review\": \"...\"}"
+            PROMPT="You are KotlinCookBot. Review this PR. Return a JSON object with status and review. Status: APPROVE or REQUEST_CHANGES. Review: max 100 words. Title: $TITLE Body: $BODY"
           fi
           
-          ESCAPED=$(python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))" <<< "$PROMPT")
-          
-          RESPONSE=$(curl -s -X POST \
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"contents\":[{\"parts\":[{\"text\":$ESCAPED}]}]}")
-          
-          echo "$RESPONSE" > /tmp/response.json
+          python3 -c "
+          import json, subprocess, sys
+          prompt = json.dumps('$PROMPT')
+          result = subprocess.run(['curl', '-s', '-X', 'POST',
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}',
+            '-H', 'Content-Type: application/json',
+            '-d', '{\"contents\":[{\"parts\":[{\"text\":' + prompt + '}]}]}'],
+            capture_output=True, text=True)
+          print(result.stdout)
+          " > /tmp/response.json
       
-      - name: Parse response
+      - name: Parse and execute
         run: |
-          TYPE=$(cat /tmp/type.txt)
+          python3 -c "
+          import json
+          import os
           
-          if [ "$TYPE" == "issue" ]; then
-            python3 << 'PYTHON_EOF'
-            import json
-            with open('/tmp/response.json') as f:
-                data = json.load(f)
-            text = data.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '{}')
-            try:
-                obj = json.loads(text)
-                label = obj.get('label', 'question')
-                reply = obj.get('reply', 'Thanks for your issue!')
-            except:
-                label = 'question'
-                reply = 'Thanks for your issue! A maintainer will review it soon.'
-            with open('/tmp/label.txt', 'w') as f:
-                f.write(label)
-            with open('/tmp/reply.txt', 'w') as f:
-                f.write(reply)
-            PYTHON_EOF
+          with open('/tmp/response.json') as f:
+              data = json.load(f)
+          
+          text = data.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '{}')
+          
+          try:
+              obj = json.loads(text)
+          except:
+              obj = {}
+          
+          with open('/tmp/type.txt', 'r') as f:
+              typ = f.read().strip()
+          
+          if typ == 'issue':
+              label = obj.get('label', 'question')
+              reply = obj.get('reply', 'Thanks for your issue!')
+              with open('/tmp/label.txt', 'w') as f:
+                  f.write(label)
+              with open('/tmp/reply.txt', 'w') as f:
+                  f.write(reply)
           else:
-            python3 << 'PYTHON_EOF'
-            import json
-            with open('/tmp/response.json') as f:
-                data = json.load(f)
-            text = data.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '{}')
-            try:
-                obj = json.loads(text)
-                status = obj.get('status', 'APPROVE')
-                review = obj.get('review', 'Thanks for your contribution!')
-            except:
-                status = 'APPROVE'
-                review = 'Thanks for your contribution!'
-            with open('/tmp/status.txt', 'w') as f:
-                f.write(status)
-            with open('/tmp/review.txt', 'w') as f:
-                f.write(review)
-            PYTHON_EOF
+              status = obj.get('status', 'APPROVE')
+              review = obj.get('review', 'Thanks for your contribution!')
+              with open('/tmp/status.txt', 'w') as f:
+                  f.write(status)
+              with open('/tmp/review.txt', 'w') as f:
+                  f.write(review)
+          "
       
-      - name: Add labels (Issue)
+      - name: Process Issue
         if: github.event_name == 'issues' || github.event_name == 'workflow_dispatch'
         uses: actions/github-script@v7
         with:
@@ -151,8 +133,9 @@ jobs:
             const type = fs.readFileSync('/tmp/type.txt', 'utf8').trim();
             if (type !== 'issue') return;
             
-            const label = fs.readFileSync('/tmp/label.txt', 'utf8').trim();
             const number = parseInt(fs.readFileSync('/tmp/number.txt', 'utf8').trim());
+            const label = fs.readFileSync('/tmp/label.txt', 'utf8').trim();
+            const reply = fs.readFileSync('/tmp/reply.txt', 'utf8').trim();
             
             const valid = ['bug', 'enhancement', 'question', 'documentation'];
             if (valid.includes(label)) {
@@ -163,27 +146,15 @@ jobs:
                 labels: [label, 'Resolving']
               });
             }
-      
-      - name: Add comment (Issue)
-        if: github.event_name == 'issues' || github.event_name == 'workflow_dispatch'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const type = fs.readFileSync('/tmp/type.txt', 'utf8').trim();
-            if (type !== 'issue') return;
-            
-            const reply = fs.readFileSync('/tmp/reply.txt', 'utf8').trim();
-            const number = parseInt(fs.readFileSync('/tmp/number.txt', 'utf8').trim());
             
             await github.rest.issues.createComment({
               issue_number: number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '🤖 **KotlinCookBot:**\n\n' + reply + '\n\n---\n*Auto-generated, please verify*'
+              body: '🤖 **KotlinCookBot:**\n\n' + reply + '\n\n---\n*Auto-generated*'
             });
       
-      - name: Add review (PR)
+      - name: Process PR
         if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
         uses: actions/github-script@v7
         with:
@@ -192,9 +163,9 @@ jobs:
             const type = fs.readFileSync('/tmp/type.txt', 'utf8').trim();
             if (type !== 'pr') return;
             
+            const number = parseInt(fs.readFileSync('/tmp/number.txt', 'utf8').trim());
             const status = fs.readFileSync('/tmp/status.txt', 'utf8').trim();
             const review = fs.readFileSync('/tmp/review.txt', 'utf8').trim();
-            const number = parseInt(fs.readFileSync('/tmp/number.txt', 'utf8').trim());
             
             const event = status === 'REQUEST_CHANGES' ? 'REQUEST_CHANGES' : 'APPROVE';
             
