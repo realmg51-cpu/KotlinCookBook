@@ -8,7 +8,6 @@
 | `Continue.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/BreakAndContinue/Continue.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/BreakAndContinue/introduction.md) |
 | `BasicFuncion.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Funcions/BasicFuncions/BasicFuncion.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Funcions/BasicFuncions/introduction.md) |
 | `BasicFuncions.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Functions/BasicFunctions/BasicFuncions.kt) | ❌ No intro |
-| `BasicFunctions.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Functions/BasicFunctions.kt) | ❌ No intro |
 | `HelloWorld.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/GettingStarted/HelloWorld.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/GettingStarted/introduction.md) |
 | `IfChef.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/IfChef/IfChef.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/IfChef/introduction.md) |
 | `InputAndNullSafety.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/InputAndNullSafety/InputAndNullSafety.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/InputAndNullSafety/introduction.md) |
@@ -26,9 +25,9 @@
 
 | Metric | Value |
 |--------|-------|
-| 🍳 **Total Recipes** | `17` |
+| 🍳 **Total Recipes** | `16` |
 | 📖 **With Introduction** | `15` |
-| 🆕 **Last Updated** | 2026-04-24 13:03:27 UTC |
+| 🆕 **Last Updated** | 2026-04-24 13:03:58 UTC |
 
 ---
 
