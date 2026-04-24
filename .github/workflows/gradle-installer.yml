@@ -1,51 +1,51 @@
 name: Download Gradle Wrapper
 
 on:
-  workflow_dispatch:  # Bạn chạy thủ công từ GitHub
+  workflow_dispatch:
 
 jobs:
   download-gradle:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Cho phép commit lên repo
+      contents: write
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6  # ✅ v6 cho Node.js 24
       
-      - name: Download Gradle 9.4.1 wrapper JAR
+      - name: Create gradle wrapper directory
+        run: mkdir -p gradle/wrapper
+      
+      - name: Download gradle-wrapper.jar
         run: |
-          # Tạo thư mục nếu chưa có
-          mkdir -p gradle/wrapper
-          
-          # Tải gradle-wrapper.jar từ GitHub raw
           curl -L -o gradle/wrapper/gradle-wrapper.jar \
-            https://raw.githubusercontent.com/gradle/gradle/v9.4.1/gradle/wrapper/gradle-wrapper.jar
-          
-          # Tạo gradle-wrapper.properties
+            https://raw.githubusercontent.com/gradle/gradle/v8.5.0/gradle/wrapper/gradle-wrapper.jar
+      
+      - name: Create gradle-wrapper.properties
+        run: |
           cat > gradle/wrapper/gradle-wrapper.properties << 'EOF'
           distributionBase=GRADLE_USER_HOME
           distributionPath=wrapper/dists
-          distributionUrl=https\://services.gradle.org/distributions/gradle-9.4.1-bin.zip
+          distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-bin.zip
           zipStoreBase=GRADLE_USER_HOME
           zipStorePath=wrapper/dists
           EOF
       
-      - name: Tạo gradlew script (nếu chưa có)
+      - name: Download gradlew script
         run: |
-          if [ ! -f "gradlew" ]; then
-            curl -L -o gradlew \
-              https://raw.githubusercontent.com/gradle/gradle/v9.4.1/gradle/wrapper/gradle-wrapper.jar?raw=true
-            # Thực ra cần gradlew script, dùng cách khác
-            wget -O gradlew https://github.com/gradle/gradle/raw/v9.4.1/gradlew
-            chmod +x gradlew
-          fi
+          curl -L -o gradlew \
+            https://raw.githubusercontent.com/gradle/gradle/v8.5.0/gradlew
+          chmod +x gradlew
       
-      - name: Commit và push lên repo
+      - name: Download gradlew.bat
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add gradle/wrapper/
-          git add gradlew 2>/dev/null || true
-          git commit -m "Download Gradle 9.4.1 wrapper files" || echo "No changes to commit"
+          curl -L -o gradlew.bat \
+            https://raw.githubusercontent.com/gradle/gradle/v8.5.0/gradlew.bat
+      
+      - name: Commit and push
+        run: |
+          git config user.name "KotlinCookBot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add gradle/wrapper/ gradlew gradlew.bat
+          git commit -m "📦 Add Gradle wrapper files" || echo "No changes to commit"
           git push
