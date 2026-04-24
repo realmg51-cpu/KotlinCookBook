@@ -1,6 +1,20 @@
 name: AI Reviewer & Labeler
 
 on:
+  workflow_dispatch:
+    inputs:
+      type:
+        description: 'Type (issue or pr)'
+        required: true
+        default: 'issue'
+        type: choice
+        options:
+          - issue
+          - pr
+      number:
+        description: 'Issue/PR number'
+        required: true
+        type: number
   issues:
     types: [opened, edited]
   pull_request:
@@ -15,12 +29,27 @@ jobs:
   ai-review:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       
       - name: Get content
         id: content
         run: |
-          if [ "${{ github.event_name }}" == "issues" ]; then
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            TYPE="${{ inputs.type }}"
+            NUMBER="${{ inputs.number }}"
+            
+            if [ "$TYPE" == "issue" ]; then
+              curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                "https://api.github.com/repos/${{ github.repository }}/issues/$NUMBER" > /tmp/data.json
+              TITLE=$(jq -r '.title' /tmp/data.json)
+              BODY=$(jq -r '.body' /tmp/data.json | head -c 1500)
+            else
+              curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                "https://api.github.com/repos/${{ github.repository }}/pulls/$NUMBER" > /tmp/data.json
+              TITLE=$(jq -r '.title' /tmp/data.json)
+              BODY=$(jq -r '.body' /tmp/data.json | head -c 1500)
+            fi
+          elif [ "${{ github.event_name }}" == "issues" ]; then
             TYPE="issue"
             TITLE=$(jq -r '.issue.title' $GITHUB_EVENT_PATH)
             BODY=$(jq -r '.issue.body' $GITHUB_EVENT_PATH | head -c 1500)
@@ -32,7 +61,6 @@ jobs:
             NUMBER=$(jq -r '.pull_request.number' $GITHUB_EVENT_PATH)
           fi
           
-          # Lưu vào file, không dùng output
           echo "$TITLE" > /tmp/title.txt
           echo "$BODY" > /tmp/body.txt
           echo "$TYPE" > /tmp/type.txt
@@ -45,23 +73,23 @@ jobs:
           BODY=$(cat /tmp/body.txt)
           
           if [ "$TYPE" == "issue" ]; then
-            PROMPT="You are KotlinCookBot. Analyze this issue. Return ONLY a JSON object with label and reply.
-            Label must be one of: bug, enhancement, question, documentation.
-            Reply should be helpful (max 100 words, use emoji).
+            PROMPT="You are KotlinCookBot. Analyze this issue. Return ONLY a JSON object.
+            Label: bug, enhancement, question, documentation.
+            Reply: helpful, max 100 words, use emoji.
             
             Title: $TITLE
             Body: $BODY
             
-            Return: {\"label\": \"...\", \"reply\": \"...\"}"
+            Format: {\"label\": \"...\", \"reply\": \"...\"}"
           else
-            PROMPT="You are KotlinCookBot. Review this PR. Return ONLY a JSON object with status and review.
-            Status must be: APPROVE or REQUEST_CHANGES.
-            Review max 100 words, use emoji.
+            PROMPT="You are KotlinCookBot. Review this PR. Return ONLY a JSON object.
+            Status: APPROVE or REQUEST_CHANGES.
+            Review: max 100 words, use emoji.
             
             Title: $TITLE
             Body: $BODY
             
-            Return: {\"status\": \"...\", \"review\": \"...\"}"
+            Format: {\"status\": \"...\", \"review\": \"...\"}"
           fi
           
           ESCAPED=$(python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))" <<< "$PROMPT")
@@ -71,7 +99,6 @@ jobs:
             -H "Content-Type: application/json" \
             -d "{\"contents\":[{\"parts\":[{\"text\":$ESCAPED}]}]}")
           
-          # Lưu response vào file
           echo "$RESPONSE" > /tmp/response.json
       
       - name: Parse response
@@ -79,7 +106,7 @@ jobs:
           TYPE=$(cat /tmp/type.txt)
           
           if [ "$TYPE" == "issue" ]; then
-            python3 << 'EOF'
+            python3 << 'PYTHON_EOF'
             import json
             with open('/tmp/response.json') as f:
                 data = json.load(f)
@@ -91,14 +118,13 @@ jobs:
             except:
                 label = 'question'
                 reply = 'Thanks for your issue! A maintainer will review it soon.'
-            
             with open('/tmp/label.txt', 'w') as f:
                 f.write(label)
             with open('/tmp/reply.txt', 'w') as f:
                 f.write(reply)
-            EOF
-          else
-            python3 << 'EOF'
+            PYTHON_EOF
+          else:
+            python3 << 'PYTHON_EOF'
             import json
             with open('/tmp/response.json') as f:
                 data = json.load(f)
@@ -110,20 +136,21 @@ jobs:
             except:
                 status = 'APPROVE'
                 review = 'Thanks for your contribution!'
-            
             with open('/tmp/status.txt', 'w') as f:
                 f.write(status)
             with open('/tmp/review.txt', 'w') as f:
                 f.write(review)
-            EOF
-          fi
+            PYTHON_EOF
       
       - name: Add labels (Issue)
-        if: github.event_name == 'issues'
-        uses: actions/github-script@v9
+        if: github.event_name == 'issues' || github.event_name == 'workflow_dispatch'
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
+            const type = fs.readFileSync('/tmp/type.txt', 'utf8').trim();
+            if (type !== 'issue') return;
+            
             const label = fs.readFileSync('/tmp/label.txt', 'utf8').trim();
             const number = parseInt(fs.readFileSync('/tmp/number.txt', 'utf8').trim());
             
@@ -138,11 +165,14 @@ jobs:
             }
       
       - name: Add comment (Issue)
-        if: github.event_name == 'issues'
-        uses: actions/github-script@v9
+        if: github.event_name == 'issues' || github.event_name == 'workflow_dispatch'
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
+            const type = fs.readFileSync('/tmp/type.txt', 'utf8').trim();
+            if (type !== 'issue') return;
+            
             const reply = fs.readFileSync('/tmp/reply.txt', 'utf8').trim();
             const number = parseInt(fs.readFileSync('/tmp/number.txt', 'utf8').trim());
             
@@ -154,11 +184,14 @@ jobs:
             });
       
       - name: Add review (PR)
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v9
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
+            const type = fs.readFileSync('/tmp/type.txt', 'utf8').trim();
+            if (type !== 'pr') return;
+            
             const status = fs.readFileSync('/tmp/status.txt', 'utf8').trim();
             const review = fs.readFileSync('/tmp/review.txt', 'utf8').trim();
             const number = parseInt(fs.readFileSync('/tmp/number.txt', 'utf8').trim());
