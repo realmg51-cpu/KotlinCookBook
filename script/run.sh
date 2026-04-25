@@ -30,6 +30,8 @@ if [ -z "$RECIPE" ]; then
     echo ""
     echo -e "${BLUE}Run all recipes:${NC}"
     echo "  ./run.sh --all"
+    echo "Created by realmg51-cpu and Sun,star if you feel it useful!"
+    echo "Visit repo: https://github.com/realmg51-cpu/KotlinCookBook"
     exit 0
 fi
 
