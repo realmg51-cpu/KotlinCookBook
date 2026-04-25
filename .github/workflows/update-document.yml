@@ -115,29 +115,27 @@ jobs:
           
           print(f"✅ Generated APPENDIX.md with {count} recipes ({intro_count} with intro)")
           
-          # ===== 4. UPDATE README =====
+          # ===== 4. UPDATE README (CHỈ Project Structure) =====
           with open("README.md", "r") as f:
               readme = f.read()
           
           import re
-          readme = re.sub(r'<!-- STRUCTURE_START -->.*?<!-- STRUCTURE_END -->', '', readme, flags=re.DOTALL)
-          readme = re.sub(r'### 📖 Recipe Appendix.*?<!-- APPENDIX_END -->', '', readme, flags=re.DOTALL)
           
+          # Chỉ thay thế phần STRUCTURE_START và STRUCTURE_END
+          structure_pattern = r'<!-- STRUCTURE_START -->.*?<!-- STRUCTURE_END -->'
           new_structure = f'<!-- STRUCTURE_START -->\n{structure_content}\n<!-- STRUCTURE_END -->'
-          new_appendix = '### 📖 Recipe Appendix\n\nFor a complete list of all recipes with code and introduction links, check out the [**Full Recipe Appendix**](APPENDIX.md) 📚\n\n> 💡 **Tip:** Each recipe includes a direct link to the code file and introduction (if available)!\n\n<!-- APPENDIX_END -->'
           
-          happy_pattern = r'(\*\*Happy cooking! 👨‍🍳🍳\*\*)'
-          replacement = f'{new_structure}\n\n{new_appendix}\n\n\\1'
-          
-          if re.search(happy_pattern, readme, re.DOTALL):
-              new_readme = re.sub(happy_pattern, replacement, readme, flags=re.DOTALL)
+          if re.search(structure_pattern, readme, re.DOTALL):
+              readme = re.sub(structure_pattern, new_structure, readme, flags=re.DOTALL)
+              print("✅ Updated Project Structure in README")
           else:
-              new_readme = readme + f'\n\n{new_structure}\n\n{new_appendix}\n'
+              # Nếu chưa có structure section, thêm vào cuối file
+              readme += f'\n\n{new_structure}\n'
+              print("✅ Added new Project Structure to README")
           
           with open("README.md", "w") as f:
-              f.write(new_readme)
+              f.write(readme)
           
-          print("✅ README updated")
           print(f"📊 Total: {count} recipes, {categories} categories")
           PYTHON_EOF
       
