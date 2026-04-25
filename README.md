@@ -118,7 +118,7 @@ docker run --rm -it ghcr.io/realmg51-cpu/kotlincookbook:latest \
 
 ## 🔥 Recipe of the Week
 
-### [LambdaFunctions.kt](src/kotlin/normal/Functions/LambdaFunctions/LambdaFunctions.kt)
+### [LambdaFunctions.kt](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Functions/LambdaFunctions/LambdaFunctions.kt)
 
 Learn how to pass behavior as parameters - like telling your assistant "stir until golden brown" instead of micromanaging every stir!
 
@@ -127,7 +127,7 @@ Learn how to pass behavior as parameters - like telling your assistant "stir unt
 - Pass behavior as data
 - Perfect for collections operations
 
-[Read more →](src/kotlin/normal/Functions/LambdaFunctions/LambdaFunctions.kt)
+[Read more →](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Functions/LambdaFunctions/LambdaFunctions.kt)
 
 ---
 
@@ -387,7 +387,7 @@ src/kotlin/normal
 └── WhenChef
     └── WhenChef.kt
 
-15 directories, 16 files
+
 ```
 
 ### 📊 Statistics
@@ -414,8 +414,6 @@ For a complete list of all recipes with code and introduction links, check out t
 ---
 
 ## 🎯 What's Next?
-
-Check out our [Projects](https://github.com/realmg51-cpu/KotlinCookBook/projects) page to see what we're cooking next!
 
 **Coming soon:**
 - 🍜 Collection recipes (List, Set, Map)
