@@ -4,21 +4,21 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import java.io.File
 
-class RunAllTest {
+// Helper functions ở top-level
+private fun assertFileExists(path: String, message: String? = null) {
+    assertTrue(File(path).exists(), message ?: "File not found: $path")
+}
 
-    // Helper function để kiểm tra file
-    private fun assertFileExists(path: String, message: String? = null) {
-        assertTrue(File(path).exists(), message ?: "File not found: $path")
+private fun assertFileContains(path: String, vararg keywords: String) {
+    val content = File(path).readText()
+    keywords.forEach { keyword ->
+        assertTrue(content.contains(keyword), "File $path missing keyword: '$keyword'")
     }
+}
 
-    private fun assertFileContains(path: String, vararg keywords: String) {
-        val content = File(path).readText()
-        keywords.forEach { keyword ->
-            assertTrue(content.contains(keyword), "File $path missing keyword: '$keyword'")
-        }
-    }
+class KotlinCookBookTests {
 
-    // ==================== GETTING STARTED ====================
+    // ==================== GETTING STARTED TESTS ====================
     @Nested
     @DisplayName("Getting Started Tests")
     class GettingStartedTests {
@@ -65,6 +65,14 @@ class RunAllTest {
         @DisplayName("StringSplitter.kt exists and has string functions")
         fun testStringSplitter() {
             val path = "src/kotlin/normal/Variables/WorkWithIt/StringSplitter.kt"
+            assertFileExists(path)
+            assertFileContains(path, "split", "println")
+        }
+
+        @Test
+        @DisplayName("StringSplitterv2.kt exists and has string functions")
+        fun testStringSplitterV2() {
+            val path = "src/kotlin/normal/Variables/WorkWithIt/StringSplitterv2.kt"
             assertFileExists(path)
             assertFileContains(path, "split", "println")
         }
@@ -156,7 +164,7 @@ class RunAllTest {
     class NullSafetyTests {
         
         @Test
-        @DisplayName("InputAndNullSafety.kt has null safety operators")
+        @DisplayName("InputAndNullSafety.kt exists and has null safety operators")
         fun testNullSafety() {
             val path = "src/kotlin/normal/InputAndNullSafety/InputAndNullSafety.kt"
             assertFileExists(path)
@@ -185,7 +193,4 @@ class RunAllTest {
             assertFileContains(path, "{", "->", "it")
         }
     }
-
-    // ==================== COMPREHENSIVE SUMMARY ====================
-    // Không cần hàm main() nữa, JUnit sẽ tự động chạy tất cả các test
 }
