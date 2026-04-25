@@ -181,7 +181,7 @@ Some recipes use `readln()` to get input from you. Just follow the prompts!
 - [x] Functions (basic + lambda)
 - [x] Null safety (`?`, `?:`, `!!`)
 
-**Progress:** ███████░░░ 70% (10/10) ✅
+**Progress:** █████████ 100% (10/10) ✅
 
 ### Phase 2: Intermediate (0% Complete)
 - [ ] Collections (List, Set, Map)
@@ -285,20 +285,6 @@ Your recipe should include:
 5. **Break things** – then fix them. That's how you learn!
 
 ---
-
-## 🆘 Common Mistakes (and how to fix them)
-
-| Mistake | Solution |
-|---------|----------|
-| `println("Hello)` (missing quote) | Always close your quotes: `"Hello"` |
-| `val name = "John"; name = "Jane"` | Use `var` if you need to change it |
-| `if (isSalty == true)` | Just write `if (isSalty)` |
-| Missing `else` in `when` expression | Add `else -> ...` at the end |
-| `Float` without `f` (`3.14`) | Kotlin thinks it's `Double`. Use `3.14f` |
-| `Char` with double quotes (`"a"`) | Use single quotes: `'a'` |
-| Infinite loop | Make sure condition eventually becomes `false` |
-| Using `=` instead of `==` | Use `==` for comparison |
-| Not handling null properly | Use `?.`, `?:`, or `!!` carefully |
 
 ---
 
