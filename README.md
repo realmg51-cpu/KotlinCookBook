@@ -280,6 +280,10 @@ Have questions? Suggestions? Want to share your own recipe?
 
 
 
+
+
+
+
 <!-- STRUCTURE_START -->
 ## 📁 Project Structure
 
@@ -290,7 +294,7 @@ src/kotlin/normal
 │   └── Continue.kt
 ├── Functions
 │   ├── BasicFunctions
-│   │   └── BasicFuncions.kt
+│   │   └── BasicFunctions.kt
 │   └── LambdaFunctions
 │       └── LambdaFunctions.kt
 ├── GettingStarted
@@ -331,7 +335,7 @@ src/kotlin/normal
 <img src=".github/avatars/bot.svg" width="40">
 
 *Auto-updated by KotlinCookBot 🤖*
-*Last update: 2026-04-24 13:43:28 UTC*
+*Last update: 2026-04-25 00:08:07 UTC*
 <!-- STRUCTURE_END -->
 
 ### 📖 Recipe Appendix
