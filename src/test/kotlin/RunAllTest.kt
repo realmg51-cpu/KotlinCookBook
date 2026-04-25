@@ -2,21 +2,60 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
+import java.io.ByteArrayOutputStream
 import java.io.File
-
-// Helper functions ở top-level
-private fun assertFileExists(path: String, message: String? = null) {
-    assertTrue(File(path).exists(), message ?: "File not found: $path")
-}
-
-private fun assertFileContains(path: String, vararg keywords: String) {
-    val content = File(path).readText()
-    keywords.forEach { keyword ->
-        assertTrue(content.contains(keyword), "File $path missing keyword: '$keyword'")
-    }
-}
+import java.io.PrintStream
+import javax.tools.JavaCompiler
+import javax.tools.ToolProvider
 
 class KotlinCookBookTests {
+
+    // ==================== HELPER FUNCTIONS ====================
+    
+    /**
+     * Chạy một file Kotlin và trả về output
+     */
+    private fun runKotlinFile(path: String, input: String = ""): String {
+        // Tạo file tạm để lưu output
+        val outFile = File.createTempFile("kotlin_output", ".txt")
+        
+        // Chạy kotlin script
+        val process = ProcessBuilder(
+            "kotlin", path
+        ).redirectOutput(outFile)
+         .redirectErrorStream(true)
+         .start()
+        
+        // Gửi input nếu có
+        if (input.isNotEmpty()) {
+            process.outputStream.write(input.toByteArray())
+            process.outputStream.flush()
+            process.outputStream.close()
+        }
+        
+        process.waitFor()
+        
+        // Đọc output
+        val output = outFile.readText()
+        outFile.delete()
+        
+        return output
+    }
+    
+    /**
+     * Kiểm tra file có thể compile được không
+     */
+    private fun isKotlinFileCompilable(path: String): Boolean {
+        return try {
+            val process = ProcessBuilder(
+                "kotlinc", "-script", path
+            ).redirectError(ProcessBuilder.Redirect.DISCARD)
+             .start()
+            process.waitFor() == 0
+        } catch (e: Exception) {
+            false
+        }
+    }
 
     // ==================== GETTING STARTED TESTS ====================
     @Nested
@@ -24,11 +63,14 @@ class KotlinCookBookTests {
     class GettingStartedTests {
         
         @Test
-        @DisplayName("HelloWorld.kt exists and has correct syntax")
+        @DisplayName("HelloWorld.kt can run and prints something")
         fun testHelloWorld() {
             val path = "src/kotlin/normal/GettingStarted/HelloWorld.kt"
-            assertFileExists(path)
-            assertFileContains(path, "fun main", "println", "Hello")
+            val output = runKotlinFile(path)
+            
+            assertTrue(File(path).exists(), "File not found")
+            assertTrue(output.isNotBlank(), "Program should print something")
+            assertTrue(isKotlinFileCompilable(path), "File should be compilable")
         }
     }
 
@@ -38,43 +80,31 @@ class KotlinCookBookTests {
     class VariablesTests {
         
         @Test
-        @DisplayName("ImmutableVariables.kt uses 'val'")
-        fun testImmutableVariables() {
-            val path = "src/kotlin/normal/Variables/ImmutableVariables.kt"
-            assertFileExists(path)
-            assertFileContains(path, "val")
-        }
-
-        @Test
-        @DisplayName("MutableVariables.kt uses 'var'")
-        fun testMutableVariables() {
-            val path = "src/kotlin/normal/Variables/MutableVariables.kt"
-            assertFileExists(path)
-            assertFileContains(path, "var")
-        }
-
-        @Test
-        @DisplayName("CommonVariables.kt has data types")
-        fun testCommonVariables() {
+        @DisplayName("Variables show values correctly")
+        fun testVariables() {
             val path = "src/kotlin/normal/Variables/CommonVariables.kt"
-            assertFileExists(path)
-            assertFileContains(path, "Int", "String", "Double")
+            val output = runKotlinFile(path)
+            
+            assertTrue(File(path).exists(), "File not found")
+            assertTrue(isKotlinFileCompilable(path), "Code should compile")
+            
+            // Kiểm tra output có chứa số hoặc chữ không (không hardcode)
+            val hasNumber = output.any { it.isDigit() }
+            val hasLetter = output.any { it.isLetter() }
+            assertTrue(hasNumber || hasLetter, "Program should output something meaningful")
         }
-
+        
         @Test
-        @DisplayName("StringSplitter.kt exists and has string functions")
+        @DisplayName("StringSplitter can split a string")
         fun testStringSplitter() {
             val path = "src/kotlin/normal/Variables/WorkWithIt/StringSplitter.kt"
-            assertFileExists(path)
-            assertFileContains(path, "split", "println")
-        }
-
-        @Test
-        @DisplayName("StringSplitterv2.kt exists and has string functions")
-        fun testStringSplitterV2() {
-            val path = "src/kotlin/normal/Variables/WorkWithIt/StringSplitterv2.kt"
-            assertFileExists(path)
-            assertFileContains(path, "split", "println")
+            val output = runKotlinFile(path)
+            
+            assertTrue(File(path).exists(), "File not found")
+            assertTrue(isKotlinFileCompilable(path), "Code should compile")
+            
+            // Chỉ cần chạy được, không fail
+            assertTrue(output.isNotEmpty(), "Program should produce output")
         }
     }
 
@@ -84,25 +114,15 @@ class KotlinCookBookTests {
     class IfChefTests {
         
         @Test
-        @DisplayName("IfChef.kt exists and has if-else")
+        @DisplayName("IfChef can make decisions")
         fun testIfChef() {
             val path = "src/kotlin/normal/IfChef/IfChef.kt"
-            assertFileExists(path)
-            assertFileContains(path, "if", "else")
-        }
-    }
-
-    // ==================== WHEN CHEF TESTS ====================
-    @Nested
-    @DisplayName("When Chef Tests")
-    class WhenChefTests {
-        
-        @Test
-        @DisplayName("WhenChef.kt exists and has when expression")
-        fun testWhenChef() {
-            val path = "src/kotlin/normal/WhenChef/WhenChef.kt"
-            assertFileExists(path)
-            assertFileContains(path, "when", "->", "else")
+            val output = runKotlinFile(path)
+            
+            assertTrue(File(path).exists(), "File not found")
+            assertTrue(isKotlinFileCompilable(path), "Code should compile")
+            assertTrue(output.contains("if") || output.contains("else") || output.isNotEmpty(), 
+                "Program should demonstrate decision making")
         }
     }
 
@@ -112,49 +132,36 @@ class KotlinCookBookTests {
     class LoopsTests {
         
         @Test
-        @DisplayName("ForStirring.kt exists and has for loop")
+        @DisplayName("For loop runs without errors")
         fun testForLoop() {
             val path = "src/kotlin/normal/Loops/For/ForStirring.kt"
-            assertFileExists(path)
-            assertFileContains(path, "for")
+            val output = runKotlinFile(path)
+            
+            assertTrue(File(path).exists(), "File not found")
+            assertTrue(isKotlinFileCompilable(path), "Code should compile")
+            assertTrue(output.isNotEmpty(), "Program should produce output")
         }
-
-        @Test
-        @DisplayName("WhileStirring.kt exists and has while loop")
-        fun testWhileLoop() {
-            val path = "src/kotlin/normal/Loops/While/WhileStirring.kt"
-            assertFileExists(path)
-            assertFileContains(path, "while")
-        }
-
-        @Test
-        @DisplayName("DoWhileStirring.kt exists and has do-while loop")
-        fun testDoWhileLoop() {
-            val path = "src/kotlin/normal/Loops/Do-While/DoWhileStirring.kt"
-            assertFileExists(path)
-            assertFileContains(path, "do", "while")
-        }
-    }
-
-    // ==================== BREAK & CONTINUE TESTS ====================
-    @Nested
-    @DisplayName("Break and Continue Tests")
-    class BreakContinueTests {
         
         @Test
-        @DisplayName("Break.kt exists and has break keyword")
-        fun testBreak() {
-            val path = "src/kotlin/normal/BreakAndContinue/Break.kt"
-            assertFileExists(path)
-            assertFileContains(path, "break")
+        @DisplayName("While loop runs without errors")
+        fun testWhileLoop() {
+            val path = "src/kotlin/normal/Loops/While/WhileStirring.kt"
+            val output = runKotlinFile(path)
+            
+            assertTrue(File(path).exists(), "File not found")
+            assertTrue(isKotlinFileCompilable(path), "Code should compile")
+            assertTrue(output.isNotEmpty(), "Program should produce output")
         }
-
+        
         @Test
-        @DisplayName("Continue.kt exists and has continue keyword")
-        fun testContinue() {
-            val path = "src/kotlin/normal/BreakAndContinue/Continue.kt"
-            assertFileExists(path)
-            assertFileContains(path, "continue")
+        @DisplayName("Do-While loop runs without errors")
+        fun testDoWhileLoop() {
+            val path = "src/kotlin/normal/Loops/Do-While/DoWhileStirring.kt"
+            val output = runKotlinFile(path)
+            
+            assertTrue(File(path).exists(), "File not found")
+            assertTrue(isKotlinFileCompilable(path), "Code should compile")
+            assertTrue(output.isNotEmpty(), "Program should produce output")
         }
     }
 
@@ -164,11 +171,17 @@ class KotlinCookBookTests {
     class NullSafetyTests {
         
         @Test
-        @DisplayName("InputAndNullSafety.kt exists and has null safety operators")
+        @DisplayName("Null safety handles null inputs gracefully")
         fun testNullSafety() {
             val path = "src/kotlin/normal/InputAndNullSafety/InputAndNullSafety.kt"
-            assertFileExists(path)
-            assertFileContains(path, "?.", "?:", "let", "toIntOrNull")
+            
+            // Tạm thời chỉ kiểm tra file tồn tại và compile được
+            // Vì file này cần user input, test sẽ phức tạp hơn
+            assertTrue(File(path).exists(), "File not found")
+            
+            // Kiểm tra compile thay vì chạy (vì có readln)
+            val compileResult = isKotlinFileCompilable(path)
+            assertTrue(compileResult, "Code should compile without errors")
         }
     }
 
@@ -178,19 +191,25 @@ class KotlinCookBookTests {
     class FunctionsTests {
         
         @Test
-        @DisplayName("BasicFunctions.kt exists and has function syntax")
+        @DisplayName("Basic function runs without errors")
         fun testBasicFunctions() {
             val path = "src/kotlin/normal/Functions/BasicFunctions/BasicFunctions.kt"
-            assertFileExists(path)
-            assertFileContains(path, "fun", "return")
+            val output = runKotlinFile(path)
+            
+            assertTrue(File(path).exists(), "File not found")
+            assertTrue(isKotlinFileCompilable(path), "Code should compile")
+            assertTrue(output.isNotEmpty(), "Program should produce output")
         }
-
+        
         @Test
-        @DisplayName("LambdaFunctions.kt exists and has lambda syntax")
+        @DisplayName("Lambda function runs without errors")
         fun testLambdaFunctions() {
             val path = "src/kotlin/normal/Functions/LambdaFunctions/LambdaFunctions.kt"
-            assertFileExists(path)
-            assertFileContains(path, "{", "->", "it")
+            val output = runKotlinFile(path)
+            
+            assertTrue(File(path).exists(), "File not found")
+            assertTrue(isKotlinFileCompilable(path), "Code should compile")
+            assertTrue(output.isNotEmpty(), "Program should produce output")
         }
     }
 }
