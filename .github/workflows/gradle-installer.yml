@@ -19,14 +19,14 @@ jobs:
       - name: Download gradle-wrapper.jar
         run: |
           curl -L -o gradle/wrapper/gradle-wrapper.jar \
-            https://raw.githubusercontent.com/gradle/gradle/v8.5.0/gradle/wrapper/gradle-wrapper.jar
+            https://raw.githubusercontent.com/gradle/gradle/v9.4.1/gradle/wrapper/gradle-wrapper.jar
       
       - name: Create gradle-wrapper.properties
         run: |
           cat > gradle/wrapper/gradle-wrapper.properties << 'EOF'
           distributionBase=GRADLE_USER_HOME
           distributionPath=wrapper/dists
-          distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-bin.zip
+          distributionUrl=https\://services.gradle.org/distributions/gradle-9.4.1-bin.zip
           zipStoreBase=GRADLE_USER_HOME
           zipStorePath=wrapper/dists
           EOF
@@ -34,13 +34,13 @@ jobs:
       - name: Download gradlew script
         run: |
           curl -L -o gradlew \
-            https://raw.githubusercontent.com/gradle/gradle/v8.5.0/gradlew
+            https://raw.githubusercontent.com/gradle/gradle/v9.4.1/gradlew
           chmod +x gradlew
       
       - name: Download gradlew.bat
         run: |
           curl -L -o gradlew.bat \
-            https://raw.githubusercontent.com/gradle/gradle/v8.5.0/gradlew.bat
+            https://raw.githubusercontent.com/gradle/gradle/v9.4.1/gradlew.bat
       
       - name: Commit and push
         run: |
