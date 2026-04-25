@@ -169,7 +169,7 @@ Some recipes use `readln()` to get input from you. Just follow the prompts!
 
 ## 🗺️ Roadmap
 
-### Phase 1: Kotlin Basics (70% Complete)
+### Phase 1: Kotlin Basics (100% Completed)
 - [x] Hello World
 - [x] String manipulation
 - [x] Variables (`val` vs `var`)
