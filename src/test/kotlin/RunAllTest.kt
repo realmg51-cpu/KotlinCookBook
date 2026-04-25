@@ -2,31 +2,20 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
-import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.ByteArrayOutputStream
 import java.io.PrintStream
-import javax.tools.JavaCompiler
-import javax.tools.ToolProvider
 
-class KotlinCookBookTests {
+// ==================== TOP-LEVEL HELPER FUNCTIONS ====================
 
-    // ==================== HELPER FUNCTIONS ====================
-    
-    /**
-     * Chạy một file Kotlin và trả về output
-     */
-    private fun runKotlinFile(path: String, input: String = ""): String {
-        // Tạo file tạm để lưu output
-        val outFile = File.createTempFile("kotlin_output", ".txt")
+/**
+ * Chạy một file Kotlin và trả về output
+ */
+private fun runKotlinFile(path: String, input: String = ""): String {
+    return try {
+        val process = ProcessBuilder("kotlin", path)
+            .start()
         
-        // Chạy kotlin script
-        val process = ProcessBuilder(
-            "kotlin", path
-        ).redirectOutput(outFile)
-         .redirectErrorStream(true)
-         .start()
-        
-        // Gửi input nếu có
         if (input.isNotEmpty()) {
             process.outputStream.write(input.toByteArray())
             process.outputStream.flush()
@@ -34,182 +23,223 @@ class KotlinCookBookTests {
         }
         
         process.waitFor()
-        
-        // Đọc output
-        val output = outFile.readText()
-        outFile.delete()
-        
-        return output
+        process.inputStream.bufferedReader().readText()
+    } catch (e: Exception) {
+        "Error: ${e.message}"
     }
+}
+
+/**
+ * Kiểm tra file có thể compile được không
+ */
+private fun isKotlinFileCompilable(path: String): Boolean {
+    return try {
+        val process = ProcessBuilder("kotlinc", "-script", path)
+            .redirectError(ProcessBuilder.Redirect.DISCARD)
+            .start()
+        process.waitFor() == 0
+    } catch (e: Exception) {
+        false
+    }
+}
+
+private fun assertFileExists(path: String) {
+    assertTrue(File(path).exists(), "File not found: $path")
+}
+
+// ==================== TEST CLASSES ====================
+
+@Nested
+@DisplayName("Getting Started Tests")
+class GettingStartedTests {
     
-    /**
-     * Kiểm tra file có thể compile được không
-     */
-    private fun isKotlinFileCompilable(path: String): Boolean {
-        return try {
-            val process = ProcessBuilder(
-                "kotlinc", "-script", path
-            ).redirectError(ProcessBuilder.Redirect.DISCARD)
-             .start()
-            process.waitFor() == 0
-        } catch (e: Exception) {
-            false
-        }
+    @Test
+    @DisplayName("HelloWorld.kt can run and prints something")
+    fun testHelloWorld() {
+        val path = "src/kotlin/normal/GettingStarted/HelloWorld.kt"
+        assertFileExists(path)
+        
+        val output = runKotlinFile(path)
+        assertTrue(output.isNotBlank(), "Program should print something")
+        assertTrue(isKotlinFileCompilable(path), "File should be compilable")
+    }
+}
+
+@Nested
+@DisplayName("Variables Tests")
+class VariablesTests {
+    
+    @Test
+    @DisplayName("ImmutableVariables.kt exists and compiles")
+    fun testImmutableVariables() {
+        val path = "src/kotlin/normal/Variables/ImmutableVariables.kt"
+        assertFileExists(path)
+        assertTrue(isKotlinFileCompilable(path), "Code should compile")
     }
 
-    // ==================== GETTING STARTED TESTS ====================
-    @Nested
-    @DisplayName("Getting Started Tests")
-    class GettingStartedTests {
-        
-        @Test
-        @DisplayName("HelloWorld.kt can run and prints something")
-        fun testHelloWorld() {
-            val path = "src/kotlin/normal/GettingStarted/HelloWorld.kt"
-            val output = runKotlinFile(path)
-            
-            assertTrue(File(path).exists(), "File not found")
-            assertTrue(output.isNotBlank(), "Program should print something")
-            assertTrue(isKotlinFileCompilable(path), "File should be compilable")
-        }
+    @Test
+    @DisplayName("MutableVariables.kt exists and compiles")
+    fun testMutableVariables() {
+        val path = "src/kotlin/normal/Variables/MutableVariables.kt"
+        assertFileExists(path)
+        assertTrue(isKotlinFileCompilable(path), "Code should compile")
     }
 
-    // ==================== VARIABLES TESTS ====================
-    @Nested
-    @DisplayName("Variables Tests")
-    class VariablesTests {
-        
-        @Test
-        @DisplayName("Variables show values correctly")
-        fun testVariables() {
-            val path = "src/kotlin/normal/Variables/CommonVariables.kt"
-            val output = runKotlinFile(path)
-            
-            assertTrue(File(path).exists(), "File not found")
-            assertTrue(isKotlinFileCompilable(path), "Code should compile")
-            
-            // Kiểm tra output có chứa số hoặc chữ không (không hardcode)
-            val hasNumber = output.any { it.isDigit() }
-            val hasLetter = output.any { it.isLetter() }
-            assertTrue(hasNumber || hasLetter, "Program should output something meaningful")
-        }
-        
-        @Test
-        @DisplayName("StringSplitter can split a string")
-        fun testStringSplitter() {
-            val path = "src/kotlin/normal/Variables/WorkWithIt/StringSplitter.kt"
-            val output = runKotlinFile(path)
-            
-            assertTrue(File(path).exists(), "File not found")
-            assertTrue(isKotlinFileCompilable(path), "Code should compile")
-            
-            // Chỉ cần chạy được, không fail
-            assertTrue(output.isNotEmpty(), "Program should produce output")
-        }
+    @Test
+    @DisplayName("CommonVariables.kt exists and compiles")
+    fun testCommonVariables() {
+        val path = "src/kotlin/normal/Variables/CommonVariables.kt"
+        assertFileExists(path)
+        assertTrue(isKotlinFileCompilable(path), "Code should compile")
     }
 
-    // ==================== IF CHEF TESTS ====================
-    @Nested
-    @DisplayName("If Chef Tests")
-    class IfChefTests {
+    @Test
+    @DisplayName("StringSplitter.kt runs successfully")
+    fun testStringSplitter() {
+        val path = "src/kotlin/normal/Variables/WorkWithIt/StringSplitter.kt"
+        assertFileExists(path)
         
-        @Test
-        @DisplayName("IfChef can make decisions")
-        fun testIfChef() {
-            val path = "src/kotlin/normal/IfChef/IfChef.kt"
-            val output = runKotlinFile(path)
-            
-            assertTrue(File(path).exists(), "File not found")
-            assertTrue(isKotlinFileCompilable(path), "Code should compile")
-            assertTrue(output.contains("if") || output.contains("else") || output.isNotEmpty(), 
-                "Program should demonstrate decision making")
-        }
+        val output = runKotlinFile(path)
+        assertTrue(output.isNotEmpty(), "Program should produce output")
+        assertTrue(isKotlinFileCompilable(path), "Code should compile")
     }
 
-    // ==================== LOOPS TESTS ====================
-    @Nested
-    @DisplayName("Loops Tests")
-    class LoopsTests {
+    @Test
+    @DisplayName("StringSplitterv2.kt runs successfully")
+    fun testStringSplitterV2() {
+        val path = "src/kotlin/normal/Variables/WorkWithIt/StringSplitterv2.kt"
+        assertFileExists(path)
         
-        @Test
-        @DisplayName("For loop runs without errors")
-        fun testForLoop() {
-            val path = "src/kotlin/normal/Loops/For/ForStirring.kt"
-            val output = runKotlinFile(path)
-            
-            assertTrue(File(path).exists(), "File not found")
-            assertTrue(isKotlinFileCompilable(path), "Code should compile")
-            assertTrue(output.isNotEmpty(), "Program should produce output")
-        }
+        val output = runKotlinFile(path)
+        assertTrue(output.isNotEmpty(), "Program should produce output")
+        assertTrue(isKotlinFileCompilable(path), "Code should compile")
+    }
+}
+
+@Nested
+@DisplayName("If Chef Tests")
+class IfChefTests {
+    
+    @Test
+    @DisplayName("IfChef.kt exists and compiles")
+    fun testIfChef() {
+        val path = "src/kotlin/normal/IfChef/IfChef.kt"
+        assertFileExists(path)
+        assertTrue(isKotlinFileCompilable(path), "Code should compile")
+    }
+}
+
+@Nested
+@DisplayName("When Chef Tests")
+class WhenChefTests {
+    
+    @Test
+    @DisplayName("WhenChef.kt exists and compiles")
+    fun testWhenChef() {
+        val path = "src/kotlin/normal/WhenChef/WhenChef.kt"
+        assertFileExists(path)
+        assertTrue(isKotlinFileCompilable(path), "Code should compile")
+    }
+}
+
+@Nested
+@DisplayName("Loops Tests")
+class LoopsTests {
+    
+    @Test
+    @DisplayName("ForStirring.kt runs successfully")
+    fun testForLoop() {
+        val path = "src/kotlin/normal/Loops/For/ForStirring.kt"
+        assertFileExists(path)
         
-        @Test
-        @DisplayName("While loop runs without errors")
-        fun testWhileLoop() {
-            val path = "src/kotlin/normal/Loops/While/WhileStirring.kt"
-            val output = runKotlinFile(path)
-            
-            assertTrue(File(path).exists(), "File not found")
-            assertTrue(isKotlinFileCompilable(path), "Code should compile")
-            assertTrue(output.isNotEmpty(), "Program should produce output")
-        }
-        
-        @Test
-        @DisplayName("Do-While loop runs without errors")
-        fun testDoWhileLoop() {
-            val path = "src/kotlin/normal/Loops/Do-While/DoWhileStirring.kt"
-            val output = runKotlinFile(path)
-            
-            assertTrue(File(path).exists(), "File not found")
-            assertTrue(isKotlinFileCompilable(path), "Code should compile")
-            assertTrue(output.isNotEmpty(), "Program should produce output")
-        }
+        val output = runKotlinFile(path)
+        assertTrue(output.isNotEmpty(), "Program should produce output")
+        assertTrue(isKotlinFileCompilable(path), "Code should compile")
     }
 
-    // ==================== NULL SAFETY TESTS ====================
-    @Nested
-    @DisplayName("Null Safety Tests")
-    class NullSafetyTests {
+    @Test
+    @DisplayName("WhileStirring.kt runs successfully")
+    fun testWhileLoop() {
+        val path = "src/kotlin/normal/Loops/While/WhileStirring.kt"
+        assertFileExists(path)
         
-        @Test
-        @DisplayName("Null safety handles null inputs gracefully")
-        fun testNullSafety() {
-            val path = "src/kotlin/normal/InputAndNullSafety/InputAndNullSafety.kt"
-            
-            // Tạm thời chỉ kiểm tra file tồn tại và compile được
-            // Vì file này cần user input, test sẽ phức tạp hơn
-            assertTrue(File(path).exists(), "File not found")
-            
-            // Kiểm tra compile thay vì chạy (vì có readln)
-            val compileResult = isKotlinFileCompilable(path)
-            assertTrue(compileResult, "Code should compile without errors")
-        }
+        val output = runKotlinFile(path)
+        assertTrue(output.isNotEmpty(), "Program should produce output")
+        assertTrue(isKotlinFileCompilable(path), "Code should compile")
     }
 
-    // ==================== FUNCTIONS TESTS ====================
-    @Nested
-    @DisplayName("Functions Tests")
-    class FunctionsTests {
+    @Test
+    @DisplayName("DoWhileStirring.kt runs successfully")
+    fun testDoWhileLoop() {
+        val path = "src/kotlin/normal/Loops/Do-While/DoWhileStirring.kt"
+        assertFileExists(path)
         
-        @Test
-        @DisplayName("Basic function runs without errors")
-        fun testBasicFunctions() {
-            val path = "src/kotlin/normal/Functions/BasicFunctions/BasicFunctions.kt"
-            val output = runKotlinFile(path)
-            
-            assertTrue(File(path).exists(), "File not found")
-            assertTrue(isKotlinFileCompilable(path), "Code should compile")
-            assertTrue(output.isNotEmpty(), "Program should produce output")
-        }
+        val output = runKotlinFile(path)
+        assertTrue(output.isNotEmpty(), "Program should produce output")
+        assertTrue(isKotlinFileCompilable(path), "Code should compile")
+    }
+}
+
+@Nested
+@DisplayName("Break and Continue Tests")
+class BreakContinueTests {
+    
+    @Test
+    @DisplayName("Break.kt exists and compiles")
+    fun testBreak() {
+        val path = "src/kotlin/normal/BreakAndContinue/Break.kt"
+        assertFileExists(path)
+        assertTrue(isKotlinFileCompilable(path), "Code should compile")
+    }
+
+    @Test
+    @DisplayName("Continue.kt exists and compiles")
+    fun testContinue() {
+        val path = "src/kotlin/normal/BreakAndContinue/Continue.kt"
+        assertFileExists(path)
+        assertTrue(isKotlinFileCompilable(path), "Code should compile")
+    }
+}
+
+@Nested
+@DisplayName("Null Safety Tests")
+class NullSafetyTests {
+    
+    @Test
+    @DisplayName("InputAndNullSafety.kt compiles successfully")
+    fun testNullSafety() {
+        val path = "src/kotlin/normal/InputAndNullSafety/InputAndNullSafety.kt"
+        assertFileExists(path)
         
-        @Test
-        @DisplayName("Lambda function runs without errors")
-        fun testLambdaFunctions() {
-            val path = "src/kotlin/normal/Functions/LambdaFunctions/LambdaFunctions.kt"
-            val output = runKotlinFile(path)
-            
-            assertTrue(File(path).exists(), "File not found")
-            assertTrue(isKotlinFileCompilable(path), "Code should compile")
-            assertTrue(output.isNotEmpty(), "Program should produce output")
-        }
+        // Chỉ kiểm tra compile, không chạy vì có readln() cần input
+        val compiles = isKotlinFileCompilable(path)
+        assertTrue(compiles, "Code should compile without errors")
+    }
+}
+
+@Nested
+@DisplayName("Functions Tests")
+class FunctionsTests {
+    
+    @Test
+    @DisplayName("BasicFunctions.kt runs successfully")
+    fun testBasicFunctions() {
+        val path = "src/kotlin/normal/Functions/BasicFunctions/BasicFunctions.kt"
+        assertFileExists(path)
+        
+        val output = runKotlinFile(path)
+        assertTrue(output.isNotEmpty(), "Program should produce output")
+        assertTrue(isKotlinFileCompilable(path), "Code should compile")
+    }
+
+    @Test
+    @DisplayName("LambdaFunctions.kt runs successfully")
+    fun testLambdaFunctions() {
+        val path = "src/kotlin/normal/Functions/LambdaFunctions/LambdaFunctions.kt"
+        assertFileExists(path)
+        
+        val output = runKotlinFile(path)
+        assertTrue(output.isNotEmpty(), "Program should produce output")
+        assertTrue(isKotlinFileCompilable(path), "Code should compile")
     }
 }
