@@ -10,19 +10,22 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")  // ← THÊM DÒNG NÀY
 }
 
-// ⭐ THÊM PHẦN NÀY để Gradle tìm đúng recipe
 sourceSets {
     main {
         kotlin.srcDirs("src/kotlin/normal")
     }
     test {
-        kotlin.srcDirs("src/test/kotlin")  // ← SỬA LẠI: không phải "src/kotlin/test"
+        kotlin.srcDirs("src/test/kotlin")
     }
 }
 
 tasks.test {
     useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
 }
-
