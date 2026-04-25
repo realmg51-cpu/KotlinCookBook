@@ -11,16 +11,44 @@ updates:
       - "github-actions"
     commit-message:
       prefix: "ci"
-    # 👇 Quan trọng: Không ignore bất kỳ workflow nào
     ignore:
       - dependency-name: "*"
-        update-types: ["version-update:semver-patch"]  # Chỉ bỏ qua patch, vẫn check minor/major
-    # Hoặc không có ignore gì cả
+        update-types: ["version-update:semver-patch"]
 
-  # Check tất cả workflows trong thư mục con
+  # GitHub Actions workflows trong thư mục con
   - package-ecosystem: "github-actions"
     directory: "/.github/workflows"
     schedule:
       interval: "weekly"
     labels:
       - "dependencies"
+      - "github-actions"
+
+  # Gradle/Kotlin dependencies
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "gradle"
+      - "kotlin"
+    commit-message:
+      prefix: "deps"
+    # Nhóm các dependencies liên quan
+    groups:
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*"
+        update-types:
+          - "minor"
+          - "patch"
+      junit:
+        patterns:
+          - "org.junit.jupiter*"
+        update-types:
+          - "minor"
+          - "patch"
+    # Không ignore gì cả - cập nhật tất cả
+    open-pull-requests-limit: 10
