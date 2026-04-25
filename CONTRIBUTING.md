@@ -1,6 +1,6 @@
 
 
-## 🤝 CONTRIBUTING.md
+
 
 # 🤝 Contributing to Kotlin CookBook 🍳
 
