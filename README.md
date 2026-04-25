@@ -9,9 +9,19 @@
 ![Tests](https://github.com/realmg51-cpu/KotlinCookBook/actions/workflows/ci.yml/badge.svg)
 ![Stars](https://img.shields.io/github/stars/realmg51-cpu/KotlinCookBook)
 ![Forks](https://img.shields.io/github/forks/realmg51-cpu/KotlinCookBook)
-![Progress](https://img.shields.io/badge/Progress-50%25-orange)
+![Progress](https://img.shields.io/badge/Progress-70%25-brightgreen)
 
 > *"Learn Kotlin the fun way – one recipe at a time!"*
+
+## 🔗 Quick Links
+
+[📖 Read Online](https://github.com/realmg51-cpu/KotlinCookBook) |
+[🐛 Report Bug](https://github.com/realmg51-cpu/KotlinCookBook/issues) |
+[✨ Request Recipe](https://github.com/realmg51-cpu/KotlinCookBook/issues) |
+[🐳 Docker Hub](https://github.com/realmg51-cpu/KotlinCookBook/pkgs/container/kotlincookbook) |
+[📚 Full Appendix](APPENDIX.md)
+
+---
 
 ## What is it?
 
@@ -66,6 +76,25 @@ For detailed setup instructions, see [InstallAndSetup.md](https://github.com/rea
 
 ---
 
+## 🐳 Docker Way (No installation needed)
+
+Don't want to install Kotlin locally? Use Docker!
+
+```bash
+# Pull from GitHub Container Registry
+docker pull ghcr.io/realmg51-cpu/kotlincookbook:latest
+
+# Run any recipe interactively
+docker run --rm -it ghcr.io/realmg51-cpu/kotlincookbook:latest \
+  kotlin src/kotlin/normal/GettingStarted/HelloWorld.kt
+
+# Or run with custom recipe
+docker run --rm -it ghcr.io/realmg51-cpu/kotlincookbook:latest \
+  kotlin -script src/kotlin/normal/IfChef/IfChef.kt
+```
+
+---
+
 ## 📚 Recipes so far
 
 | Recipe | What you'll learn | Level | Status |
@@ -82,10 +111,24 @@ For detailed setup instructions, see [InstallAndSetup.md](https://github.com/rea
 | `Break.kt` | Control your loops (stop) | 🍜 Beginner | ✅ Done |
 | `Continue.kt` | Control your loops (skip) | 🍜 Beginner | ✅ Done |
 | `InputAndNullSafety.kt` | User input & null safety | 🍜 Beginner | ✅ Done |
-| `BasicFunction.kt` | Creating basic functions | 🍜 Beginner | ✅ Done |
-| `LambdaFunction.kt` | Lambda expressions | 🥘 Intermediate | ✅ Done |
+| `BasicFunctions.kt` | Creating basic functions | 🍜 Beginner | ✅ Done |
+| `LambdaFunctions.kt` | Lambda expressions | 🥘 Intermediate | ✅ Done |
 
-> 
+---
+
+## 🔥 Recipe of the Week
+
+### [LambdaFunctions.kt](src/kotlin/normal/Functions/LambdaFunctions/LambdaFunctions.kt)
+
+Learn how to pass behavior as parameters - like telling your assistant "stir until golden brown" instead of micromanaging every stir!
+
+**What makes lambdas special?**
+- Write less code
+- Pass behavior as data
+- Perfect for collections operations
+
+[Read more →](src/kotlin/normal/Functions/LambdaFunctions/LambdaFunctions.kt)
+
 ---
 
 ## 🚀 How to cook (run) these recipes
@@ -100,6 +143,9 @@ kotlin src/kotlin/normal/GettingStarted/HelloWorld.kt
 
 # Or run with script mode
 kotlinc -script src/kotlin/normal/GettingStarted/HelloWorld.kt
+
+# Run with Gradle (recommended for tests)
+./gradlew test
 ```
 
 ### Running interactive examples:
@@ -121,9 +167,41 @@ Some recipes use `readln()` to get input from you. Just follow the prompts!
 
 ---
 
+## 🗺️ Roadmap
+
+### Phase 1: Kotlin Basics (70% Complete)
+- [x] Hello World
+- [x] String manipulation
+- [x] Variables (`val` vs `var`)
+- [x] Data types (Int, Char, String, Float, Double)
+- [x] `if-else` decisions
+- [x] `when` expression
+- [x] Loops (`for`, `while`, `do-while`)
+- [x] Break and Continue
+- [x] Functions (basic + lambda)
+- [x] Null safety (`?`, `?:`, `!!`)
+
+**Progress:** ███████░░░ 70% (10/10) ✅
+
+### Phase 2: Intermediate (0% Complete)
+- [ ] Collections (List, Set, Map)
+- [ ] Lambdas and higher-order functions
+- [ ] Scope functions (`let`, `run`, `with`, `apply`, `also`)
+- [ ] Extension functions
+- [ ] Sealed classes and interfaces
+
+**Progress:** ░░░░░░░░░░ 0% (0/5)
+
+### Phase 3: Advanced (0% Complete)
+- [ ] Coroutines (async cooking!)
+- [ ] Kotlin 2.2.0 features
+- [ ] Android development basics
+- [ ] Multiplatform Magic
+- [ ] DSL design
+
+**Progress:** ░░░░░░░░░░ 0% (0/5)
+
 ---
-
-
 
 ## 🤝 How to Contribute
 
@@ -145,10 +223,21 @@ Want to add your own recipe? Awesome! Here's how:
  * 
  * Kitchen analogy:
  * [Explain it like you're in a kitchen]
+ * 
+ * @author [Your Name]
+ * @since [Date]
  */
 
 fun main() {
     // Your code here with clear comments
+    
+    // Challenge for learners
+    /*
+    🍳 TRY IT YOURSELF:
+    1. Modify this code to...
+    2. What happens if you...?
+    3. Create your own version that...
+    */
 }
 ```
 
@@ -157,12 +246,14 @@ Your recipe should include:
 - Clear comments explaining each step
 - (Optional) An `introduction.md` for deeper explanation
 - Examples or challenges at the end
+- Your name in the @author tag
 
 ### Style Guide:
 - Use emojis to make it fun 🍳
 - Add comments like a chef talking
 - Include "Try it yourself" sections
 - End with a small challenge
+- Use meaningful variable names
 
 ---
 
@@ -175,6 +266,14 @@ Your recipe should include:
 | @realmg51-cpu | HelloWorld, StringSplitter, Variables, DataTypes, IfChef, WhenChef, ForLoop | Apr 2026 |
 | @sunnn338 | WhileLoop, Break and Continue | Apr 2026 |
 
+### 👥 All Contributors
+
+<a href="https://github.com/realmg51-cpu/KotlinCookBook/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=realmg51-cpu/KotlinCookBook" />
+</a>
+
+*Made with [contrib.rocks](https://contrib.rocks)*
+
 ---
 
 ## 📖 How to Use This CookBook
@@ -184,34 +283,6 @@ Your recipe should include:
 3. **Experiment** – change values and see what happens
 4. **Try the challenges** – they make you a better chef
 5. **Break things** – then fix them. That's how you learn!
-
----
-
-## 🗺️ Roadmap
-
-### Phase 1: Kotlin Basics (In Progress)
-- [x] Hello World
-- [x] String manipulation
-- [x] Variables (`val` vs `var`)
-- [x] Data types (Int, Char, String, Float, Double)
-- [x] `if-else` decisions
-- [x] `when` expression
-- [x] Loops (`for`, `while`, `do-while`)
-- [x] Break and Continue
-- [ ] Functions
-- [x] Null safety (`?`, `?:`, `!!`)
-
-### Phase 2: Intermediate
-- [ ] Collections (List, Set, Map)
-- [ ] Lambdas and higher-order functions
-- [ ] Scope functions (`let`, `run`, `with`, `apply`, `also`)
-- [ ] Extension functions
-
-### Phase 3: Advanced
-- [ ] Coroutines (async cooking!)
-- [ ] Kotlin 2.2.0 features
-- [ ] Android development basics
-- [ ] Multiplatform Magic
 
 ---
 
@@ -227,6 +298,21 @@ Your recipe should include:
 | `Char` with double quotes (`"a"`) | Use single quotes: `'a'` |
 | Infinite loop | Make sure condition eventually becomes `false` |
 | Using `=` instead of `==` | Use `==` for comparison |
+| Not handling null properly | Use `?.`, `?:`, or `!!` carefully |
+
+---
+
+## 📊 Project Statistics
+
+[![Star History Chart](https://api.star-history.com/svg?repos=realmg51-cpu/KotlinCookBook&type=Date)](https://star-history.com/#realmg51-cpu/KotlinCookBook&Date)
+
+| Metric | Value |
+|--------|-------|
+| ⭐ Stars | Growing! |
+| 🍴 Forks | Accepting contributions |
+| 🍳 Recipes | 14+ and counting |
+| 👥 Contributors | 2+ amazing chefs |
+| 🐳 Docker Pulls | Fresh from the oven |
 
 ---
 
@@ -240,53 +326,30 @@ Your recipe should include:
 
 If this cookbook helped you, please **star** ⭐ this repo. It helps others find it too!
 
+[![Star History](https://img.shields.io/github/stars/realmg51-cpu/KotlinCookBook?style=social)](https://github.com/realmg51-cpu/KotlinCookBook/stargazers)
+
 ---
 
-## 💬 Connect
+## 💬 Connect & Support
 
 Have questions? Suggestions? Want to share your own recipe?
-- Open an **Issue** on GitHub
-- Submit a **Pull Request**
-- Fork and make it your own!
+
+- 🐛 **Report bugs** - [Open an Issue](https://github.com/realmg51-cpu/KotlinCookBook/issues)
+- 💡 **Suggest recipes** - [Feature request](https://github.com/realmg51-cpu/KotlinCookBook/issues)
+- 🔧 **Contribute** - [Submit a PR](https://github.com/realmg51-cpu/KotlinCookBook/pulls)
+- 📧 **Contact maintainer** - [@realmg51-cpu](https://github.com/realmg51-cpu)
 
 ---
+
+## 💭 Final Words
 
 > *"A good cook never stops learning new recipes. Neither should a good developer."*
 
 > *"Every expert was once a beginner who didn't give up."*
 
+> *"Code is like food - best when shared with others!"*
+
 ---
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <!-- STRUCTURE_START -->
 ## 📁 Project Structure
@@ -348,9 +411,24 @@ For a complete list of all recipes with code and introduction links, check out t
 
 > 💡 **Tip:** Each recipe includes a direct link to the code file and introduction (if available)!
 
-<!-- APPENDIX_END -->
+---
+
+## 🎯 What's Next?
+
+Check out our [Projects](https://github.com/realmg51-cpu/KotlinCookBook/projects) page to see what we're cooking next!
+
+**Coming soon:**
+- 🍜 Collection recipes (List, Set, Map)
+- 🔧 Scope function kitchen hacks
+- 🚀 Coroutine cooking (async recipes!)
+- 📱 Android app recipes
+
+---
 
 **Happy cooking! 👨‍🍳🍳**
 
 Now go cook some Kotlin! 🚀
 
+---
+
+*Made with ❤️ and ☕ by Kotlin enthusiasts around the world*
