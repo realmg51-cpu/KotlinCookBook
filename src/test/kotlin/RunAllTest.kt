@@ -1,151 +1,191 @@
-/**
- * Run all tests for KotlinCookBook
- * Tests top-level functions and code structure
- */
-
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import java.io.File
 
-fun captureOutput(block: () -> Unit): String {
-    val out = ByteArrayOutputStream()
-    System.setOut(PrintStream(out))
-    block()
-    System.setOut(System.out)
-    return out.toString()
-}
+class RunAllTest {
 
-fun testFileExists(path: String): Boolean {
-    return File(path).exists()
-}
-
-fun testFileContains(path: String, vararg keywords: String): Boolean {
-    val content = File(path).readText()
-    return keywords.all { content.contains(it) }
-}
-
-// ===== HELLOWORLD TESTS =====
-
-fun testHelloWorld() {
-    val path = "src/kotlin/normal/GettingStarted/HelloWorld.kt"
-    
-    assert(testFileExists(path)) { "HelloWorld.kt not found" }
-    assert(testFileContains(path, "fun main", "println", "Hello")) {
-        "HelloWorld.kt missing required content"
+    // Helper function để kiểm tra file
+    private fun assertFileExists(path: String, message: String? = null) {
+        assertTrue(File(path).exists(), message ?: "File not found: $path")
     }
-}
 
-// ===== VARIABLES TESTS =====
-
-fun testVariables() {
-    val paths = listOf(
-        "src/kotlin/normal/Variables/ImmutableVariables.kt",
-        "src/kotlin/normal/Variables/MutableVariables.kt",
-        "src/kotlin/normal/Variables/CommonVariables.kt"
-    )
-    
-    for (path in paths) {
-        assert(testFileExists(path)) { "File not found: $path" }
-    }
-    
-    assert(testFileContains(paths[0], "val")) { "ImmutableVariables missing 'val'" }
-    assert(testFileContains(paths[1], "var")) { "MutableVariables missing 'var'" }
-    assert(testFileContains(paths[2], "Int", "String", "Double")) {
-        "CommonVariables missing data types"
-    }
-}
-
-// ===== LOOPS TESTS =====
-
-fun testLoops() {
-    val paths = listOf(
-        "src/kotlin/normal/Loops/For/ForStirring.kt",
-        "src/kotlin/normal/Loops/While/WhileStirring.kt",
-        "src/kotlin/normal/Loops/Do-While/DoWhileStirring.kt",
-        "src/kotlin/normal/BreakAndContinue/Break.kt",
-        "src/kotlin/normal/BreakAndContinue/Continue.kt"
-    )
-    
-    for (path in paths) {
-        assert(testFileExists(path)) { "File not found: $path" }
-    }
-    
-    assert(testFileContains(paths[0], "for")) { "ForStirring missing 'for'" }
-    assert(testFileContains(paths[1], "while")) { "WhileStirring missing 'while'" }
-    assert(testFileContains(paths[2], "do")) { "DoWhileStirring missing 'do'" }
-    assert(testFileContains(paths[3], "break")) { "Break missing 'break'" }
-    assert(testFileContains(paths[4], "continue")) { "Continue missing 'continue'" }
-}
-
-// ===== NULL SAFETY TESTS =====
-
-fun testNullSafety() {
-    val path = "src/kotlin/normal/InputAndNullSafety/InputAndNullSafety.kt"
-    
-    assert(testFileExists(path)) { "InputAndNullSafety.kt not found" }
-    assert(testFileContains(path, "?.", "?:", "let", "toIntOrNull")) {
-        "InputAndNullSafety missing null safety operators"
-    }
-}
-
-// ===== FUNCTIONS TESTS =====
-
-fun testFunctions() {
-    val paths = listOf(
-        "src/kotlin/normal/Functions/BasicFunctions/BasicFunctions.kt",
-        "src/kotlin/normal/Functions/LambdaFunctions/LambdaFunctions.kt"
-    )
-    
-    for (path in paths) {
-        assert(testFileExists(path)) { "File not found: $path" }
-    }
-    
-    assert(testFileContains(paths[0], "fun", "return")) {
-        "BasicFunction missing function syntax"
-    }
-    
-    assert(testFileContains(paths[1], "{", "->", "it")) {
-        "LambdaFunction missing lambda syntax"
-    }
-}
-
-// ===== MAIN TEST RUNNER =====
-
-fun main() {
-    println("🧪 KotlinCookBook - Running All Tests")
-    println("======================================")
-    
-    val tests = mapOf(
-        "HelloWorld" to ::testHelloWorld,
-        "Variables" to ::testVariables,
-        "Loops" to ::testLoops,
-        "NullSafety" to ::testNullSafety,
-        "Functions" to ::testFunctions
-    )
-    
-    var passed = 0
-    var failed = 0
-    
-    for ((name, test) in tests) {
-        print("Testing $name... ")
-        try {
-            test()
-            println("✅ PASS")
-            passed++
-        } catch (e: Exception) {
-            println("❌ FAIL")
-            println("   Error: ${e.message}")
-            failed++
+    private fun assertFileContains(path: String, vararg keywords: String) {
+        val content = File(path).readText()
+        keywords.forEach { keyword ->
+            assertTrue(content.contains(keyword), "File $path missing keyword: '$keyword'")
         }
     }
-    
-    println("\n" + "=".repeat(50))
-    println("📊 Results: $passed passed, $failed failed")
-    
-    if (failed > 0) {
-        println("💥 Some tests failed!")
-        error("Test suite failed with $failed failures")
-    } else {
-        println("🎉 All tests passed!")
+
+    // ==================== GETTING STARTED ====================
+    @Nested
+    @DisplayName("Getting Started Tests")
+    class GettingStartedTests {
+        
+        @Test
+        @DisplayName("HelloWorld.kt exists and has correct syntax")
+        fun testHelloWorld() {
+            val path = "src/kotlin/normal/GettingStarted/HelloWorld.kt"
+            assertFileExists(path)
+            assertFileContains(path, "fun main", "println", "Hello")
+        }
     }
+
+    // ==================== VARIABLES TESTS ====================
+    @Nested
+    @DisplayName("Variables Tests")
+    class VariablesTests {
+        
+        @Test
+        @DisplayName("ImmutableVariables.kt uses 'val'")
+        fun testImmutableVariables() {
+            val path = "src/kotlin/normal/Variables/ImmutableVariables.kt"
+            assertFileExists(path)
+            assertFileContains(path, "val")
+        }
+
+        @Test
+        @DisplayName("MutableVariables.kt uses 'var'")
+        fun testMutableVariables() {
+            val path = "src/kotlin/normal/Variables/MutableVariables.kt"
+            assertFileExists(path)
+            assertFileContains(path, "var")
+        }
+
+        @Test
+        @DisplayName("CommonVariables.kt has data types")
+        fun testCommonVariables() {
+            val path = "src/kotlin/normal/Variables/CommonVariables.kt"
+            assertFileExists(path)
+            assertFileContains(path, "Int", "String", "Double")
+        }
+
+        @Test
+        @DisplayName("StringSplitter.kt exists and has string functions")
+        fun testStringSplitter() {
+            val path = "src/kotlin/normal/Variables/WorkWithIt/StringSplitter.kt"
+            assertFileExists(path)
+            assertFileContains(path, "split", "println")
+        }
+    }
+
+    // ==================== IF CHEF TESTS ====================
+    @Nested
+    @DisplayName("If Chef Tests")
+    class IfChefTests {
+        
+        @Test
+        @DisplayName("IfChef.kt exists and has if-else")
+        fun testIfChef() {
+            val path = "src/kotlin/normal/IfChef/IfChef.kt"
+            assertFileExists(path)
+            assertFileContains(path, "if", "else")
+        }
+    }
+
+    // ==================== WHEN CHEF TESTS ====================
+    @Nested
+    @DisplayName("When Chef Tests")
+    class WhenChefTests {
+        
+        @Test
+        @DisplayName("WhenChef.kt exists and has when expression")
+        fun testWhenChef() {
+            val path = "src/kotlin/normal/WhenChef/WhenChef.kt"
+            assertFileExists(path)
+            assertFileContains(path, "when", "->", "else")
+        }
+    }
+
+    // ==================== LOOPS TESTS ====================
+    @Nested
+    @DisplayName("Loops Tests")
+    class LoopsTests {
+        
+        @Test
+        @DisplayName("ForStirring.kt exists and has for loop")
+        fun testForLoop() {
+            val path = "src/kotlin/normal/Loops/For/ForStirring.kt"
+            assertFileExists(path)
+            assertFileContains(path, "for")
+        }
+
+        @Test
+        @DisplayName("WhileStirring.kt exists and has while loop")
+        fun testWhileLoop() {
+            val path = "src/kotlin/normal/Loops/While/WhileStirring.kt"
+            assertFileExists(path)
+            assertFileContains(path, "while")
+        }
+
+        @Test
+        @DisplayName("DoWhileStirring.kt exists and has do-while loop")
+        fun testDoWhileLoop() {
+            val path = "src/kotlin/normal/Loops/Do-While/DoWhileStirring.kt"
+            assertFileExists(path)
+            assertFileContains(path, "do", "while")
+        }
+    }
+
+    // ==================== BREAK & CONTINUE TESTS ====================
+    @Nested
+    @DisplayName("Break and Continue Tests")
+    class BreakContinueTests {
+        
+        @Test
+        @DisplayName("Break.kt exists and has break keyword")
+        fun testBreak() {
+            val path = "src/kotlin/normal/BreakAndContinue/Break.kt"
+            assertFileExists(path)
+            assertFileContains(path, "break")
+        }
+
+        @Test
+        @DisplayName("Continue.kt exists and has continue keyword")
+        fun testContinue() {
+            val path = "src/kotlin/normal/BreakAndContinue/Continue.kt"
+            assertFileExists(path)
+            assertFileContains(path, "continue")
+        }
+    }
+
+    // ==================== NULL SAFETY TESTS ====================
+    @Nested
+    @DisplayName("Null Safety Tests")
+    class NullSafetyTests {
+        
+        @Test
+        @DisplayName("InputAndNullSafety.kt has null safety operators")
+        fun testNullSafety() {
+            val path = "src/kotlin/normal/InputAndNullSafety/InputAndNullSafety.kt"
+            assertFileExists(path)
+            assertFileContains(path, "?.", "?:", "let", "toIntOrNull")
+        }
+    }
+
+    // ==================== FUNCTIONS TESTS ====================
+    @Nested
+    @DisplayName("Functions Tests")
+    class FunctionsTests {
+        
+        @Test
+        @DisplayName("BasicFunctions.kt exists and has function syntax")
+        fun testBasicFunctions() {
+            val path = "src/kotlin/normal/Functions/BasicFunctions/BasicFunctions.kt"
+            assertFileExists(path)
+            assertFileContains(path, "fun", "return")
+        }
+
+        @Test
+        @DisplayName("LambdaFunctions.kt exists and has lambda syntax")
+        fun testLambdaFunctions() {
+            val path = "src/kotlin/normal/Functions/LambdaFunctions/LambdaFunctions.kt"
+            assertFileExists(path)
+            assertFileContains(path, "{", "->", "it")
+        }
+    }
+
+    // ==================== COMPREHENSIVE SUMMARY ====================
+    // Không cần hàm main() nữa, JUnit sẽ tự động chạy tất cả các test
 }
