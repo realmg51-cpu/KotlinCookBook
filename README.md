@@ -356,6 +356,8 @@ src/kotlin/normal
 │   └── IfChef.kt
 ├── InputAndNullSafety
 │   └── InputAndNullSafety.kt
+├── List
+│   └── List.kt
 ├── Loops
 │   ├── Do-While
 │   │   └── DoWhileStirring.kt
@@ -373,22 +375,22 @@ src/kotlin/normal
 └── WhenChef
     └── WhenChef.kt
 
-
+16 directories, 17 files
 ```
 
 ### 📊 Statistics
 
 | Metric | Value |
 |--------|-------|
-| 🍳 **Total Recipes** | `16` files |
-| 📁 **Categories** | `8` folders |
+| 🍳 **Total Recipes** | `17` files |
+| 📁 **Categories** | `9` folders |
 
 ---
 
 <img src=".github/avatars/bot.svg" width="40">
 
 *Auto-updated by KotlinCookBot 🤖*
-*Last update: 2026-04-25 09:31:05 UTC*
+*Last update: 2026-04-25 23:56:39 UTC*
 <!-- STRUCTURE_END -->
 
 ### 📖 Recipe Appendix
