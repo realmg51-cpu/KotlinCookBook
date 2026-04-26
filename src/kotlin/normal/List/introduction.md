@@ -975,7 +975,7 @@ You can now:
 
 - 📖 [Official Kotlin Collections Documentation](https://kotlinlang.org/docs/collections-overview.html)
 - 📖 [List API Reference](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/)
-- 🍳 [Next Recipe: mutableListOf →](./mutableListOf.md)
+- 🍳 [Next Recipe: mutableListOf →](./MutableList/introduction.md)
 - 🍳 [Previous Recipe: ForStirring.kt →](../Loops/For/ForStirring.kt)
 
 ---
