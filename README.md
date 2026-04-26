@@ -31,6 +31,8 @@ Each "recipe" is a small Kotlin program that teaches you one concept at a time.
 
 > [!NOTE]
 > This repo is still incomplete and I'm just learning Kotlin now, so if you can, please help me complete it by **forking** and adding new **recipes**.
+> This project is NOT affiliated with, endorsed by, or related to Ken Kousen or his book "Kotlin Cookbook" (O'Reilly).
+> This is an independent, unofficial learning project created by a Kotlin beginner for other beginners. The name "Kotlin CookBook" was chosen as a fun, metaphorical way to describe learning Kotlin through "recipes" (small, focused code examples).
 
 ---
 
