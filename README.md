@@ -31,7 +31,9 @@ Each "recipe" is a small Kotlin program that teaches you one concept at a time.
 
 > [!NOTE]
 > This repo is still incomplete and I'm just learning Kotlin now, so if you can, please help me complete it by **forking** and adding new **recipes**.
+> 
 > This project is NOT affiliated with, endorsed by, or related to Ken Kousen or his book "Kotlin Cookbook" (O'Reilly).
+> 
 > This is an independent, unofficial learning project created by a Kotlin beginner for other beginners. The name "Kotlin CookBook" was chosen as a fun, metaphorical way to describe learning Kotlin through "recipes" (small, focused code examples).
 
 ---
@@ -161,7 +163,7 @@ Some recipes use `readln()` to get input from you. Just follow the prompts!
 - **5 min** - Setup kitchen ([InstallAndSetup.md](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/GettingStarted/InstallAndSetup.md))
 - **5 min** - Cook `HelloWorld.kt`
 - **5 min** - Understand `val` vs `var`
-- **5 min** - Play with `DataTypes.kt`
+- **5 min** - Play with `CommonVariables.kt`
 - **5 min** - Make decisions with `IfChef.kt`
 - **5 min** - Loop it with `ForLoop.kt`
 
@@ -186,7 +188,7 @@ Some recipes use `readln()` to get input from you. Just follow the prompts!
 **Progress:** █████████ 100% (10/10) ✅
 
 ### Phase 2: Intermediate (10% Complete)
-- [ ] Collections (List, Set, Map)
+- [x] Collections (List, Set, Map)
 - [ ] Lambdas and higher-order functions
 - [ ] Scope functions (`let`, `run`, `with`, `apply`, `also`)
 - [ ] Extension functions
