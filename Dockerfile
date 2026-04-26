@@ -6,7 +6,7 @@ FROM eclipse-temurin:17-jdk-alpine
 # Install Kotlin
 RUN apk add --no-cache curl unzip bash
 
-ENV KOTLIN_VERSION=2.3.20
+ENV KOTLIN_VERSION=2.3.21
 RUN curl -L "https://github.com/JetBrains/kotlin/releases/download/v${KOTLIN_VERSION}/kotlin-compiler-${KOTLIN_VERSION}.zip" -o /tmp/kotlin.zip \
     && unzip /tmp/kotlin.zip -d /opt \
     && ln -s /opt/kotlinc/bin/kotlin /usr/local/bin/kotlin \
