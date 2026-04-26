@@ -9,7 +9,7 @@
 ![Tests](https://github.com/realmg51-cpu/KotlinCookBook/actions/workflows/ci.yml/badge.svg)
 ![Stars](https://img.shields.io/github/stars/realmg51-cpu/KotlinCookBook)
 ![Forks](https://img.shields.io/github/forks/realmg51-cpu/KotlinCookBook)
-![Progress](https://img.shields.io/badge/Progress-70%25-brightgreen)
+![Progress](https://img.shields.io/badge/Progress-110%25-brightgreen)
 
 > *"Learn Kotlin the fun way – one recipe at a time!"*
 
@@ -183,14 +183,14 @@ Some recipes use `readln()` to get input from you. Just follow the prompts!
 
 **Progress:** █████████ 100% (10/10) ✅
 
-### Phase 2: Intermediate (0% Complete)
+### Phase 2: Intermediate (10% Complete)
 - [ ] Collections (List, Set, Map)
 - [ ] Lambdas and higher-order functions
 - [ ] Scope functions (`let`, `run`, `with`, `apply`, `also`)
 - [ ] Extension functions
 - [ ] Sealed classes and interfaces
 
-**Progress:** ░░░░░░░░░░ 0% (0/5)
+**Progress:** █░░░░░░░░░ 10% (1/5)
 
 ### Phase 3: Advanced (0% Complete)
 - [ ] Coroutines (async cooking!)
