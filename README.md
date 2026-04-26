@@ -9,7 +9,7 @@
 ![Tests](https://github.com/realmg51-cpu/KotlinCookBook/actions/workflows/ci.yml/badge.svg)
 ![Stars](https://img.shields.io/github/stars/realmg51-cpu/KotlinCookBook)
 ![Forks](https://img.shields.io/github/forks/realmg51-cpu/KotlinCookBook)
-![Progress](https://img.shields.io/badge/Progress-110%25-brightgreen)
+
 
 > *"Learn Kotlin the fun way – one recipe at a time!"*
 
