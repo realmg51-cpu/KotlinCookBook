@@ -116,36 +116,46 @@ jobs:
             LATEST_RECIPES=""
           fi
           
-          echo "recipes=$LATEST_RECIPES" >> $GITHUB_OUTPUT
+          if [ -n "$LATEST_RECIPES" ]; then
+            echo "recipes=$LATEST_RECIPES" >> $GITHUB_OUTPUT
+          else
+            echo "recipes=No new recipes in this release" >> $GITHUB_OUTPUT
+          fi
       
       - name: Generate release notes
         run: |
-          CURRENT_TAG="${{ steps.version.outputs.tag }}"
-          PREV_TAG="${{ steps.previous.outputs.tag }}"
           VERSION_NUM="${{ steps.version.outputs.version }}"
+          PREV_TAG="${{ steps.previous.outputs.tag }}"
+          CURRENT_TAG="${{ steps.version.outputs.tag }}"
           
-          cat > release_notes.md << EOF
-          🍳 v$VERSION_NUM
+          # Create empty file
+          > release_notes.md
           
-          🍳 KotlinCookBook v$VERSION_NUM
+          # Header
+          echo "🍳 v$VERSION_NUM" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "🍳 KotlinCookBook v$VERSION_NUM" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "> *\"Another batch of delicious Kotlin recipes is ready!\"*" >> release_notes.md
+          echo "" >> release_notes.md
           
-          > *"Another batch of delicious Kotlin recipes is ready!"*
+          # Statistics
+          echo "### 📊 Statistics" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "| Metric | Value |" >> release_notes.md
+          echo "|--------|-------|" >> release_notes.md
+          echo "| 🍽️ **Total Recipes** | **${{ steps.stats.outputs.recipes }}** |" >> release_notes.md
+          echo "| 📁 **Categories** | ${{ steps.stats.outputs.categories }} |" >> release_notes.md
+          echo "| 📖 **Introductions** | ${{ steps.stats.outputs.intros }} |" >> release_notes.md
+          echo "| 📝 **Lines of Code** | ${{ steps.stats.outputs.loc }} |" >> release_notes.md
+          echo "| 🚀 **Commits since last release** | ${{ steps.previous.outputs.commits }} |" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "---" >> release_notes.md
+          echo "" >> release_notes.md
           
-          ### 📊 Statistics
-          
-          | Metric | Value |
-          |--------|-------|
-          | 🍽️ **Total Recipes** | **${{ steps.stats.outputs.recipes }}** |
-          | 📁 **Categories** | ${{ steps.stats.outputs.categories }} |
-          | 📖 **Introductions** | ${{ steps.stats.outputs.intros }} |
-          | 📝 **Lines of Code** | ${{ steps.stats.outputs.loc }} |
-          | 🚀 **Commits since last release** | ${{ steps.previous.outputs.commits }} |
-          
-          ---
-          
-          ### 🆕 What's New
-          
-          EOF
+          # What's New
+          echo "### 🆕 What's New" >> release_notes.md
+          echo "" >> release_notes.md
           
           if [ -n "$PREV_TAG" ]; then
             echo "#### Changes from $PREV_TAG to $CURRENT_TAG:" >> release_notes.md
@@ -157,72 +167,72 @@ jobs:
             git log --oneline --pretty="- %s" -20 >> release_notes.md
           fi
           
-          cat >> release_notes.md << EOF
+          echo "" >> release_notes.md
+          echo "---" >> release_notes.md
+          echo "" >> release_notes.md
           
-          ---
-          
-          ### 👥 Contributors in this Release
-          
-          EOF
-          
+          # Contributors
+          echo "### 👥 Contributors in this Release" >> release_notes.md
+          echo "" >> release_notes.md
           cat contributors.txt >> release_notes.md
+          echo "" >> release_notes.md
+          echo "---" >> release_notes.md
+          echo "" >> release_notes.md
           
-          cat >> release_notes.md << EOF
+          # Latest Recipes
+          echo "### 🍳 Latest Recipes Added" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "${{ steps.latest_recipes.outputs.recipes }}" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "---" >> release_notes.md
+          echo "" >> release_notes.md
           
-          ---
+          # How to Use (static text, no command execution)
+          echo "### 🚀 How to Use This Release" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "#### Option 1: Clone and run locally" >> release_notes.md
+          echo '```bash' >> release_notes.md
+          echo "git clone https://github.com/realmg51-cpu/KotlinCookBook.git" >> release_notes.md
+          echo "cd KotlinCookBook" >> release_notes.md
+          echo "kotlin src/kotlin/normal/GettingStarted/HelloWorld.kt" >> release_notes.md
+          echo '```' >> release_notes.md
+          echo "" >> release_notes.md
+          echo "#### Option 2: Run with Docker" >> release_notes.md
+          echo '```bash' >> release_notes.md
+          echo "docker pull ghcr.io/realmg51-cpu/kotlincookbook:latest" >> release_notes.md
+          echo "docker run --rm -it ghcr.io/realmg51-cpu/kotlincookbook:latest \\" >> release_notes.md
+          echo "  kotlin src/kotlin/normal/GettingStarted/HelloWorld.kt" >> release_notes.md
+          echo '```' >> release_notes.md
+          echo "" >> release_notes.md
+          echo "---" >> release_notes.md
+          echo "" >> release_notes.md
           
-          ### 🍳 Latest Recipes Added
+          # Full Recipe List
+          echo "### 📚 Full Recipe List" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "Check out the [README](https://github.com/realmg51-cpu/KotlinCookBook) for the complete recipe index!" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "---" >> release_notes.md
+          echo "" >> release_notes.md
           
-          EOF
+          # Thank You
+          echo "### 🙏 Thank You!" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "Special thanks to all contributors who made this release possible!" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "---" >> release_notes.md
+          echo "" >> release_notes.md
           
-          if [ -n "${{ steps.latest_recipes.outputs.recipes }}" ]; then
-            echo '${{ steps.latest_recipes.outputs.recipes }}' >> release_notes.md
-          else
-            echo "No new recipes in this release" >> release_notes.md
-          fi
+          # Maintained by
+          echo "### 🤖 Maintained by KotlinCookBot" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "*\"Good code is like good food – best when shared!\"* 🍳" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "---" >> release_notes.md
+          echo "" >> release_notes.md
           
-          cat >> release_notes.md << EOF
-          
-          ---
-          
-          ### 🚀 How to Use This Release
-          
-          #### Option 1: Clone and run locally
-          ```bash
-          git clone https://github.com/${{ github.repository }}.git
-          cd KotlinCookBook
-          kotlin src/kotlin/normal/GettingStarted/HelloWorld.kt
-          ```
-          
-          #### Option 2: Run with Docker
-          ```bash
-          docker pull ghcr.io/${{ github.repository_owner }}/kotlincookbook:latest
-          docker run --rm -it ghcr.io/${{ github.repository_owner }}/kotlincookbook:latest \\
-            kotlin src/kotlin/normal/GettingStarted/HelloWorld.kt
-          ```
-          
-          ---
-          
-          ### 📚 Full Recipe List
-          
-          Check out the [README](https://github.com/${{ github.repository }}) for the complete recipe index!
-          
-          ---
-          
-          ### 🙏 Thank You!
-          
-          Special thanks to all contributors who made this release possible!
-          
-          ---
-          
-          ### 🤖 Maintained by KotlinCookBot
-          
-          *"Good code is like good food – best when shared!"* 🍳
-          
-          ---
-          
-          **Happy cooking!** 👨‍🍳🚀
-          EOF
+          # Footer
+          echo "**Happy cooking!** 👨‍🍳🚀" >> release_notes.md
       
       - name: Create Release
         uses: softprops/action-gh-release@v1
