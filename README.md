@@ -382,6 +382,8 @@ src/kotlin/normal
 │       └── WhileStirring.kt
 ├── Map
 │   └── Map.kt
+├── ScopeFunctions
+│   └── ScopeFunctions.kt
 ├── Set
 │   └── Set.kt
 ├── Variables
@@ -394,22 +396,22 @@ src/kotlin/normal
 └── WhenChef
     └── WhenChef.kt
 
-19 directories, 20 files
+20 directories, 21 files
 ```
 
 ### 📊 Statistics
 
 | Metric | Value |
 |--------|-------|
-| 🍳 **Total Recipes** | `20` files |
-| 📁 **Categories** | `11` folders |
+| 🍳 **Total Recipes** | `21` files |
+| 📁 **Categories** | `12` folders |
 
 ---
 
 <img src=".github/avatars/bot.svg" width="40">
 
 *Auto-updated by KotlinCookBot 🤖*
-*Last update: 2026-04-26 03:12:07 UTC*
+*Last update: 2026-04-26 06:52:17 UTC*
 <!-- STRUCTURE_END -->
 
 ### 📖 Recipe Appendix
