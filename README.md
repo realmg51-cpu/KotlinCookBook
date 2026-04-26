@@ -1,4 +1,4 @@
-<div align="left">
+
   
 # Kotlin CookBook 🍳
 
@@ -437,4 +437,4 @@ Now go cook some Kotlin! 🚀
 ---
 
 *Made with ❤️ and ☕ by Kotlin enthusiasts around the world*
-</div>
+
