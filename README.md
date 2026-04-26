@@ -295,7 +295,15 @@ Your recipe should include:
 
 ## 📊 Project Statistics
 
-[![Star History Chart](https://api.star-history.com/svg?repos=realmg51-cpu/KotlinCookBook&type=Date)](https://star-history.com/#realmg51-cpu/KotlinCookBook&Date)
+## Star History
+
+<a href="https://www.star-history.com/?repos=realmg51-cpu%2FKotlinCookBook&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=realmg51-cpu/KotlinCookBook&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=realmg51-cpu/KotlinCookBook&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=realmg51-cpu/KotlinCookBook&type=date&legend=top-left" />
+ </picture>
+</a>
 
 | Metric | Value |
 |--------|-------|
