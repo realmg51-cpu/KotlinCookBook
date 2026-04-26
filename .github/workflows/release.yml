@@ -10,6 +10,11 @@ on:
         description: 'Tag name (e.g., v1.0.0)'
         required: true
         type: string
+      prerelease:
+        description: 'Mark as pre-release?'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   release:
@@ -20,7 +25,7 @@ jobs:
     
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       
@@ -60,13 +65,23 @@ jobs:
           git push origin "$TAG"
           echo "✅ Created and pushed tag: $TAG"
       
-      - name: Count recipes
+      - name: Count recipes and categories
         id: stats
         run: |
-          COUNT=$(find src/kotlin/normal -name "*.kt" -type f | wc -l)
+          # Count .kt files (excluding test files)
+          RECIPES=$(find src/kotlin/normal -name "*.kt" -type f ! -name "*Test*" | wc -l)
           CATEGORIES=$(find src/kotlin/normal -mindepth 1 -maxdepth 1 -type d | wc -l)
-          echo "recipes=$COUNT" >> $GITHUB_OUTPUT
+          
+          # Count introduction files
+          INTROS=$(find src/kotlin/normal -name "introduction.md" -type f | wc -l)
+          
+          # Get total lines of code
+          LOC=$(find src/kotlin/normal -name "*.kt" -type f -exec cat {} \; | wc -l)
+          
+          echo "recipes=$RECIPES" >> $GITHUB_OUTPUT
           echo "categories=$CATEGORIES" >> $GITHUB_OUTPUT
+          echo "intros=$INTROS" >> $GITHUB_OUTPUT
+          echo "loc=$LOC" >> $GITHUB_OUTPUT
       
       - name: Get previous tag
         id: previous
@@ -74,21 +89,49 @@ jobs:
           CURRENT_TAG="${{ steps.version.outputs.tag }}"
           PREV_TAG=$(git tag -l "v*" | grep -v "$CURRENT_TAG" | sort -V | tail -n1 || echo "")
           echo "tag=$PREV_TAG" >> $GITHUB_OUTPUT
+          
+          if [ -n "$PREV_TAG" ]; then
+            COMMITS=$(git rev-list --count "$PREV_TAG..HEAD")
+            echo "commits=$COMMITS" >> $GITHUB_OUTPUT
+          else
+            echo "commits=0" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Get contributors since last release
+        id: contributors
+        run: |
+          PREV_TAG="${{ steps.previous.outputs.tag }}"
+          
+          if [ -n "$PREV_TAG" ]; then
+            CONTRIBUTORS=$(git log "$PREV_TAG..HEAD" --format='%an' | sort -u | sed 's/^/- /' | head -20)
+          else
+            CONTRIBUTORS="- @realmg51-cpu"
+          fi
+          
+          # Save to file for later use
+          echo "$CONTRIBUTORS" > contributors.txt
+          echo "count=$(cat contributors.txt | wc -l)" >> $GITHUB_OUTPUT
       
       - name: Generate release notes
         run: |
           CURRENT_TAG="${{ steps.version.outputs.tag }}"
           PREV_TAG="${{ steps.previous.outputs.tag }}"
+          COMMITS="${{ steps.previous.outputs.commits }}"
           
-          cat > release_notes.md << EOF
-          ## 🍳 KotlinCookBook $CURRENT_TAG
+          cat > release_notes.md << 'EOF'
+          ## 🍳 KotlinCookBook ${{ steps.version.outputs.tag }}
+          
+          > *"Another batch of delicious Kotlin recipes is ready!"*
           
           ### 📊 Statistics
           
           | Metric | Value |
           |--------|-------|
-          | 🍽️ Total Recipes | ${{ steps.stats.outputs.recipes }} |
-          | 📁 Categories | ${{ steps.stats.outputs.categories }} |
+          | 🍽️ **Total Recipes** | **${{ steps.stats.outputs.recipes }}** |
+          | 📁 **Categories** | ${{ steps.stats.outputs.categories }} |
+          | 📖 **Introductions** | ${{ steps.stats.outputs.intros }} |
+          | 📝 **Lines of Code** | ${{ steps.stats.outputs.loc }} |
+          | 🚀 **Commits since last release** | ${{ steps.previous.outputs.commits }} |
           
           ---
           
@@ -97,38 +140,141 @@ jobs:
           EOF
           
           if [ -n "$PREV_TAG" ]; then
+            echo "#### Changes from $PREV_TAG to $CURRENT_TAG:" >> release_notes.md
+            echo "" >> release_notes.md
             git log --oneline --pretty="- %s" "$PREV_TAG..HEAD" >> release_notes.md
           else
-            git log --oneline --pretty="- %s" -10 >> release_notes.md
+            echo "#### Initial release! 🎉" >> release_notes.md
+            echo "" >> release_notes.md
+            git log --oneline --pretty="- %s" -20 >> release_notes.md
           fi
           
-          cat >> release_notes.md << EOF
+          cat >> release_notes.md << 'EOF'
+          
+          ---
+          
+          ### 👥 Contributors in this Release
+          
+          EOF
+          
+          cat contributors.txt >> release_notes.md
+          
+          cat >> release_notes.md << 'EOF'
+          
+          ---
+          
+          ### 🍳 Latest Recipes Added
+          
+          EOF
+          
+          # List latest 5 recipes added
+          echo "\`\`\`" >> release_notes.md
+          git diff --diff-filter=A --name-only "$PREV_TAG..HEAD" -- "src/kotlin/normal/*.kt" | head -10 >> release_notes.md || echo "No new recipes" >> release_notes.md
+          echo "\`\`\`" >> release_notes.md
+          
+          cat >> release_notes.md << 'EOF'
+          
+          ---
+          
+          ### 🚀 How to Use This Release
+          
+          #### Option 1: Clone and run locally
+          \`\`\`bash
+          git clone https://github.com/${{ github.repository }}.git
+          cd KotlinCookBook
+          kotlin src/kotlin/normal/GettingStarted/HelloWorld.kt
+          \`\`\`
+          
+          #### Option 2: Run with Docker
+          \`\`\`bash
+          docker pull ghcr.io/${{ github.repository_owner }}/kotlincookbook:latest
+          docker run --rm -it ghcr.io/${{ github.repository_owner }}/kotlincookbook:latest \
+            kotlin src/kotlin/normal/GettingStarted/HelloWorld.kt
+          \`\`\`
+          
+          ---
+          
+          ### 📚 Full Recipe List
+          
+          Check out the [README](https://github.com/${{ github.repository }}/blob/${{ steps.version.outputs.tag }}/README.md) for the complete recipe index!
+          
+          ---
+          
+          ### 🙏 Thank You!
+          
+          Special thanks to all contributors who made this release possible!
           
           ---
           
           ### 🤖 Maintained by KotlinCookBot
           
-          <img src="https://raw.githubusercontent.com/${{ github.repository }}/main/.github/avatars/bot.svg" width="50">
+          <img src="https://raw.githubusercontent.com/${{ github.repository }}/main/.github/avatars/bot.svg" width="50" height="50">
           
-          *Happy cooking! 🍳*
+          *"Good code is like good food – best when shared!"* 🍳
+          
+          ---
+          
+          **Happy cooking!** 👨‍🍳🚀
           EOF
       
       - name: Create Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v1
         with:
           body_path: release_notes.md
           name: "🍳 ${{ steps.version.outputs.tag }}"
-          tag_name: ${{ steps.version.outputs.tag }}  # 👈 QUAN TRỌNG
+          tag_name: ${{ steps.version.outputs.tag }}
           draft: false
-          prerelease: false
+          prerelease: ${{ github.event.inputs.prerelease || false }}
           generate_release_notes: false
-          make_latest: true
+          make_latest: ${{ !github.event.inputs.prerelease }}
+          discussion_category_name: "Announcements"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
+      - name: Create Discussion Post
+        if: success() && !github.event.inputs.prerelease
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = '${{ steps.version.outputs.tag }}';
+            const url = `https://github.com/${{ github.repository }}/releases/tag/${tag}`;
+            
+            await github.rest.discussions.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              category_id: 'announcements',
+              title: `🎉 New Release: ${tag}`,
+              body: `## KotlinCookBook ${tag} is here! 🍳
+              
+              Check out the new release: [${tag}](${url})
+              
+              ### What's new?
+              - ${{ steps.stats.outputs.recipes }} total recipes
+              - ${{ steps.stats.outputs.intros }} recipe introductions
+              - ${{ steps.previous.outputs.commits }} commits since last release
+              
+              See the full [Release Notes](${url}) for details!
+              
+              Happy cooking! 👨‍🍳`
+            });
+      
+      - name: Update README badge
+        if: success() && github.event_name == 'push'
+        run: |
+          LATEST_TAG="${{ steps.version.outputs.tag }}"
+          echo "Latest release: $LATEST_TAG"
+          # This could update a badge in README if you have one
+      
       - name: Summary
         run: |
-          echo "## 🚀 Release Created" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Release Created Successfully" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Tag | \`${{ steps.version.outputs.tag }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Recipes | ${{ steps.stats.outputs.recipes }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Tag** | \`${{ steps.version.outputs.tag }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Recipes** | ${{ steps.stats.outputs.recipes }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Categories** | ${{ steps.stats.outputs.categories }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Introductions** | ${{ steps.stats.outputs.intros }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Lines of Code** | ${{ steps.stats.outputs.loc }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }})" >> $GITHUB_STEP_SUMMARY
