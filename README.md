@@ -369,6 +369,8 @@ src/kotlin/normal
 │       └── WhileStirring.kt
 ├── Map
 │   └── Map.kt
+├── Set
+│   └── Set.kt
 ├── Variables
 │   ├── WorkWithIt
 │   │   ├── StringSplitter.kt
@@ -379,22 +381,22 @@ src/kotlin/normal
 └── WhenChef
     └── WhenChef.kt
 
-18 directories, 19 files
+19 directories, 20 files
 ```
 
 ### 📊 Statistics
 
 | Metric | Value |
 |--------|-------|
-| 🍳 **Total Recipes** | `19` files |
-| 📁 **Categories** | `10` folders |
+| 🍳 **Total Recipes** | `20` files |
+| 📁 **Categories** | `11` folders |
 
 ---
 
 <img src=".github/avatars/bot.svg" width="40">
 
 *Auto-updated by KotlinCookBot 🤖*
-*Last update: 2026-04-26 03:07:07 UTC*
+*Last update: 2026-04-26 03:10:16 UTC*
 <!-- STRUCTURE_END -->
 
 ### 📖 Recipe Appendix
