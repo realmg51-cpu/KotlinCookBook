@@ -190,7 +190,7 @@ Some recipes use `readln()` to get input from you. Just follow the prompts!
 
 ### Phase 2: Intermediate (60% Complete)
 - [x] Collections (List, Set, Map)
-- [ ] Lambdas and higher-order functions
+- [x] Lambdas and higher-order functions
 - [x] Scope functions (`let`, `run`, `with`, `apply`, `also`)
 - [ ] Extension functions
 - [ ] Sealed classes and interfaces
