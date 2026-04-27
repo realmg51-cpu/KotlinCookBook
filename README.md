@@ -188,14 +188,14 @@ Some recipes use `readln()` to get input from you. Just follow the prompts!
 
 **Progress:** █████████ 100% (10/10) ✅
 
-### Phase 2: Intermediate (40% Complete)
+### Phase 2: Intermediate (60% Complete)
 - [x] Collections (List, Set, Map)
 - [ ] Lambdas and higher-order functions
 - [x] Scope functions (`let`, `run`, `with`, `apply`, `also`)
 - [ ] Extension functions
 - [ ] Sealed classes and interfaces
 
-**Progress:** ████░░░░░ 40% (2/5)
+**Progress:** ██████░░░ 60% (3/5)
 
 ### Phase 3: Advanced (0% Complete)
 - [ ] Coroutines (async cooking!)
