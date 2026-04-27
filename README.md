@@ -367,8 +367,6 @@ src/kotlin/normal
 │   └── HelloWorld.kt
 ├── HigherOrderFunctions
 │   └── HigherOrderFunctions.kt
-├── HighterOrderFunctions
-│   └── HighterOrderFunctions.kt
 ├── IfChef
 │   └── IfChef.kt
 ├── InputAndNullSafety
@@ -400,22 +398,22 @@ src/kotlin/normal
 └── WhenChef
     └── WhenChef.kt
 
-22 directories, 23 files
+21 directories, 22 files
 ```
 
 ### 📊 Statistics
 
 | Metric | Value |
 |--------|-------|
-| 🍳 **Total Recipes** | `23` files |
-| 📁 **Categories** | `14` folders |
+| 🍳 **Total Recipes** | `22` files |
+| 📁 **Categories** | `13` folders |
 
 ---
 
 <img src=".github/avatars/bot.svg" width="40">
 
 *Auto-updated by KotlinCookBot 🤖*
-*Last update: 2026-04-27 01:33:51 UTC*
+*Last update: 2026-04-27 01:34:44 UTC*
 <!-- STRUCTURE_END -->
 
 ### 📖 Recipe Appendix
