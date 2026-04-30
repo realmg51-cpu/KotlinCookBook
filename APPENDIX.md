@@ -6,7 +6,7 @@
 |--------|------|--------------|
 | `Break.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/BreakAndContinue/Break.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/BreakAndContinue/introduction.md) |
 | `Continue.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/BreakAndContinue/Continue.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/BreakAndContinue/introduction.md) |
-| `ExtensionFunctions.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/ExtensionFunctions/ExtensionFunctions.kt) | ❌ No intro |
+| `ExtensionFunctions.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/ExtensionFunctions/ExtensionFunctions.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/ExtensionFunctions/introduction.md) |
 | `BasicFunctions.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Functions/BasicFunctions/BasicFunctions.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Functions/BasicFunctions/introduction.md) |
 | `LambdaFunctions.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Functions/LambdaFunctions/LambdaFunctions.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Functions/LambdaFunctions/introduction.md) |
 | `HelloWorld.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/GettingStarted/HelloWorld.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/GettingStarted/introduction.md) |
@@ -33,8 +33,8 @@
 | Metric | Value |
 |--------|-------|
 | 🍳 **Total Recipes** | `23` |
-| 📖 **With Introduction** | `22` |
-| 🆕 **Last Updated** | 2026-04-30 00:14:13 UTC |
+| 📖 **With Introduction** | `23` |
+| 🆕 **Last Updated** | 2026-04-30 00:16:11 UTC |
 
 ---
 
