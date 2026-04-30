@@ -67,32 +67,46 @@ jobs:
           failed=0
           total=0
           
-          # Get image name (use built image)
+          # Get image name
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}"
           else
             IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
           fi
           
-          # Run tests
-          for recipe in $(docker run --rm "$IMAGE" find src/kotlin/normal -name "*.kt" -type f 2>/dev/null); do
-            total=$((total + 1))
-            name=$(basename "$recipe")
-            echo -n "Testing $name... "
-            
-            if docker run --rm "$IMAGE" kotlinc -script "$recipe" > /dev/null 2>&1; then
-              echo "✅ PASS"
-            else
-              echo "❌ FAIL"
-              failed=$((failed + 1))
+          # List all kotlin files first to debug
+          echo "📁 Looking for Kotlin files in container..."
+          docker run --rm "$IMAGE" find /app -name "*.kt" -type f 2>/dev/null || \
+          docker run --rm "$IMAGE" find /workspace -name "*.kt" -type f 2>/dev/null || \
+          docker run --rm "$IMAGE" find / -name "*.kt" -type f 2>/dev/null | head -20
+          
+          # Try common mount points
+          for search_path in /app /workspace /usr/src/app /home; do
+            if docker run --rm "$IMAGE" test -d "$search_path" 2>/dev/null; then
+              echo "✅ Found directory: $search_path"
+              for recipe in $(docker run --rm "$IMAGE" find "$search_path" -name "*.kt" -type f 2>/dev/null); do
+                total=$((total + 1))
+                name=$(basename "$recipe")
+                echo -n "Testing $name... "
+                
+                if docker run --rm "$IMAGE" kotlinc -script "$recipe" > /dev/null 2>&1; then
+                  echo "✅ PASS"
+                else
+                  echo "❌ FAIL"
+                  failed=$((failed + 1))
+                fi
+              done
             fi
           done
           
           echo "===================================="
           echo "📊 Results: $((total - failed))/$total passed"
           
-          if [ $failed -eq 0 ]; then
-            echo "🎉 All recipes passed!"
+          if [ $failed -eq 0 ] && [ $total -gt 0 ]; then
+            echo "🎉 All $total recipes passed!"
+            exit 0
+          elif [ $total -eq 0 ]; then
+            echo "⚠️ No recipes found to test!"
             exit 0
           else
             echo "💥 $failed recipe(s) failed!"
@@ -111,24 +125,37 @@ jobs:
           failed=0
           total=0
           
-          for recipe in $(docker run --rm kotlincookbook-test find src/kotlin/normal -name "*.kt" -type f); do
-            total=$((total + 1))
-            name=$(basename "$recipe")
-            echo -n "Testing $name... "
-            
-            if docker run --rm kotlincookbook-test kotlinc -script "$recipe" > /dev/null 2>&1; then
-              echo "✅ PASS"
-            else
-              echo "❌ FAIL"
-              failed=$((failed + 1))
+          # Try common mount points
+          for search_path in /app /workspace /usr/src/app /home; do
+            if docker run --rm kotlincookbook-test test -d "$search_path" 2>/dev/null; then
+              echo "✅ Found directory: $search_path"
+              for recipe in $(docker run --rm kotlincookbook-test find "$search_path" -name "*.kt" -type f 2>/dev/null); do
+                total=$((total + 1))
+                name=$(basename "$recipe")
+                echo -n "Testing $name... "
+                
+                if docker run --rm kotlincookbook-test kotlinc -script "$recipe" > /dev/null 2>&1; then
+                  echo "✅ PASS"
+                else
+                  echo "❌ FAIL"
+                  failed=$((failed + 1))
+                  
+                  # Show error for debugging
+                  echo "  Error details:"
+                  docker run --rm kotlincookbook-test kotlinc -script "$recipe" 2>&1 | head -5
+                fi
+              done
             fi
           done
           
           echo "===================================="
           echo "📊 Results: $((total - failed))/$total passed"
           
-          if [ $failed -eq 0 ]; then
-            echo "🎉 All recipes passed!"
+          if [ $failed -eq 0 ] && [ $total -gt 0 ]; then
+            echo "🎉 All $total recipes passed!"
+            exit 0
+          elif [ $total -eq 0 ]; then
+            echo "⚠️ No recipes found to test!"
             exit 0
           else
             echo "💥 $failed recipe(s) failed!"
