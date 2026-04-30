@@ -74,30 +74,26 @@ jobs:
             IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
           fi
           
-          # List all kotlin files first to debug
-          echo "📁 Looking for Kotlin files in container..."
-          docker run --rm "$IMAGE" find /app -name "*.kt" -type f 2>/dev/null || \
-          docker run --rm "$IMAGE" find /workspace -name "*.kt" -type f 2>/dev/null || \
-          docker run --rm "$IMAGE" find / -name "*.kt" -type f 2>/dev/null | head -20
+          # Debug: Show what's in the container
+          echo "📁 Container structure:"
+          docker run --rm "$IMAGE" ls -la /app/src/kotlin/normal/ 2>/dev/null | head -20 || echo "  No files found in /app/src/kotlin/normal/"
           
-          # Try common mount points
-          for search_path in /app /workspace /usr/src/app /home; do
-            if docker run --rm "$IMAGE" test -d "$search_path" 2>/dev/null; then
-              echo "✅ Found directory: $search_path"
-              for recipe in $(docker run --rm "$IMAGE" find "$search_path" -name "*.kt" -type f 2>/dev/null); do
-                total=$((total + 1))
-                name=$(basename "$recipe")
-                echo -n "Testing $name... "
-                
-                if docker run --rm "$IMAGE" kotlinc -script "$recipe" > /dev/null 2>&1; then
-                  echo "✅ PASS"
-                else
-                  echo "❌ FAIL"
-                  failed=$((failed + 1))
-                fi
-              done
+          # Find all Kotlin files (correct path is /app/src/)
+          while IFS= read -r recipe; do
+            total=$((total + 1))
+            name=$(basename "$recipe")
+            echo -n "Testing $name... "
+            
+            if docker run --rm "$IMAGE" kotlinc -script "$recipe" > /tmp/test_output.txt 2>&1; then
+              echo "✅ PASS"
+            else
+              echo "❌ FAIL"
+              failed=$((failed + 1))
+              # Show error for debugging
+              echo "  Error from $name:"
+              cat /tmp/test_output.txt | head -5
             fi
-          done
+          done < <(docker run --rm "$IMAGE" find /app/src -name "*.kt" -type f 2>/dev/null | sort)
           
           echo "===================================="
           echo "📊 Results: $((total - failed))/$total passed"
@@ -106,7 +102,9 @@ jobs:
             echo "🎉 All $total recipes passed!"
             exit 0
           elif [ $total -eq 0 ]; then
-            echo "⚠️ No recipes found to test!"
+            echo "⚠️ No Kotlin files found in /app/src/"
+            echo "📂 Available paths:"
+            docker run --rm "$IMAGE" find /app -type d 2>/dev/null | head -10
             exit 0
           else
             echo "💥 $failed recipe(s) failed!"
@@ -125,28 +123,26 @@ jobs:
           failed=0
           total=0
           
-          # Try common mount points
-          for search_path in /app /workspace /usr/src/app /home; do
-            if docker run --rm kotlincookbook-test test -d "$search_path" 2>/dev/null; then
-              echo "✅ Found directory: $search_path"
-              for recipe in $(docker run --rm kotlincookbook-test find "$search_path" -name "*.kt" -type f 2>/dev/null); do
-                total=$((total + 1))
-                name=$(basename "$recipe")
-                echo -n "Testing $name... "
-                
-                if docker run --rm kotlincookbook-test kotlinc -script "$recipe" > /dev/null 2>&1; then
-                  echo "✅ PASS"
-                else
-                  echo "❌ FAIL"
-                  failed=$((failed + 1))
-                  
-                  # Show error for debugging
-                  echo "  Error details:"
-                  docker run --rm kotlincookbook-test kotlinc -script "$recipe" 2>&1 | head -5
-                fi
-              done
+          # Debug: Show structure
+          echo "📁 Container structure:"
+          docker run --rm kotlincookbook-test ls -la /app/src/kotlin/normal/ 2>/dev/null | head -20 || echo "  No files found"
+          
+          # Find all Kotlin files (correct path is /app/src/)
+          while IFS= read -r recipe; do
+            total=$((total + 1))
+            name=$(basename "$recipe")
+            echo -n "Testing $name... "
+            
+            if docker run --rm kotlincookbook-test kotlinc -script "$recipe" > /tmp/test_output.txt 2>&1; then
+              echo "✅ PASS"
+            else
+              echo "❌ FAIL"
+              failed=$((failed + 1))
+              # Show error for debugging
+              echo "  Error from $name:"
+              cat /tmp/test_output.txt | head -5
             fi
-          done
+          done < <(docker run --rm kotlincookbook-test find /app/src -name "*.kt" -type f 2>/dev/null | sort)
           
           echo "===================================="
           echo "📊 Results: $((total - failed))/$total passed"
@@ -155,7 +151,9 @@ jobs:
             echo "🎉 All $total recipes passed!"
             exit 0
           elif [ $total -eq 0 ]; then
-            echo "⚠️ No recipes found to test!"
+            echo "⚠️ No Kotlin files found in /app/src/"
+            echo "📂 Available paths:"
+            docker run --rm kotlincookbook-test find /app -type d 2>/dev/null | head -10
             exit 0
           else
             echo "💥 $failed recipe(s) failed!"
@@ -181,7 +179,13 @@ jobs:
           echo "| Image | \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Tags | \`${{ steps.meta.outputs.tags }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Pull the image" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 Pull the image" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
           echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🍳 Run a recipe" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \\" >> $GITHUB_STEP_SUMMARY
+          echo "  kotlin -script /app/src/kotlin/normal/GettingStarted/HelloWorld.kt" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
