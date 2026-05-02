@@ -358,6 +358,8 @@ src/kotlin/normal
 ├── BreakAndContinue
 │   ├── Break.kt
 │   └── Continue.kt
+├── Classes
+│   └── Classes.kt
 ├── ExtensionFunctions
 │   └── ExtensionFunctions.kt
 ├── Functions
@@ -400,22 +402,22 @@ src/kotlin/normal
 └── WhenChef
     └── WhenChef.kt
 
-22 directories, 23 files
+23 directories, 24 files
 ```
 
 ### 📊 Statistics
 
 | Metric | Value |
 |--------|-------|
-| 🍳 **Total Recipes** | `23` files |
-| 📁 **Categories** | `14` folders |
+| 🍳 **Total Recipes** | `24` files |
+| 📁 **Categories** | `15` folders |
 
 ---
 
 <img src=".github/avatars/bot.svg" width="40">
 
 *Auto-updated by KotlinCookBot 🤖*
-*Last update: 2026-04-30 02:00:57 UTC*
+*Last update: 2026-05-02 03:51:16 UTC*
 <!-- STRUCTURE_END -->
 
 ### 📖 Recipe Appendix
