@@ -6,7 +6,7 @@
 |--------|------|--------------|
 | `Break.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/BreakAndContinue/Break.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/BreakAndContinue/introduction.md) |
 | `Continue.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/BreakAndContinue/Continue.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/BreakAndContinue/introduction.md) |
-| `Classes.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Classes/Classes.kt) | ❌ No intro |
+| `Classes.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Classes/Classes.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Classes/introduction.md) |
 | `ExtensionFunctions.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/ExtensionFunctions/ExtensionFunctions.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/ExtensionFunctions/introduction.md) |
 | `BasicFunctions.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Functions/BasicFunctions/BasicFunctions.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Functions/BasicFunctions/introduction.md) |
 | `LambdaFunctions.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Functions/LambdaFunctions/LambdaFunctions.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Functions/LambdaFunctions/introduction.md) |
@@ -34,8 +34,8 @@
 | Metric | Value |
 |--------|-------|
 | 🍳 **Total Recipes** | `24` |
-| 📖 **With Introduction** | `23` |
-| 🆕 **Last Updated** | 2026-05-02 03:51:16 UTC |
+| 📖 **With Introduction** | `24` |
+| 🆕 **Last Updated** | 2026-05-02 03:54:27 UTC |
 
 ---
 
