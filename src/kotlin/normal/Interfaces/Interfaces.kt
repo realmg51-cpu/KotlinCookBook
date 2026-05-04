@@ -12,7 +12,7 @@
  * - "Can Cook" means you must have a cook() method
  * - A chef can implement multiple interfaces (Cookable, Cleanable, Bakeable)
  * 
- * @author Your realmg51-cpu
+ * @author realmg51-cpu
  * @since May 2026
  */
 
@@ -101,6 +101,12 @@ interface Discountable {
     fun hasLoyaltyDiscount(): Boolean = false
 }
 
+// Payment interface (top level)
+interface Payable {
+    fun pay(amount: Double)
+    fun getMethod(): String
+}
+
 // ============================================================
 // CLASSES IMPLEMENTING INTERFACES
 // ============================================================
@@ -140,8 +146,9 @@ class SmartOven : SmartAppliance {
     override fun getStatus(): String = "Oven ready"
 }
 
-class Bird(name: String) : Flyable {
-    override fun fly() = println("$name is flying!")
+// Fixed: Bird class now has name property
+class Bird(private val birdName: String) : Flyable {
+    override fun fly() = println("$birdName is flying!")
 }
 
 class SimpleDatabase : RecipeDatabase {
@@ -162,6 +169,17 @@ class MenuItem(
     override fun isAvailable(): Boolean = available
     override fun applyDiscount(percent: Int): Double = price - (price * percent / 100)
     override fun hasLoyaltyDiscount(): Boolean = true
+}
+
+// Payment implementations
+class CreditCard(val number: String) : Payable {
+    override fun pay(amount: Double) = println("Paid $$amount with card $number")
+    override fun getMethod(): String = "Credit Card"
+}
+
+class PayPal(val email: String) : Payable {
+    override fun pay(amount: Double) = println("Paid $$amount with PayPal ($email)")
+    override fun getMethod(): String = "PayPal"
 }
 
 // ============================================================
@@ -243,9 +261,9 @@ fun main() {
     // Part 9: Interface vs Abstract Class
     println("\n📚 PART 9: Interface vs Abstract Class")
     println("-".repeat(50))
-    abstract class Animal(val name: String) {
+    abstract class Animal(val animalName: String) {
         abstract fun makeSound()
-        fun breathe() = println("$name is breathing")
+        fun breathe() = println("$animalName is breathing")
     }
     class Sparrow(name: String) : Animal(name), Flyable {
         override fun makeSound() = println("$name says: Chirp!")
@@ -256,26 +274,15 @@ fun main() {
     sparrow.makeSound()
     sparrow.fly()
     
-    // Part 10: Real example - Payment
+    // Part 10: Payment example
     println("\n📚 PART 10: Payment Example")
     println("-".repeat(50))
-    interface Payable {
-        fun pay(amount: Double)
-        fun getMethod(): String
-    }
-    class CreditCard(val number: String) : Payable {
-        override fun pay(amount: Double) = println("Paid $$amount with card $number")
-        override fun getMethod(): String = "Credit Card"
-    }
-    class PayPal(val email: String) : Payable {
-        override fun pay(amount: Double) = println("Paid $$amount with PayPal ($email)")
-        override fun getMethod(): String = "PayPal"
-    }
-    
     val card = CreditCard("****1234")
     val paypal = PayPal("chef@kitchen.com")
     card.pay(49.99)
     paypal.pay(29.99)
+    println("Card method: ${card.getMethod()}")
+    println("PayPal method: ${paypal.getMethod()}")
     
     /* 🍳 TRY IT YOURSELF:
      * 
