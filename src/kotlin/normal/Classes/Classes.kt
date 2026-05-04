@@ -13,7 +13,7 @@
  * An object is the ACTUAL DISH you cook using that recipe.
  * You can use the same recipe (class) to make many dishes (objects)!
  * 
- * @author Your Name
+ * @author realmg51-cpu
  * @since May 2026
  */
 
