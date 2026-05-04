@@ -14,7 +14,7 @@
 | `HigherOrderFunctions.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/HigherOrderFunctions/HigherOrderFunctions.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/HigherOrderFunctions/introduction.md) |
 | `IfChef.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/IfChef/IfChef.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/IfChef/introduction.md) |
 | `InputAndNullSafety.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/InputAndNullSafety/InputAndNullSafety.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/InputAndNullSafety/introduction.md) |
-| `Interfaces.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Interfaces/Interfaces.kt) | ❌ No intro |
+| `Interfaces.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Interfaces/Interfaces.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Interfaces/introduction.md) |
 | `List.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/List/List.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/List/introduction.md) |
 | `MutableList.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/List/MutableList/MutableList.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/List/MutableList/introduction.md) |
 | `DoWhileStirring.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/Do-While/DoWhileStirring.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/Do-While/introduction.md) |
@@ -36,8 +36,8 @@
 | Metric | Value |
 |--------|-------|
 | 🍳 **Total Recipes** | `26` |
-| 📖 **With Introduction** | `25` |
-| 🆕 **Last Updated** | 2026-05-04 11:35:44 UTC |
+| 📖 **With Introduction** | `26` |
+| 🆕 **Last Updated** | 2026-05-04 11:39:33 UTC |
 
 ---
 
