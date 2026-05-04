@@ -3,7 +3,6 @@
  * 
  * What you'll learn:
  * - What are Sealed Classes (restricted class hierarchies)
- * - Why they're better than enum for complex cases
  * - Using 'when' expressions safely
  * - Real-world examples (UI states, payment results, cooking status)
  * 
@@ -11,20 +10,12 @@
  * A sealed class is like a FIXED MENU at a restaurant!
  * You know EXACTLY what dishes can be ordered (no surprises).
  * 
- * Enum = Simple menu with just dish names
- * Sealed Class = Full menu with different dish types (each with unique details)
- *   - Pizza has size and toppings 🍕
- *   - Pasta has sauce type 🍝
- *   - Salad has dressing 🥗
- * 
- * The chef knows ALL possible dishes in advance - no custom orders!
- * 
  * @author realmg51-cpu
  * @since May 2026
  */
 
 // ============================================================
-// SEALED CLASS DEFINITIONS (must be at top level)
+// SEALED CLASSES (at TOP LEVEL - cannot be inside main)
 // ============================================================
 
 // Example 1: Simple cooking status
@@ -40,23 +31,44 @@ sealed class Dish {
     data class Pizza(val size: String, val toppings: List<String>) : Dish()
     data class Pasta(val sauce: String, val hasCheese: Boolean) : Dish()
     data class Salad(val dressing: String, val isVegan: Boolean) : Dish()
-    object SoupOfTheDay : Dish()  // No extra data
+    object SoupOfTheDay : Dish()
 }
 
-// Example 3: UI States (common Android use case)
+// Example 3: Recipe difficulty
+sealed class Recipe {
+    data class Easy(val prepTime: Int) : Recipe()
+    data class Medium(val prepTime: Int, val tools: List<String>) : Recipe()
+    data class Hard(val prepTime: Int, val tools: List<String>, val experience: String) : Recipe()
+}
+
+// Example 4: Kitchen order system
+sealed class KitchenOrder {
+    object AwaitingPayment : KitchenOrder()
+    object Paid : KitchenOrder()
+    data class Cooking(val dish: String, val remainingTime: Int) : KitchenOrder()
+    data class Ready(val dish: String, val pickupNumber: Int) : KitchenOrder()
+    data class Completed(val dish: String, val rating: Int?) : KitchenOrder()
+}
+
+// Example 5: UI States
 sealed class UiState {
     object Loading : UiState()
     data class Success(val data: String) : UiState()
     data class Error(val message: String) : UiState()
 }
 
+// Enum can also be top level
+enum class CookingLevel {
+    EASY, MEDIUM, HARD
+}
+
 fun main() {
     println("📦 SEALED CLASSES - Fixed Menu Restaurant\n")
     
     // ============================================================
-    // PART 1: SIMPLE SEALED CLASS (Cooking Status)
+    // PART 1: COOKING STATUS
     // ============================================================
-    println("📚 PART 1: Cooking Status Example")
+    println("📚 PART 1: Cooking Status")
     println("-".repeat(50))
     
     fun getOrderStatus(status: CookingStatus): String {
@@ -74,101 +86,66 @@ fun main() {
     println(getOrderStatus(CookingStatus.Failed("Out of ingredients")))
     
     // ============================================================
-    // PART 2: DISH TYPES (Different data for each)
+    // PART 2: DISH TYPES
     // ============================================================
     println("\n\n📚 PART 2: Different Dish Types")
     println("-".repeat(50))
     
     fun describeDish(dish: Dish): String {
         return when (dish) {
-            is Dish.Pizza -> "🍕 Pizza: ${dish.size} size with ${dish.toppings.joinToString(", ")}"
+            is Dish.Pizza -> "🍕 Pizza: ${dish.size} with ${dish.toppings.joinToString(", ")}"
             is Dish.Pasta -> "🍝 Pasta: ${dish.sauce} sauce${if (dish.hasCheese) " + cheese" else ""}"
             is Dish.Salad -> "🥗 Salad: ${dish.dressing} dressing${if (dish.isVegan) " (vegan)" else ""}"
             is Dish.SoupOfTheDay -> "🥣 Today's special soup!"
         }
     }
     
-    val pizza = Dish.Pizza("Large", listOf("Pepperoni", "Mushrooms", "Olives"))
+    val pizza = Dish.Pizza("Large", listOf("Pepperoni", "Mushrooms"))
     val pasta = Dish.Pasta("Carbonara", true)
     val salad = Dish.Salad("Caesar", false)
-    val soup = Dish.SoupOfTheDay
     
     println(describeDish(pizza))
     println(describeDish(pasta))
     println(describeDish(salad))
-    println(describeDish(soup))
+    println(describeDish(Dish.SoupOfTheDay))
     
     // ============================================================
-    // PART 3: UI STATE (Real-world example)
+    // PART 3: ENUM VS SEALED (Simple comparison)
     // ============================================================
-    println("\n\n📚 PART 3: UI State Management")
+    println("\n\n📚 PART 3: Enum vs Sealed Class")
     println("-".repeat(50))
     
-    fun renderScreen(state: UiState) {
-        when (state) {
-            is UiState.Loading -> println("⏳ Loading... Please wait")
-            is UiState.Success -> println("✅ Data loaded: ${state.data}")
-            is UiState.Error -> println("❌ Error: ${state.message}")
-        }
-    }
+    // Enum: simple, no extra data
+    println("Enum example: ${CookingLevel.EASY}")
     
-    renderScreen(UiState.Loading)
-    renderScreen(UiState.Success("Welcome back, Chef!"))
-    renderScreen(UiState.Error("Network connection failed"))
-    
-    // ============================================================
-    // PART 4: SEALED VS ENUM
-    // ============================================================
-    println("\n\n📚 PART 4: Sealed Class vs Enum")
-    println("-".repeat(50))
-    
-    // Enum: Good for simple values
-    enum class CookingLevel {
-        EASY, MEDIUM, HARD
-    }
-    
-    // Sealed: Good when each type has different data
-    sealed class Recipe {
-        data class Easy(val prepTime: Int) : Recipe()      // 5-10 minutes
-        data class Medium(val prepTime: Int, val tools: List<String>) : Recipe()
-        data class Hard(val prepTime: Int, val tools: List<String>, val experience: String) : Recipe()
-    }
-    
+    // Sealed: each type can have different data
     fun describeRecipe(recipe: Recipe): String {
         return when (recipe) {
-            is Recipe.Easy -> "📘 Easy recipe (${recipe.prepTime} min)"
-            is Recipe.Medium -> "📙 Medium recipe (${recipe.prepTime} min, tools: ${recipe.tools.joinToString()})"
-            is Recipe.Hard -> "📕 Hard recipe (${recipe.prepTime} min, needs ${recipe.experience})"
+            is Recipe.Easy -> "📘 Easy (${recipe.prepTime} min)"
+            is Recipe.Medium -> "📙 Medium (${recipe.prepTime} min, tools: ${recipe.tools.joinToString()})"
+            is Recipe.Hard -> "📕 Hard (${recipe.prepTime} min, needs ${recipe.experience})"
         }
     }
     
     println(describeRecipe(Recipe.Easy(10)))
     println(describeRecipe(Recipe.Medium(30, listOf("Oven", "Mixer"))))
-    println(describeRecipe(Recipe.Hard(60, listOf("Stand mixer", "Thermometer"), "2+ years experience")))
+    println(describeRecipe(Recipe.Hard(60, listOf("Stand mixer"), "2+ years")))
     
     // ============================================================
-    // PART 5: PRACTICAL KITCHEN EXAMPLE
+    // PART 4: KITCHEN ORDER SYSTEM
     // ============================================================
-    println("\n\n📚 PART 5: Kitchen Order System")
+    println("\n\n📚 PART 4: Kitchen Order Tracking")
     println("-".repeat(50))
-    
-    sealed class KitchenOrder {
-        object AwaitingPayment : KitchenOrder()
-        object Paid : KitchenOrder()
-        data class Cooking(val dish: String, val remainingTime: Int) : KitchenOrder()
-        data class Ready(val dish: String, val pickupNumber: Int) : KitchenOrder()
-        data class Completed(val dish: String, val rating: Int?) : KitchenOrder()
-    }
     
     fun processOrder(order: KitchenOrder): String {
         return when (order) {
-            is KitchenOrder.AwaitingPayment -> "💳 Please complete payment first"
-            is KitchenOrder.Paid -> "✅ Payment received, preparing your order"
-            is KitchenOrder.Cooking -> "👨‍🍳 Cooking ${order.dish}... ${order.remainingTime} min remaining"
-            is KitchenOrder.Ready -> "🔔 ${order.dish} ready! Pickup at counter #${order.pickupNumber}"
+            is KitchenOrder.AwaitingPayment -> "💳 Please complete payment"
+            is KitchenOrder.Paid -> "✅ Payment received, preparing order"
+            is KitchenOrder.Cooking -> "👨‍🍳 Cooking ${order.dish}... ${order.remainingTime} min left"
+            is KitchenOrder.Ready -> "🔔 ${order.dish} ready! Pickup #${order.pickupNumber}"
             is KitchenOrder.Completed -> {
                 val rating = order.rating?.let { " ($it stars)" } ?: " (no rating)"
-                "🏁 Order completed$rating. Thank you!"
+                "🏁 Completed$rating. Thank you!"
             }
         }
     }
@@ -189,9 +166,27 @@ fun main() {
     println(processOrder(order))
     
     // ============================================================
-    // PART 6: SMART CASTS WITH SEALED CLASSES
+    // PART 5: UI STATE (Practical example)
     // ============================================================
-    println("\n\n📚 PART 6: Smart Casts (No explicit casting needed!)")
+    println("\n\n📚 PART 5: UI State Management")
+    println("-".repeat(50))
+    
+    fun renderScreen(state: UiState): String {
+        return when (state) {
+            is UiState.Loading -> "⏳ Loading..."
+            is UiState.Success -> "✅ Data: ${state.data}"
+            is UiState.Error -> "❌ Error: ${state.message}"
+        }
+    }
+    
+    println(renderScreen(UiState.Loading))
+    println(renderScreen(UiState.Success("Welcome back!")))
+    println(renderScreen(UiState.Error("Network failed")))
+    
+    // ============================================================
+    // PART 6: SMART CASTS (No manual casting needed)
+    // ============================================================
+    println("\n\n📚 PART 6: Smart Casts")
     println("-".repeat(50))
     
     fun getPrice(dish: Dish): Double {
@@ -209,16 +204,15 @@ fun main() {
     }
     
     println("Pizza price: $${getPrice(pizza)}")
+    println("Pasta price: $${getPrice(pasta)}")
     println("Salad price: $${getPrice(salad)}")
-    println("Soup price: $${getPrice(Dish.SoupOfTheDay)}")
     
     // ============================================================
-    // PART 7: CHECKING ALL TYPES (Compiler safety)
+    // PART 7: COMPILER SAFETY (No 'else' needed)
     // ============================================================
-    println("\n\n📚 PART 7: Compiler-Enforced Exhaustive when")
+    println("\n\n📚 PART 7: Compiler-Enforced Safety")
     println("-".repeat(50))
     
-    // Kotlin compiler checks if ALL types are handled
     fun getEmoji(dish: Dish): String {
         return when (dish) {
             is Dish.Pizza -> "🍕"
@@ -230,61 +224,39 @@ fun main() {
     }
     
     println("Pizza emoji: ${getEmoji(pizza)}")
-    println("Soup emoji: ${getEmoji(Dish.SoupOfTheDay)}")
+    println("Pasta emoji: ${getEmoji(pasta)}")
     
     /* 🍳 TRY IT YOURSELF:
      * 
      * 1. Create a sealed class `Operation` with:
      *    - Add(x: Int, y: Int)
-     *    - Subtract(x: Int, y: Int) 
+     *    - Subtract(x: Int, y: Int)
      *    - Multiply(x: Int, y: Int)
-     *    - Divide(x: Int, y: Int)
-     *    Write a function that evaluates each operation
+     *    Write a function that evaluates each
      * 
      * 2. Create a sealed class `NetworkResult` with:
      *    - Loading
      *    - Success(data: String)
      *    - Error(code: Int, message: String)
-     *    Simulate an API call that returns different states
      * 
-     * 3. Create a sealed hierarchy for `CoffeeOrder`:
-     *    - Espresso (size: String, hasSugar: Boolean)
-     *    - Latte (milkType: String, shots: Int)
-     *    - Americano (waterAmount: Int)
-     *    Write a function that returns the price
-     * 
-     * 4. Challenge: Create a small ordering system where:
-     *    - Customer can order different dish types
-     *    - Kitchen processes orders in stages
-     *    - Use sealed classes to represent each stage
+     * 3. Create `CoffeeOrder` sealed class with:
+     *    - Espresso(hasSugar: Boolean)
+     *    - Latte(milkType: String)
+     *    - Americano(waterAmount: Int)
      */
     
     println("\n" + "=".repeat(60))
-    println("🎉 Sealed Classes Mastered! Your menu is now FIXED!")
+    println("🎉 Sealed Classes Mastered!")
     println("=".repeat(60))
     
     println("""
         
-        💡 WHEN TO USE SEALED CLASSES:
-        
-        ✅ Use Sealed Class when:
-        • You have a FIXED set of subtypes
-        • Each subtype needs DIFFERENT data
-        • You want COMPILER safety (no missing cases)
-        • You're modeling state (success/error/loading)
-        
-        ❌ Use Enum when:
-        • All options are SIMPLE constants
-        • No extra data needed
-        • You just need to list possibilities
-        
-        🎯 Real-world uses:
-        • UI states (Loading, Success, Error)
-        • API results
-        • Payment processing
-        • Order status tracking
-        • User actions
-        • Navigation events
+        💡 QUICK TIPS:
+        • Sealed classes must be TOP LEVEL (not inside functions)
+        • Use 'object' for no-data variants
+        • Use 'data class' for variants with data
+        • No 'else' needed in 'when' - compiler checks everything!
+        • Better than enum when each case needs different data
         
     """.trimIndent())
 }
