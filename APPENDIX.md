@@ -21,6 +21,7 @@
 | `WhileStirring.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/While/WhileStirring.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/While/introduction.md) |
 | `Map.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Map/Map.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Map/introduction.md) |
 | `ScopeFunctions.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/ScopeFunctions/ScopeFunctions.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/ScopeFunctions/introduction.md) |
+| `SealedClass.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/SealedClass/SealedClass.kt) | ❌ No intro |
 | `Set.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Set/Set.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Set/introduction.md) |
 | `CommonVariables.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/CommonVariables.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/introduction.md) |
 | `ImmutableVariables.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/ImmutableVariables.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/introduction.md) |
@@ -33,9 +34,9 @@
 
 | Metric | Value |
 |--------|-------|
-| 🍳 **Total Recipes** | `24` |
+| 🍳 **Total Recipes** | `25` |
 | 📖 **With Introduction** | `24` |
-| 🆕 **Last Updated** | 2026-05-04 11:12:23 UTC |
+| 🆕 **Last Updated** | 2026-05-04 11:15:38 UTC |
 
 ---
 

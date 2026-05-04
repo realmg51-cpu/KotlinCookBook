@@ -390,6 +390,8 @@ src/kotlin/normal
 │   └── Map.kt
 ├── ScopeFunctions
 │   └── ScopeFunctions.kt
+├── SealedClass
+│   └── SealedClass.kt
 ├── Set
 │   └── Set.kt
 ├── Variables
@@ -402,22 +404,22 @@ src/kotlin/normal
 └── WhenChef
     └── WhenChef.kt
 
-23 directories, 24 files
+24 directories, 25 files
 ```
 
 ### 📊 Statistics
 
 | Metric | Value |
 |--------|-------|
-| 🍳 **Total Recipes** | `24` files |
-| 📁 **Categories** | `15` folders |
+| 🍳 **Total Recipes** | `25` files |
+| 📁 **Categories** | `16` folders |
 
 ---
 
 <img src=".github/avatars/bot.svg" width="40">
 
 *Auto-updated by KotlinCookBot 🤖*
-*Last update: 2026-05-04 11:12:23 UTC*
+*Last update: 2026-05-04 11:15:38 UTC*
 <!-- STRUCTURE_END -->
 
 ### 📖 Recipe Appendix
