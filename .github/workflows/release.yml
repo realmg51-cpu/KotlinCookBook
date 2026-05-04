@@ -93,33 +93,13 @@ jobs:
           fi
       
       - name: Get contributors since last release
-        id: contributors
         run: |
           PREV_TAG="${{ steps.previous.outputs.tag }}"
           
           if [ -n "$PREV_TAG" ]; then
-            CONTRIBUTORS=$(git log "$PREV_TAG..HEAD" --format='%an' | sort -u | sed 's/^/- /' | head -20)
+            git log "$PREV_TAG..HEAD" --format='%an' | sort -u | sed 's/^/- /' | head -20 > contributors.txt
           else
-            CONTRIBUTORS="- @realmg51-cpu"
-          fi
-          
-          echo "$CONTRIBUTORS" > contributors.txt
-      
-      - name: Get latest recipes added
-        id: latest_recipes
-        run: |
-          PREV_TAG="${{ steps.previous.outputs.tag }}"
-          
-          if [ -n "$PREV_TAG" ]; then
-            LATEST_RECIPES=$(git diff --diff-filter=A --name-only "$PREV_TAG..HEAD" -- "src/kotlin/normal/*.kt" 2>/dev/null | head -10)
-          else
-            LATEST_RECIPES=""
-          fi
-          
-          if [ -n "$LATEST_RECIPES" ]; then
-            echo "recipes=$LATEST_RECIPES" >> $GITHUB_OUTPUT
-          else
-            echo "recipes=No new recipes in this release" >> $GITHUB_OUTPUT
+            echo "- @realmg51-cpu" > contributors.txt
           fi
       
       - name: Generate release notes
@@ -127,14 +107,14 @@ jobs:
           VERSION_NUM="${{ steps.version.outputs.version }}"
           PREV_TAG="${{ steps.previous.outputs.tag }}"
           CURRENT_TAG="${{ steps.version.outputs.tag }}"
-          
-          # Create empty file
-          > release_notes.md
+          RECIPES="${{ steps.stats.outputs.recipes }}"
+          CATEGORIES="${{ steps.stats.outputs.categories }}"
+          INTROS="${{ steps.stats.outputs.intros }}"
+          LOC="${{ steps.stats.outputs.loc }}"
+          COMMITS="${{ steps.previous.outputs.commits }}"
           
           # Header
-          echo "🍳 v$VERSION_NUM" >> release_notes.md
-          echo "" >> release_notes.md
-          echo "🍳 KotlinCookBook v$VERSION_NUM" >> release_notes.md
+          echo "🍳 KotlinCookBook v${VERSION_NUM}" > release_notes.md
           echo "" >> release_notes.md
           echo "> *\"Another batch of delicious Kotlin recipes is ready!\"*" >> release_notes.md
           echo "" >> release_notes.md
@@ -144,11 +124,11 @@ jobs:
           echo "" >> release_notes.md
           echo "| Metric | Value |" >> release_notes.md
           echo "|--------|-------|" >> release_notes.md
-          echo "| 🍽️ **Total Recipes** | **${{ steps.stats.outputs.recipes }}** |" >> release_notes.md
-          echo "| 📁 **Categories** | ${{ steps.stats.outputs.categories }} |" >> release_notes.md
-          echo "| 📖 **Introductions** | ${{ steps.stats.outputs.intros }} |" >> release_notes.md
-          echo "| 📝 **Lines of Code** | ${{ steps.stats.outputs.loc }} |" >> release_notes.md
-          echo "| 🚀 **Commits since last release** | ${{ steps.previous.outputs.commits }} |" >> release_notes.md
+          echo "| 🍽️ **Total Recipes** | **${RECIPES}** |" >> release_notes.md
+          echo "| 📁 **Categories** | ${CATEGORIES} |" >> release_notes.md
+          echo "| 📖 **Introductions** | ${INTROS} |" >> release_notes.md
+          echo "| 📝 **Lines of Code** | ${LOC} |" >> release_notes.md
+          echo "| 🚀 **Commits since last release** | ${COMMITS} |" >> release_notes.md
           echo "" >> release_notes.md
           echo "---" >> release_notes.md
           echo "" >> release_notes.md
@@ -158,9 +138,9 @@ jobs:
           echo "" >> release_notes.md
           
           if [ -n "$PREV_TAG" ]; then
-            echo "#### Changes from $PREV_TAG to $CURRENT_TAG:" >> release_notes.md
+            echo "#### Changes from ${PREV_TAG} to ${CURRENT_TAG}:" >> release_notes.md
             echo "" >> release_notes.md
-            git log --oneline --pretty="- %s" "$PREV_TAG..HEAD" >> release_notes.md
+            git log --oneline --pretty="- %s" "${PREV_TAG}..HEAD" >> release_notes.md
           else
             echo "#### Initial release! 🎉" >> release_notes.md
             echo "" >> release_notes.md
@@ -179,15 +159,7 @@ jobs:
           echo "---" >> release_notes.md
           echo "" >> release_notes.md
           
-          # Latest Recipes
-          echo "### 🍳 Latest Recipes Added" >> release_notes.md
-          echo "" >> release_notes.md
-          echo "${{ steps.latest_recipes.outputs.recipes }}" >> release_notes.md
-          echo "" >> release_notes.md
-          echo "---" >> release_notes.md
-          echo "" >> release_notes.md
-          
-          # How to Use (static text, no command execution)
+          # How to Use
           echo "### 🚀 How to Use This Release" >> release_notes.md
           echo "" >> release_notes.md
           echo "#### Option 1: Clone and run locally" >> release_notes.md
@@ -207,31 +179,13 @@ jobs:
           echo "---" >> release_notes.md
           echo "" >> release_notes.md
           
-          # Full Recipe List
-          echo "### 📚 Full Recipe List" >> release_notes.md
-          echo "" >> release_notes.md
-          echo "Check out the [README](https://github.com/realmg51-cpu/KotlinCookBook) for the complete recipe index!" >> release_notes.md
-          echo "" >> release_notes.md
-          echo "---" >> release_notes.md
-          echo "" >> release_notes.md
-          
-          # Thank You
+          # Footer
           echo "### 🙏 Thank You!" >> release_notes.md
           echo "" >> release_notes.md
           echo "Special thanks to all contributors who made this release possible!" >> release_notes.md
           echo "" >> release_notes.md
           echo "---" >> release_notes.md
           echo "" >> release_notes.md
-          
-          # Maintained by
-          echo "### 🤖 Maintained by KotlinCookBot" >> release_notes.md
-          echo "" >> release_notes.md
-          echo "*\"Good code is like good food – best when shared!\"* 🍳" >> release_notes.md
-          echo "" >> release_notes.md
-          echo "---" >> release_notes.md
-          echo "" >> release_notes.md
-          
-          # Footer
           echo "**Happy cooking!** 👨‍🍳🚀" >> release_notes.md
       
       - name: Create Release
@@ -247,16 +201,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Summary
+      - name: Print success message
         run: |
-          echo "## 🚀 Release Created Successfully" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Tag** | \`${{ steps.version.outputs.tag }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Recipes** | ${{ steps.stats.outputs.recipes }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Categories** | ${{ steps.stats.outputs.categories }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Introductions** | ${{ steps.stats.outputs.intros }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Lines of Code** | ${{ steps.stats.outputs.loc }} |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }})" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Release created: ${{ steps.version.outputs.tag }}"
+          echo "📊 ${{ steps.stats.outputs.recipes }} recipes, ${{ steps.stats.outputs.categories }} categories"
+          echo "🔗 https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }}"
