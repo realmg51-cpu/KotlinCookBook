@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  KOTLIN_VERSION: 2.3.20
+  KOTLIN_VERSION: 2.3.21
 
 jobs:
   test:
@@ -46,15 +46,21 @@ jobs:
       - name: 🔗 Add Kotlin to PATH
         run: echo "$HOME/kotlinc/bin" >> $GITHUB_PATH
       
+      - name: 📦 Download coroutines library
+        run: |
+          mkdir -p lib
+          curl -L "https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core/1.7.3/kotlinx-coroutines-core-1.7.3.jar" -o lib/coroutines.jar
+          echo "✅ Coroutines library downloaded"
+      
       - name: ✅ Verify Kotlin installation
         run: |
           kotlinc -version
           echo "🎉 Kotlin is ready!"
       
-      - name: 🧪 Test each recipe with output logging
+      - name: 🧪 Test each recipe (compile + run JAR)
         run: |
-          # Create output directory
-          mkdir -p test-outputs
+          # Create temp and output directories
+          mkdir -p temp test-outputs
           
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "🧪 STARTING KITCHEN TESTS"
@@ -63,7 +69,6 @@ jobs:
           
           FAILED=0
           TOTAL=0
-          PASSED_LIST=""
           FAILED_LIST=""
           
           # Create summary file
@@ -76,64 +81,105 @@ jobs:
           echo "## Results" >> $SUMMARY_FILE
           echo "" >> $SUMMARY_FILE
           
+          # Find all Kotlin files with main function
           while IFS= read -r file; do
             TOTAL=$((TOTAL + 1))
-            filename=$(basename "$file")
-            safename=$(echo "$file" | sed 's|/|_|g' | sed 's|src_kotlin_normal_||')
+            filename=$(basename "$file" .kt)
+            dirname=$(dirname "$file")
+            safename=$(echo "$file" | sed 's|/|_|g' | sed 's|src_||')
             output_file="test-outputs/${safename}.txt"
+            compile_error="test-outputs/${safename}.compile_error.txt"
+            jar_file="temp/${filename}.jar"
             
             echo "🔪 Testing: $file"
             
-            # Run and capture output
-            if kotlinc "$file" -include-runtime -d "/tmp/${filename%.kt}.jar" 2>/tmp/compile_error.txt; then
-              if java -jar "/tmp/${filename%.kt}.jar" > "$output_file" 2>&1; then
-                echo "   ✅ PASSED"
-                PASSED_LIST="$PASSED_LIST\n   ✅ $file"
-                echo "- ✅ **PASSED** | $file" >> $SUMMARY_FILE
-                
-                # Add first few lines of output to summary
-                echo "  <details><summary>📜 Output</summary>" >> $SUMMARY_FILE
-                echo "" >> $SUMMARY_FILE
-                echo '  ```' >> $SUMMARY_FILE
-                head -20 "$output_file" >> $SUMMARY_FILE
-                if [ $(wc -l < "$output_file") -gt 20 ]; then
-                  echo "  ... (truncated, see full log in artifact)" >> $SUMMARY_FILE
+            # Check if file uses coroutines
+            if grep -q "import kotlinx.coroutines" "$file" 2>/dev/null; then
+              echo "   📦 Detected coroutines, compiling with library..."
+              
+              # Compile to JAR with coroutines
+              if kotlinc -cp "lib/coroutines.jar" "$file" -include-runtime -d "$jar_file" 2> "$compile_error"; then
+                # Run JAR
+                if java -jar "$jar_file" > "$output_file" 2>&1; then
+                  echo "   ✅ PASSED (coroutines)"
+                  echo "- ✅ **PASSED** | $file" >> $SUMMARY_FILE
+                  # Add output preview
+                  echo "  <details><summary>📜 Output</summary>" >> $SUMMARY_FILE
+                  echo '  ```' >> $SUMMARY_FILE
+                  head -15 "$output_file" >> $SUMMARY_FILE
+                  if [ $(wc -l < "$output_file") -gt 15 ]; then
+                    echo "  ... (full log in artifact)" >> $SUMMARY_FILE
+                  fi
+                  echo '  ```' >> $SUMMARY_FILE
+                  echo "  </details>" >> $SUMMARY_FILE
+                else
+                  echo "   ❌ FAILED (runtime error)"
+                  FAILED=$((FAILED + 1))
+                  FAILED_LIST="$FAILED_LIST\n   ❌ $file"
+                  echo "- ❌ **FAILED** | $file (runtime error)" >> $SUMMARY_FILE
+                  echo "  <details><summary>📜 Runtime Error</summary>" >> $SUMMARY_FILE
+                  echo '  ```' >> $SUMMARY_FILE
+                  cat "$output_file" | head -30 >> $SUMMARY_FILE
+                  echo '  ```' >> $SUMMARY_FILE
+                  echo "  </details>" >> $SUMMARY_FILE
                 fi
-                echo '  ```' >> $SUMMARY_FILE
-                echo "  </details>" >> $SUMMARY_FILE
-                echo "" >> $SUMMARY_FILE
               else
-                echo "   ❌ FAILED (runtime error)"
-                echo "   📜 Output saved to artifact"
-                cat "$output_file" | sed 's/^/      /'
+                echo "   ❌ FAILED (compilation error)"
                 FAILED=$((FAILED + 1))
                 FAILED_LIST="$FAILED_LIST\n   ❌ $file"
-                echo "- ❌ **FAILED** | $file (runtime error)" >> $SUMMARY_FILE
-                echo "  <details><summary>📜 Error Output</summary>" >> $SUMMARY_FILE
-                echo "" >> $SUMMARY_FILE
+                echo "- ❌ **FAILED** | $file (compilation error)" >> $SUMMARY_FILE
+                echo "  <details><summary>📜 Compilation Error</summary>" >> $SUMMARY_FILE
                 echo '  ```' >> $SUMMARY_FILE
-                cat "$output_file" >> $SUMMARY_FILE
+                cat "$compile_error" | head -30 >> $SUMMARY_FILE
                 echo '  ```' >> $SUMMARY_FILE
                 echo "  </details>" >> $SUMMARY_FILE
-                echo "" >> $SUMMARY_FILE
               fi
-              rm -f "/tmp/${filename%.kt}.jar"
             else
-              echo "   ❌ FAILED (compilation error)"
-              echo "   📜 Compilation error saved to artifact"
-              cat /tmp/compile_error.txt | sed 's/^/      /'
-              FAILED=$((FAILED + 1))
-              FAILED_LIST="$FAILED_LIST\n   ❌ $file"
-              echo "- ❌ **FAILED** | $file (compilation error)" >> $SUMMARY_FILE
-              echo "  <details><summary>📜 Compilation Error</summary>" >> $SUMMARY_FILE
-              echo "" >> $SUMMARY_FILE
-              echo '  ```' >> $SUMMARY_FILE
-              cat /tmp/compile_error.txt >> $SUMMARY_FILE
-              echo '  ```' >> $SUMMARY_FILE
-              echo "  </details>" >> $SUMMARY_FILE
-              echo "" >> $SUMMARY_FILE
+              # Normal Kotlin file (no coroutines)
+              # Compile to JAR
+              if kotlinc "$file" -include-runtime -d "$jar_file" 2> "$compile_error"; then
+                # Run JAR
+                if java -jar "$jar_file" > "$output_file" 2>&1; then
+                  echo "   ✅ PASSED"
+                  echo "- ✅ **PASSED** | $file" >> $SUMMARY_FILE
+                  # Add output preview
+                  echo "  <details><summary>📜 Output</summary>" >> $SUMMARY_FILE
+                  echo '  ```' >> $SUMMARY_FILE
+                  head -15 "$output_file" >> $SUMMARY_FILE
+                  if [ $(wc -l < "$output_file") -gt 15 ]; then
+                    echo "  ... (full log in artifact)" >> $SUMMARY_FILE
+                  fi
+                  echo '  ```' >> $SUMMARY_FILE
+                  echo "  </details>" >> $SUMMARY_FILE
+                else
+                  echo "   ❌ FAILED (runtime error)"
+                  FAILED=$((FAILED + 1))
+                  FAILED_LIST="$FAILED_LIST\n   ❌ $file"
+                  echo "- ❌ **FAILED** | $file (runtime error)" >> $SUMMARY_FILE
+                  echo "  <details><summary>📜 Runtime Error</summary>" >> $SUMMARY_FILE
+                  echo '  ```' >> $SUMMARY_FILE
+                  cat "$output_file" | head -30 >> $SUMMARY_FILE
+                  echo '  ```' >> $SUMMARY_FILE
+                  echo "  </details>" >> $SUMMARY_FILE
+                fi
+              else
+                echo "   ❌ FAILED (compilation error)"
+                FAILED=$((FAILED + 1))
+                FAILED_LIST="$FAILED_LIST\n   ❌ $file"
+                echo "- ❌ **FAILED** | $file (compilation error)" >> $SUMMARY_FILE
+                echo "  <details><summary>📜 Compilation Error</summary>" >> $SUMMARY_FILE
+                echo '  ```' >> $SUMMARY_FILE
+                cat "$compile_error" | head -30 >> $SUMMARY_FILE
+                echo '  ```' >> $SUMMARY_FILE
+                echo "  </details>" >> $SUMMARY_FILE
+              fi
             fi
+            
+            # Cleanup JAR file
+            rm -f "$jar_file"
+            echo "" >> $SUMMARY_FILE
             echo ""
+            
           done < <(find src -name "*.kt" -type f -exec grep -l "fun main" {} \; 2>/dev/null | sort)
           
           # Add summary to the end
