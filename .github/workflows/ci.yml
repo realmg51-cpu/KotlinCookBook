@@ -6,6 +6,17 @@ on:
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
+    inputs:
+      test_coroutines:
+        description: 'Test coroutines (advanced)'
+        required: false
+        default: false
+        type: boolean
+      skip_normal:
+        description: 'Skip normal tests'
+        required: false
+        default: false
+        type: boolean
 
 env:
   KOTLIN_VERSION: 2.3.20
@@ -46,25 +57,19 @@ jobs:
       - name: 🔗 Add Kotlin to PATH
         run: echo "$HOME/kotlinc/bin" >> $GITHUB_PATH
       
-      - name: 📦 Download coroutines library
-        run: |
-          mkdir -p lib
-          curl -L "https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core/1.7.3/kotlinx-coroutines-core-1.7.3.jar" -o lib/coroutines.jar
-          echo "✅ Coroutines library downloaded to lib/coroutines.jar"
-          ls -la lib/
-      
       - name: ✅ Verify Kotlin installation
         run: |
           kotlinc -version
           echo "🎉 Kotlin is ready!"
       
-      - name: 🧪 Test each recipe (compile + run JAR)
+      - name: 🧪 Test normal recipes (compile + run JAR)
+        if: ${{ !github.event.inputs.skip_normal || github.event.inputs.skip_normal == 'false' }}
         run: |
           # Create temp and output directories
           mkdir -p temp test-outputs
           
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "🧪 STARTING KITCHEN TESTS"
+          echo "🧪 TESTING NORMAL RECIPES"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
           
@@ -82,10 +87,7 @@ jobs:
           echo "## Results" >> $SUMMARY_FILE
           echo "" >> $SUMMARY_FILE
           
-          # Path to coroutines jar
-          COROUTINES_JAR="lib/coroutines.jar"
-          
-          # Find all Kotlin files with main function
+          # Find all normal Kotlin files with main function (exclude advanced)
           while IFS= read -r file; do
             TOTAL=$((TOTAL + 1))
             filename=$(basename "$file" .kt)
@@ -96,86 +98,41 @@ jobs:
             
             echo "🔪 Testing: $file"
             
-            # Check if file uses coroutines
-            if grep -q "import kotlinx.coroutines" "$file" 2>/dev/null; then
-              echo "   📦 Detected coroutines, compiling with library..."
-              
-              # Compile to JAR with coroutines
-              if kotlinc -classpath "$COROUTINES_JAR" "$file" -include-runtime -d "$jar_file" 2> "$compile_error"; then
-                # Run JAR
-                if java -jar "$jar_file" > "$output_file" 2>&1; then
-                  echo "   ✅ PASSED (coroutines)"
-                  echo "- ✅ **PASSED** | $file" >> $SUMMARY_FILE
-                  echo "  <details><summary>📜 Output</summary>" >> $SUMMARY_FILE
-                  echo '  ```' >> $SUMMARY_FILE
-                  head -15 "$output_file" >> $SUMMARY_FILE
-                  if [ $(wc -l < "$output_file") -gt 15 ]; then
-                    echo "  ... (full log in artifact)" >> $SUMMARY_FILE
-                  fi
-                  echo '  ```' >> $SUMMARY_FILE
-                  echo "  </details>" >> $SUMMARY_FILE
-                else
-                  echo "   ❌ FAILED (runtime error)"
-                  FAILED=$((FAILED + 1))
-                  FAILED_LIST="$FAILED_LIST\n   ❌ $file"
-                  echo "- ❌ **FAILED** | $file (runtime error)" >> $SUMMARY_FILE
-                  echo "  <details><summary>📜 Runtime Error</summary>" >> $SUMMARY_FILE
-                  echo '  ```' >> $SUMMARY_FILE
-                  cat "$output_file" | head -30 >> $SUMMARY_FILE
-                  echo '  ```' >> $SUMMARY_FILE
-                  echo "  </details>" >> $SUMMARY_FILE
+            # Compile to JAR
+            if kotlinc "$file" -include-runtime -d "$jar_file" 2> "$compile_error"; then
+              # Run JAR
+              if java -jar "$jar_file" > "$output_file" 2>&1; then
+                echo "   ✅ PASSED"
+                echo "- ✅ **PASSED** | $file" >> $SUMMARY_FILE
+                echo "  <details><summary>📜 Output</summary>" >> $SUMMARY_FILE
+                echo '  ```' >> $SUMMARY_FILE
+                head -15 "$output_file" >> $SUMMARY_FILE
+                if [ $(wc -l < "$output_file") -gt 15 ]; then
+                  echo "  ... (full log in artifact)" >> $SUMMARY_FILE
                 fi
+                echo '  ```' >> $SUMMARY_FILE
+                echo "  </details>" >> $SUMMARY_FILE
               else
-                echo "   ❌ FAILED (compilation error)"
-                echo "   📜 Compilation error details:"
-                cat "$compile_error" | head -10
+                echo "   ❌ FAILED (runtime error)"
                 FAILED=$((FAILED + 1))
                 FAILED_LIST="$FAILED_LIST\n   ❌ $file"
-                echo "- ❌ **FAILED** | $file (compilation error)" >> $SUMMARY_FILE
-                echo "  <details><summary>📜 Compilation Error</summary>" >> $SUMMARY_FILE
+                echo "- ❌ **FAILED** | $file (runtime error)" >> $SUMMARY_FILE
+                echo "  <details><summary>📜 Runtime Error</summary>" >> $SUMMARY_FILE
                 echo '  ```' >> $SUMMARY_FILE
-                cat "$compile_error" | head -30 >> $SUMMARY_FILE
+                cat "$output_file" | head -30 >> $SUMMARY_FILE
                 echo '  ```' >> $SUMMARY_FILE
                 echo "  </details>" >> $SUMMARY_FILE
               fi
             else
-              # Normal Kotlin file (no coroutines)
-              if kotlinc "$file" -include-runtime -d "$jar_file" 2> "$compile_error"; then
-                if java -jar "$jar_file" > "$output_file" 2>&1; then
-                  echo "   ✅ PASSED"
-                  echo "- ✅ **PASSED** | $file" >> $SUMMARY_FILE
-                  echo "  <details><summary>📜 Output</summary>" >> $SUMMARY_FILE
-                  echo '  ```' >> $SUMMARY_FILE
-                  head -15 "$output_file" >> $SUMMARY_FILE
-                  if [ $(wc -l < "$output_file") -gt 15 ]; then
-                    echo "  ... (full log in artifact)" >> $SUMMARY_FILE
-                  fi
-                  echo '  ```' >> $SUMMARY_FILE
-                  echo "  </details>" >> $SUMMARY_FILE
-                else
-                  echo "   ❌ FAILED (runtime error)"
-                  FAILED=$((FAILED + 1))
-                  FAILED_LIST="$FAILED_LIST\n   ❌ $file"
-                  echo "- ❌ **FAILED** | $file (runtime error)" >> $SUMMARY_FILE
-                  echo "  <details><summary>📜 Runtime Error</summary>" >> $SUMMARY_FILE
-                  echo '  ```' >> $SUMMARY_FILE
-                  cat "$output_file" | head -30 >> $SUMMARY_FILE
-                  echo '  ```' >> $SUMMARY_FILE
-                  echo "  </details>" >> $SUMMARY_FILE
-                fi
-              else
-                echo "   ❌ FAILED (compilation error)"
-                echo "   📜 Compilation error details:"
-                cat "$compile_error" | head -10
-                FAILED=$((FAILED + 1))
-                FAILED_LIST="$FAILED_LIST\n   ❌ $file"
-                echo "- ❌ **FAILED** | $file (compilation error)" >> $SUMMARY_FILE
-                echo "  <details><summary>📜 Compilation Error</summary>" >> $SUMMARY_FILE
-                echo '  ```' >> $SUMMARY_FILE
-                cat "$compile_error" | head -30 >> $SUMMARY_FILE
-                echo '  ```' >> $SUMMARY_FILE
-                echo "  </details>" >> $SUMMARY_FILE
-              fi
+              echo "   ❌ FAILED (compilation error)"
+              FAILED=$((FAILED + 1))
+              FAILED_LIST="$FAILED_LIST\n   ❌ $file"
+              echo "- ❌ **FAILED** | $file (compilation error)" >> $SUMMARY_FILE
+              echo "  <details><summary>📜 Compilation Error</summary>" >> $SUMMARY_FILE
+              echo '  ```' >> $SUMMARY_FILE
+              cat "$compile_error" | head -30 >> $SUMMARY_FILE
+              echo '  ```' >> $SUMMARY_FILE
+              echo "  </details>" >> $SUMMARY_FILE
             fi
             
             # Cleanup JAR file
@@ -183,43 +140,134 @@ jobs:
             echo "" >> $SUMMARY_FILE
             echo ""
             
-          done < <(find src -name "*.kt" -type f -exec grep -l "fun main" {} \; 2>/dev/null | sort)
+          done < <(find src/kotlin/normal -name "*.kt" -type f -exec grep -l "fun main" {} \; 2>/dev/null | sort)
           
-          # Add summary to the end
-          echo "## Summary" >> $SUMMARY_FILE
+          echo "## Normal Recipes Summary" >> $SUMMARY_FILE
           echo "" >> $SUMMARY_FILE
           echo "| Metric | Value |" >> $SUMMARY_FILE
           echo "|--------|-------|" >> $SUMMARY_FILE
-          echo "| Total Recipes | $TOTAL |" >> $SUMMARY_FILE
+          echo "| Total Normal Recipes | $TOTAL |" >> $SUMMARY_FILE
           echo "| ✅ Passed | $((TOTAL - FAILED)) |" >> $SUMMARY_FILE
           echo "| ❌ Failed | $FAILED |" >> $SUMMARY_FILE
           echo "" >> $SUMMARY_FILE
           
-          if [ $FAILED -eq 0 ]; then
-            echo "🎉 **All recipes passed! Bon appétit!** 🎉" >> $SUMMARY_FILE
-          else
-            echo "⚠️ **$FAILED recipe(s) failed! Please check the logs.**" >> $SUMMARY_FILE
+          if [ $FAILED -gt 0 ]; then
+            echo "⚠️ **$FAILED normal recipe(s) failed!**" >> $SUMMARY_FILE
+            echo "❌ Failed normal recipes:" >> $SUMMARY_FILE
+            echo -e "$FAILED_LIST" >> $SUMMARY_FILE
           fi
           
           # Print final results
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "📊 RESULTS"
+          echo "📊 NORMAL RECIPES RESULTS"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "Total recipes: $TOTAL"
+          echo "Total normal recipes: $TOTAL"
           echo "✅ Passed: $((TOTAL - FAILED))"
           echo "❌ Failed: $FAILED"
           echo ""
-          echo "📁 Outputs saved to: test-outputs/"
-          echo "📄 Summary: test-outputs/SUMMARY.md"
           
-          if [ $FAILED -ne 0 ]; then
-            echo ""
-            echo "❌ Failed recipes:"
-            echo -e "$FAILED_LIST"
+          # Save results for later
+          echo "NORMAL_FAILED=$FAILED" >> $GITHUB_ENV
+          echo "NORMAL_TOTAL=$TOTAL" >> $GITHUB_ENV
+      
+      - name: 🚀 Test coroutines with Gradle
+        if: ${{ github.event.inputs.test_coroutines == 'true' || github.event_name == 'push' }}
+        run: |
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🚀 TESTING COROUTINES (ADVANCED) WITH GRADLE"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          
+          # Create a temporary Gradle project for coroutines
+          mkdir -p coroutines_test
+          cd coroutines_test
+          
+          # Create build.gradle.kts
+          cat > build.gradle.kts << 'EOF'
+          plugins {
+              kotlin("jvm") version "2.3.20"
+              application
+          }
+          
+          repositories {
+              mavenCentral()
+          }
+          
+          dependencies {
+              implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+          }
+          
+          application {
+              mainClass.set("CoroutinesKt")
+          }
+          
+          tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+              kotlinOptions.jvmTarget = "17"
+          }
+          EOF
+          
+          # Copy coroutines file
+          mkdir -p src/main/kotlin
+          cp ../src/kotlin/advanced/Coroutines/Coroutines.kt src/main/kotlin/
+          
+          # Create wrapper
+          gradle wrapper --gradle-version 8.5
+          
+          # Make gradlew executable
+          chmod +x gradlew
+          
+          # Run the coroutines
+          echo "📦 Building and running coroutines with Gradle..."
+          
+          if ./gradlew run --no-daemon > ../test-outputs/coroutines_output.txt 2>&1; then
+            echo "   ✅ COROUTINES PASSED"
+            echo "## Coroutines Test" >> ../test-outputs/SUMMARY.md
+            echo "" >> ../test-outputs/SUMMARY.md
+            echo "✅ **Coroutines passed!**" >> ../test-outputs/SUMMARY.md
+            echo "" >> ../test-outputs/SUMMARY.md
+            echo "<details><summary>📜 Output</summary>" >> ../test-outputs/SUMMARY.md
+            echo '```' >> ../test-outputs/SUMMARY.md
+            head -30 ../test-outputs/coroutines_output.txt >> ../test-outputs/SUMMARY.md
+            echo '```' >> ../test-outputs/SUMMARY.md
+            echo "</details>" >> ../test-outputs/SUMMARY.md
+            echo "" >> ../test-outputs/SUMMARY.md
+            COROUTINES_STATUS="passed"
+          else
+            echo "   ❌ COROUTINES FAILED"
+            echo "## Coroutines Test" >> ../test-outputs/SUMMARY.md
+            echo "" >> ../test-outputs/SUMMARY.md
+            echo "❌ **Coroutines failed!**" >> ../test-outputs/SUMMARY.md
+            echo "" >> ../test-outputs/SUMMARY.md
+            echo "<details><summary>📜 Error Output</summary>" >> ../test-outputs/SUMMARY.md
+            echo '```' >> ../test-outputs/SUMMARY.md
+            cat ../test-outputs/coroutines_output.txt >> ../test-outputs/SUMMARY.md
+            echo '```' >> ../test-outputs/SUMMARY.md
+            echo "</details>" >> ../test-outputs/SUMMARY.md
+            echo "" >> ../test-outputs/SUMMARY.md
+            COROUTINES_STATUS="failed"
+          fi
+          
+          cd ..
+          
+          echo "COROUTINES_STATUS=$COROUTINES_STATUS" >> $GITHUB_ENV
+      
+      - name: 📊 Final Summary
+        run: |
+          echo "" >> test-outputs/SUMMARY.md
+          echo "## Final Summary" >> test-outputs/SUMMARY.md
+          echo "" >> test-outputs/SUMMARY.md
+          echo "| Test Suite | Status |" >> test-outputs/SUMMARY.md
+          echo "|------------|--------|" >> test-outputs/SUMMARY.md
+          echo "| Normal Recipes | $((NORMAL_TOTAL - NORMAL_FAILED))/$NORMAL_TOTAL passed |" >> test-outputs/SUMMARY.md
+          echo "| Coroutines (Advanced) | $COROUTINES_STATUS |" >> test-outputs/SUMMARY.md
+          echo "" >> test-outputs/SUMMARY.md
+          
+          if [ "$COROUTINES_STATUS" == "failed" ] || [ $NORMAL_FAILED -gt 0 ]; then
+            echo "⚠️ **Some tests failed!**" >> test-outputs/SUMMARY.md
             exit 1
           else
-            echo ""
-            echo "🎉 ALL RECIPES PASSED! Bon appétit! 🎉"
+            echo "🎉 **All tests passed! Bon appétit!** 🎉" >> test-outputs/SUMMARY.md
             exit 0
           fi
       
