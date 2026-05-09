@@ -7,7 +7,7 @@
 ![Kotlin Version](https://img.shields.io/badge/Kotlin-2.3.21-blue)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
-![Tests](https://github.com/realmg51-cpu/KotlinCookBook/actions/workflows/ci.yml/badge.svg)
+![Tests](https://github.com/realmg51-cpu/KotlinCookBook/actions/workflows/test.yml/badge.svg)
 ![Stars](https://img.shields.io/github/stars/realmg51-cpu/KotlinCookBook)
 ![Forks](https://img.shields.io/github/forks/realmg51-cpu/KotlinCookBook)
 
