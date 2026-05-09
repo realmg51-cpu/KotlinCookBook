@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'src/kotlin/normal/**'
+      - 'src/kotlin/advanced/**'
       - '.github/workflows/update-docs.yml'
   workflow_dispatch:
 
@@ -29,15 +30,25 @@ jobs:
           
           repo = os.environ.get('GITHUB_REPOSITORY', 'realmg51-cpu/KotlinCookBook')
           
-          # ===== 1. GET TREE OUTPUT =====
+          # ===== 1. GET TREE OUTPUT (both normal and advanced) =====
           result = subprocess.run(
-              ["tree", "src/kotlin/normal", "--dirsfirst", "-I", "*.md", "-L", "4"],
+              ["tree", "src/kotlin", "--dirsfirst", "-I", "*.md", "-L", "5"],
               capture_output=True, text=True
           )
           tree_output = result.stdout
           
-          total_recipes = len(list(Path("src/kotlin/normal").rglob("*.kt")))
-          categories = len([d for d in Path("src/kotlin/normal").iterdir() if d.is_dir()])
+          total_recipes = 0
+          for folder in ["normal", "advanced"]:
+              path = Path(f"src/kotlin/{folder}")
+              if path.exists():
+                  total_recipes += len(list(path.rglob("*.kt")))
+          
+          categories = 0
+          for folder in ["normal", "advanced"]:
+              path = Path(f"src/kotlin/{folder}")
+              if path.exists():
+                  categories += len([d for d in path.iterdir() if d.is_dir()])
+          
           now = datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')
           
           # ===== 2. BUILD STRUCTURE CONTENT =====
@@ -70,12 +81,15 @@ jobs:
           appendix_lines.append("")
           appendix_lines.append('> *"All recipes in one place - your complete Kotlin cookbook index!"* 🍳')
           appendix_lines.append("")
+          appendix_lines.append("## 🍜 Normal (Beginner → Intermediate)")
+          appendix_lines.append("")
           appendix_lines.append("| Recipe | Code | Introduction |")
           appendix_lines.append("|--------|------|--------------|")
           
-          count = 0
+          count_normal = 0
           intro_count = 0
           
+          # Normal recipes
           for kt_file in sorted(Path("src/kotlin/normal").rglob("*.kt")):
               if "introduction" in str(kt_file).lower():
                   continue
@@ -95,14 +109,48 @@ jobs:
                   intro_link = "❌ No intro"
               
               appendix_lines.append(f"| `{name}` | {code_link} | {intro_link} |")
-              count += 1
+              count_normal += 1
+          
+          # Advanced recipes (coroutines)
+          appendix_lines.append("")
+          appendix_lines.append("## 🚀 Advanced")
+          appendix_lines.append("")
+          appendix_lines.append("| Recipe | Code | Introduction |")
+          appendix_lines.append("|--------|------|--------------|")
+          
+          count_advanced = 0
+          advanced_path = Path("src/kotlin/advanced")
+          if advanced_path.exists():
+              for kt_file in sorted(advanced_path.rglob("*.kt")):
+                  if "introduction" in str(kt_file).lower():
+                      continue
+                  
+                  name = kt_file.name
+                  dir_path = kt_file.parent
+                  intro_file = dir_path / "introduction.md"
+                  
+                  code_url = f"https://github.com/{repo}/blob/main/{kt_file}"
+                  code_link = f"[🔗 Code]({code_url})"
+                  
+                  if intro_file.exists():
+                      intro_url = f"https://github.com/{repo}/blob/main/{intro_file}"
+                      intro_link = f"[📖 Intro]({intro_url})"
+                      intro_count += 1
+                  else:
+                      intro_link = "❌ No intro"
+                  
+                  appendix_lines.append(f"| `{name}` | {code_link} | {intro_link} |")
+                  count_advanced += 1
+          
+          total_recipes_count = count_normal + count_advanced
           
           appendix_lines.append("")
           appendix_lines.append("## Statistics")
           appendix_lines.append("")
           appendix_lines.append("| Metric | Value |")
           appendix_lines.append("|--------|-------|")
-          appendix_lines.append(f"| 🍳 **Total Recipes** | `{count}` |")
+          appendix_lines.append(f"| 🍜 **Normal Recipes** | `{count_normal}` |")
+          appendix_lines.append(f"| 🚀 **Advanced Recipes** | `{count_advanced}` |")
           appendix_lines.append(f"| 📖 **With Introduction** | `{intro_count}` |")
           appendix_lines.append(f"| 🆕 **Last Updated** | {now} |")
           appendix_lines.append("")
@@ -113,15 +161,16 @@ jobs:
           with open("APPENDIX.md", "w") as f:
               f.write("\n".join(appendix_lines))
           
-          print(f"✅ Generated APPENDIX.md with {count} recipes ({intro_count} with intro)")
+          print(f"✅ Generated APPENDIX.md with {total_recipes_count} recipes ({intro_count} with intro)")
+          print(f"   - Normal: {count_normal}")
+          print(f"   - Advanced: {count_advanced}")
           
-          # ===== 4. UPDATE README (CHỈ Project Structure) =====
+          # ===== 4. UPDATE README =====
           with open("README.md", "r") as f:
               readme = f.read()
           
           import re
           
-          # Chỉ thay thế phần STRUCTURE_START và STRUCTURE_END
           structure_pattern = r'<!-- STRUCTURE_START -->.*?<!-- STRUCTURE_END -->'
           new_structure = f'<!-- STRUCTURE_START -->\n{structure_content}\n<!-- STRUCTURE_END -->'
           
@@ -129,20 +178,24 @@ jobs:
               readme = re.sub(structure_pattern, new_structure, readme, flags=re.DOTALL)
               print("✅ Updated Project Structure in README")
           else:
-              # Nếu chưa có structure section, thêm vào cuối file
               readme += f'\n\n{new_structure}\n'
               print("✅ Added new Project Structure to README")
+          
+          # Update recipe statistics in README
+          import re
+          stats_pattern = r'(🍳 \*\*Total Recipes\*\* \| `)\d+(` files \|)'
+          readme = re.sub(stats_pattern, f'\\g<1>{total_recipes_count}\\g<2>', readme)
           
           with open("README.md", "w") as f:
               f.write(readme)
           
-          print(f"📊 Total: {count} recipes, {categories} categories")
+          print(f"📊 Updated README with {total_recipes_count} total recipes")
           PYTHON_EOF
       
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: "📚 docs: update structure and appendix [skip ci]"
+          commit_message: "📚 docs: update structure and appendix (include advanced) [skip ci]"
           commit_user_name: "KotlinCookBot"
           commit_user_email: "41898282+github-actions[bot]@users.noreply.github.com"
           commit_author: "KotlinCookBot <41898282+github-actions[bot]@users.noreply.github.com>"
