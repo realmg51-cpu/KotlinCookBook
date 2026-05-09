@@ -354,74 +354,78 @@ Have questions? Suggestions? Want to share your own recipe?
 ## 📁 Project Structure
 
 ```
-src/kotlin/normal
-├── BreakAndContinue
-│   ├── Break.kt
-│   └── Continue.kt
-├── Classes
-│   └── Classes.kt
-├── ExtensionFunctions
-│   └── ExtensionFunctions.kt
-├── Functions
-│   ├── BasicFunctions
-│   │   └── BasicFunctions.kt
-│   └── LambdaFunctions
-│       └── LambdaFunctions.kt
-├── GettingStarted
-│   └── HelloWorld.kt
-├── HigherOrderFunctions
-│   └── HigherOrderFunctions.kt
-├── IfChef
-│   └── IfChef.kt
-├── InputAndNullSafety
-│   └── InputAndNullSafety.kt
-├── Interfaces
-│   └── Interfaces.kt
-├── List
-│   ├── MutableList
-│   │   └── MutableList.kt
-│   └── List.kt
-├── Loops
-│   ├── Do-While
-│   │   └── DoWhileStirring.kt
-│   ├── For
-│   │   └── ForStirring.kt
-│   └── While
-│       └── WhileStirring.kt
-├── Map
-│   └── Map.kt
-├── ScopeFunctions
-│   └── ScopeFunctions.kt
-├── SealedClass
-│   └── SealedClass.kt
-├── Set
-│   └── Set.kt
-├── Variables
-│   ├── WorkWithIt
-│   │   ├── StringSplitter.kt
-│   │   └── StringSplitterv2.kt
-│   ├── CommonVariables.kt
-│   ├── ImmutableVariables.kt
-│   └── MutableVariables.kt
-└── WhenChef
-    └── WhenChef.kt
+src/kotlin
+├── advanced
+│   └── Coroutines
+│       └── Coroutines.kt
+└── normal
+    ├── BreakAndContinue
+    │   ├── Break.kt
+    │   └── Continue.kt
+    ├── Classes
+    │   └── Classes.kt
+    ├── ExtensionFunctions
+    │   └── ExtensionFunctions.kt
+    ├── Functions
+    │   ├── BasicFunctions
+    │   │   └── BasicFunctions.kt
+    │   └── LambdaFunctions
+    │       └── LambdaFunctions.kt
+    ├── GettingStarted
+    │   └── HelloWorld.kt
+    ├── HigherOrderFunctions
+    │   └── HigherOrderFunctions.kt
+    ├── IfChef
+    │   └── IfChef.kt
+    ├── InputAndNullSafety
+    │   └── InputAndNullSafety.kt
+    ├── Interfaces
+    │   └── Interfaces.kt
+    ├── List
+    │   ├── MutableList
+    │   │   └── MutableList.kt
+    │   └── List.kt
+    ├── Loops
+    │   ├── Do-While
+    │   │   └── DoWhileStirring.kt
+    │   ├── For
+    │   │   └── ForStirring.kt
+    │   └── While
+    │       └── WhileStirring.kt
+    ├── Map
+    │   └── Map.kt
+    ├── ScopeFunctions
+    │   └── ScopeFunctions.kt
+    ├── SealedClass
+    │   └── SealedClass.kt
+    ├── Set
+    │   └── Set.kt
+    ├── Variables
+    │   ├── WorkWithIt
+    │   │   ├── StringSplitter.kt
+    │   │   └── StringSplitterv2.kt
+    │   ├── CommonVariables.kt
+    │   ├── ImmutableVariables.kt
+    │   └── MutableVariables.kt
+    └── WhenChef
+        └── WhenChef.kt
 
-25 directories, 26 files
+28 directories, 27 files
 ```
 
 ### 📊 Statistics
 
 | Metric | Value |
 |--------|-------|
-| 🍳 **Total Recipes** | `26` files |
-| 📁 **Categories** | `17` folders |
+| 🍳 **Total Recipes** | `27` files |
+| 📁 **Categories** | `18` folders |
 
 ---
 
 <img src=".github/avatars/bot.svg" width="40">
 
 *Auto-updated by KotlinCookBot 🤖*
-*Last update: 2026-05-04 11:57:47 UTC*
+*Last update: 2026-05-09 09:42:22 UTC*
 <!-- STRUCTURE_END -->
 
 ### 📖 Recipe Appendix

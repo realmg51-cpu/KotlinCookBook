@@ -2,6 +2,8 @@
 
 > *"All recipes in one place - your complete Kotlin cookbook index!"* 🍳
 
+## 🍜 Normal (Beginner → Intermediate)
+
 | Recipe | Code | Introduction |
 |--------|------|--------------|
 | `Break.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/BreakAndContinue/Break.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/BreakAndContinue/introduction.md) |
@@ -31,13 +33,20 @@
 | `StringSplitterv2.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/WorkWithIt/StringSplitterv2.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/WorkWithIt/introduction.md) |
 | `WhenChef.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/WhenChef/WhenChef.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/WhenChef/introduction.md) |
 
+## 🚀 Advanced
+
+| Recipe | Code | Introduction |
+|--------|------|--------------|
+| `Coroutines.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/advanced/Coroutines/Coroutines.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/advanced/Coroutines/introduction.md) |
+
 ## Statistics
 
 | Metric | Value |
 |--------|-------|
-| 🍳 **Total Recipes** | `26` |
-| 📖 **With Introduction** | `26` |
-| 🆕 **Last Updated** | 2026-05-04 11:57:47 UTC |
+| 🍜 **Normal Recipes** | `26` |
+| 🚀 **Advanced Recipes** | `1` |
+| 📖 **With Introduction** | `27` |
+| 🆕 **Last Updated** | 2026-05-09 09:42:22 UTC |
 
 ---
 
