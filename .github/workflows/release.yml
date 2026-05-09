@@ -65,18 +65,34 @@ jobs:
           git push origin "$TAG"
           echo "✅ Created and pushed tag: $TAG"
       
-      - name: Count recipes, categories, intros, lines of code
+      - name: Count recipes (include both normal and advanced)
         id: stats
         run: |
-          RECIPES=$(find src/kotlin/normal -name "*.kt" -type f ! -name "*Test*" 2>/dev/null | wc -l)
-          CATEGORIES=$(find src/kotlin/normal -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
-          INTROS=$(find src/kotlin/normal -name "introduction.md" -type f 2>/dev/null | wc -l)
-          LOC=$(find src/kotlin/normal -name "*.kt" -type f -exec cat {} \; 2>/dev/null | wc -l)
+          # Normal recipes
+          NORMAL_RECIPES=$(find src/kotlin/normal -name "*.kt" -type f ! -name "*Test*" 2>/dev/null | wc -l)
+          NORMAL_CATEGORIES=$(find src/kotlin/normal -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
+          NORMAL_INTROS=$(find src/kotlin/normal -name "introduction.md" -type f 2>/dev/null | wc -l)
+          NORMAL_LOC=$(find src/kotlin/normal -name "*.kt" -type f -exec cat {} \; 2>/dev/null | wc -l)
           
-          echo "recipes=$RECIPES" >> $GITHUB_OUTPUT
-          echo "categories=$CATEGORIES" >> $GITHUB_OUTPUT
-          echo "intros=$INTROS" >> $GITHUB_OUTPUT
-          echo "loc=$LOC" >> $GITHUB_OUTPUT
+          # Advanced recipes (coroutines, etc.)
+          ADVANCED_RECIPES=$(find src/kotlin/advanced -name "*.kt" -type f ! -name "*Test*" 2>/dev/null | wc -l)
+          ADVANCED_CATEGORIES=$(find src/kotlin/advanced -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
+          ADVANCED_INTROS=$(find src/kotlin/advanced -name "introduction.md" -type f 2>/dev/null | wc -l)
+          ADVANCED_LOC=$(find src/kotlin/advanced -name "*.kt" -type f -exec cat {} \; 2>/dev/null | wc -l)
+          
+          # Total
+          TOTAL_RECIPES=$((NORMAL_RECIPES + ADVANCED_RECIPES))
+          TOTAL_CATEGORIES=$((NORMAL_CATEGORIES + ADVANCED_CATEGORIES))
+          TOTAL_INTROS=$((NORMAL_INTROS + ADVANCED_INTROS))
+          TOTAL_LOC=$((NORMAL_LOC + ADVANCED_LOC))
+          
+          echo "recipes=$TOTAL_RECIPES" >> $GITHUB_OUTPUT
+          echo "categories=$TOTAL_CATEGORIES" >> $GITHUB_OUTPUT
+          echo "intros=$TOTAL_INTROS" >> $GITHUB_OUTPUT
+          echo "loc=$TOTAL_LOC" >> $GITHUB_OUTPUT
+          
+          echo "normal_recipes=$NORMAL_RECIPES" >> $GITHUB_OUTPUT
+          echo "advanced_recipes=$ADVANCED_RECIPES" >> $GITHUB_OUTPUT
       
       - name: Get previous tag
         id: previous
@@ -112,18 +128,22 @@ jobs:
           INTROS="${{ steps.stats.outputs.intros }}"
           LOC="${{ steps.stats.outputs.loc }}"
           COMMITS="${{ steps.previous.outputs.commits }}"
+          NORMAL_RECIPES="${{ steps.stats.outputs.normal_recipes }}"
+          ADVANCED_RECIPES="${{ steps.stats.outputs.advanced_recipes }}"
           
           # Header
-          echo "🍳 KotlinCookBook v${VERSION_NUM}" > release_notes.md
+          echo "# 🍳 KotlinCookBook v${VERSION_NUM}" > release_notes.md
           echo "" >> release_notes.md
           echo "> *\"Another batch of delicious Kotlin recipes is ready!\"*" >> release_notes.md
           echo "" >> release_notes.md
           
           # Statistics
-          echo "### 📊 Statistics" >> release_notes.md
+          echo "## 📊 Statistics" >> release_notes.md
           echo "" >> release_notes.md
           echo "| Metric | Value |" >> release_notes.md
           echo "|--------|-------|" >> release_notes.md
+          echo "| 🍜 **Normal Recipes** | **${NORMAL_RECIPES}** |" >> release_notes.md
+          echo "| 🚀 **Advanced Recipes** | **${ADVANCED_RECIPES}** |" >> release_notes.md
           echo "| 🍽️ **Total Recipes** | **${RECIPES}** |" >> release_notes.md
           echo "| 📁 **Categories** | ${CATEGORIES} |" >> release_notes.md
           echo "| 📖 **Introductions** | ${INTROS} |" >> release_notes.md
@@ -134,7 +154,7 @@ jobs:
           echo "" >> release_notes.md
           
           # What's New
-          echo "### 🆕 What's New" >> release_notes.md
+          echo "## 🆕 What's New" >> release_notes.md
           echo "" >> release_notes.md
           
           if [ -n "$PREV_TAG" ]; then
@@ -152,35 +172,58 @@ jobs:
           echo "" >> release_notes.md
           
           # Contributors
-          echo "### 👥 Contributors in this Release" >> release_notes.md
+          echo "## 👥 Contributors in this Release" >> release_notes.md
           echo "" >> release_notes.md
           cat contributors.txt >> release_notes.md
           echo "" >> release_notes.md
           echo "---" >> release_notes.md
           echo "" >> release_notes.md
           
-          # How to Use
-          echo "### 🚀 How to Use This Release" >> release_notes.md
+          # Recipe Categories
+          echo "## 📚 Recipe Categories" >> release_notes.md
           echo "" >> release_notes.md
-          echo "#### Option 1: Clone and run locally" >> release_notes.md
+          echo "### 🍜 Normal (Beginner → Intermediate)" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "\`\`\`" >> release_notes.md
+          ls src/kotlin/normal/ 2>/dev/null | head -20 >> release_notes.md
+          echo "\`\`\`" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### 🚀 Advanced" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "\`\`\`" >> release_notes.md
+          ls src/kotlin/advanced/ 2>/dev/null | head -10 >> release_notes.md
+          echo "\`\`\`" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "---" >> release_notes.md
+          echo "" >> release_notes.md
+          
+          # How to Use
+          echo "## 🚀 How to Use This Release" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### Option 1: Clone and run locally" >> release_notes.md
           echo '```bash' >> release_notes.md
           echo "git clone https://github.com/realmg51-cpu/KotlinCookBook.git" >> release_notes.md
           echo "cd KotlinCookBook" >> release_notes.md
           echo "kotlin src/kotlin/normal/GettingStarted/HelloWorld.kt" >> release_notes.md
           echo '```' >> release_notes.md
           echo "" >> release_notes.md
-          echo "#### Option 2: Run with Docker" >> release_notes.md
+          echo "### Option 2: Run with Docker" >> release_notes.md
           echo '```bash' >> release_notes.md
           echo "docker pull ghcr.io/realmg51-cpu/kotlincookbook:latest" >> release_notes.md
           echo "docker run --rm -it ghcr.io/realmg51-cpu/kotlincookbook:latest \\" >> release_notes.md
           echo "  kotlin src/kotlin/normal/GettingStarted/HelloWorld.kt" >> release_notes.md
           echo '```' >> release_notes.md
           echo "" >> release_notes.md
+          echo "### Option 3: Run coroutines (advanced)" >> release_notes.md
+          echo '```bash' >> release_notes.md
+          echo "kotlin -cp kotlinx-coroutines-core-1.7.3.jar src/kotlin/advanced/Coroutines/Coroutines.kt" >> release_notes.md
+          echo '```' >> release_notes.md
+          echo "" >> release_notes.md
           echo "---" >> release_notes.md
           echo "" >> release_notes.md
           
           # Footer
-          echo "### 🙏 Thank You!" >> release_notes.md
+          echo "## 🙏 Thank You!" >> release_notes.md
           echo "" >> release_notes.md
           echo "Special thanks to all contributors who made this release possible!" >> release_notes.md
           echo "" >> release_notes.md
@@ -204,5 +247,6 @@ jobs:
       - name: Print success message
         run: |
           echo "✅ Release created: ${{ steps.version.outputs.tag }}"
-          echo "📊 ${{ steps.stats.outputs.recipes }} recipes, ${{ steps.stats.outputs.categories }} categories"
+          echo "📊 Normal: ${{ steps.stats.outputs.normal_recipes }} recipes"
+          echo "📊 Advanced: ${{ steps.stats.outputs.advanced_recipes }} recipes"
           echo "🔗 https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }}"
