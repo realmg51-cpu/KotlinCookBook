@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  KOTLIN_VERSION: 2.3.21
+  KOTLIN_VERSION: 2.3.20
 
 jobs:
   test:
@@ -50,7 +50,8 @@ jobs:
         run: |
           mkdir -p lib
           curl -L "https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core/1.7.3/kotlinx-coroutines-core-1.7.3.jar" -o lib/coroutines.jar
-          echo "✅ Coroutines library downloaded"
+          echo "✅ Coroutines library downloaded to lib/coroutines.jar"
+          ls -la lib/
       
       - name: ✅ Verify Kotlin installation
         run: |
@@ -81,11 +82,13 @@ jobs:
           echo "## Results" >> $SUMMARY_FILE
           echo "" >> $SUMMARY_FILE
           
+          # Path to coroutines jar
+          COROUTINES_JAR="lib/coroutines.jar"
+          
           # Find all Kotlin files with main function
           while IFS= read -r file; do
             TOTAL=$((TOTAL + 1))
             filename=$(basename "$file" .kt)
-            dirname=$(dirname "$file")
             safename=$(echo "$file" | sed 's|/|_|g' | sed 's|src_||')
             output_file="test-outputs/${safename}.txt"
             compile_error="test-outputs/${safename}.compile_error.txt"
@@ -98,12 +101,11 @@ jobs:
               echo "   📦 Detected coroutines, compiling with library..."
               
               # Compile to JAR with coroutines
-              if kotlinc -cp "lib/coroutines.jar" "$file" -include-runtime -d "$jar_file" 2> "$compile_error"; then
+              if kotlinc -classpath "$COROUTINES_JAR" "$file" -include-runtime -d "$jar_file" 2> "$compile_error"; then
                 # Run JAR
                 if java -jar "$jar_file" > "$output_file" 2>&1; then
                   echo "   ✅ PASSED (coroutines)"
                   echo "- ✅ **PASSED** | $file" >> $SUMMARY_FILE
-                  # Add output preview
                   echo "  <details><summary>📜 Output</summary>" >> $SUMMARY_FILE
                   echo '  ```' >> $SUMMARY_FILE
                   head -15 "$output_file" >> $SUMMARY_FILE
@@ -125,6 +127,8 @@ jobs:
                 fi
               else
                 echo "   ❌ FAILED (compilation error)"
+                echo "   📜 Compilation error details:"
+                cat "$compile_error" | head -10
                 FAILED=$((FAILED + 1))
                 FAILED_LIST="$FAILED_LIST\n   ❌ $file"
                 echo "- ❌ **FAILED** | $file (compilation error)" >> $SUMMARY_FILE
@@ -136,13 +140,10 @@ jobs:
               fi
             else
               # Normal Kotlin file (no coroutines)
-              # Compile to JAR
               if kotlinc "$file" -include-runtime -d "$jar_file" 2> "$compile_error"; then
-                # Run JAR
                 if java -jar "$jar_file" > "$output_file" 2>&1; then
                   echo "   ✅ PASSED"
                   echo "- ✅ **PASSED** | $file" >> $SUMMARY_FILE
-                  # Add output preview
                   echo "  <details><summary>📜 Output</summary>" >> $SUMMARY_FILE
                   echo '  ```' >> $SUMMARY_FILE
                   head -15 "$output_file" >> $SUMMARY_FILE
@@ -164,6 +165,8 @@ jobs:
                 fi
               else
                 echo "   ❌ FAILED (compilation error)"
+                echo "   📜 Compilation error details:"
+                cat "$compile_error" | head -10
                 FAILED=$((FAILED + 1))
                 FAILED_LIST="$FAILED_LIST\n   ❌ $file"
                 echo "- ❌ **FAILED** | $file (compilation error)" >> $SUMMARY_FILE
