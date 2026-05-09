@@ -16,11 +16,18 @@ dependencies {
 
 sourceSets {
     main {
-        kotlin.srcDirs("src/kotlin/normal")
+        kotlin.srcDirs(
+            "src/kotlin/normal",
+            "src/kotlin/advanced"  // Add advanced for coroutines
+        )
     }
     test {
         kotlin.srcDirs("src/test/kotlin")
     }
+}
+
+application {
+    mainClass.set("MainKt")  // Or whichever has main
 }
 
 tasks.test {
