@@ -1,0 +1,206 @@
+# .github/workflows/create-release.yml
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name (e.g., v1.0.0)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release?'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      discussions: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      
+      - name: Get tag from input or push
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            TAG_NAME="${{ github.event.inputs.tag_name }}"
+            echo "Using manual tag: $TAG_NAME"
+          else
+            TAG_NAME="${GITHUB_REF_NAME}"
+            echo "Using push tag: $TAG_NAME"
+          fi
+          
+          echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "version=${TAG_NAME#v}" >> $GITHUB_OUTPUT
+      
+      - name: Check if tag exists
+        id: check
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "✅ Tag $TAG already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "📝 Tag $TAG does not exist yet"
+          fi
+      
+      - name: Create tag if not exists
+        if: steps.check.outputs.exists == 'false' && github.event_name == 'workflow_dispatch'
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          git config user.name "KotlinCookBot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "$TAG"
+          git push origin "$TAG"
+          echo "✅ Created and pushed tag: $TAG"
+      
+      - name: Count recipes
+        id: stats
+        run: |
+          NORMAL_RECIPES=$(find src/kotlin/normal -name "*.kt" -type f ! -name "*Test*" 2>/dev/null | wc -l)
+          NORMAL_CATEGORIES=$(find src/kotlin/normal -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
+          NORMAL_INTROS=$(find src/kotlin/normal -name "introduction.md" -type f 2>/dev/null | wc -l)
+          NORMAL_LOC=$(find src/kotlin/normal -name "*.kt" -type f -exec cat {} \; 2>/dev/null | wc -l)
+          
+          ADVANCED_RECIPES=$(find src/kotlin/advanced -name "*.kt" -type f ! -name "*Test*" 2>/dev/null | wc -l)
+          ADVANCED_CATEGORIES=$(find src/kotlin/advanced -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
+          ADVANCED_INTROS=$(find src/kotlin/advanced -name "introduction.md" -type f 2>/dev/null | wc -l)
+          ADVANCED_LOC=$(find src/kotlin/advanced -name "*.kt" -type f -exec cat {} \; 2>/dev/null | wc -l)
+          
+          TOTAL_RECIPES=$((NORMAL_RECIPES + ADVANCED_RECIPES))
+          TOTAL_CATEGORIES=$((NORMAL_CATEGORIES + ADVANCED_CATEGORIES))
+          TOTAL_INTROS=$((NORMAL_INTROS + ADVANCED_INTROS))
+          TOTAL_LOC=$((NORMAL_LOC + ADVANCED_LOC))
+          
+          echo "recipes=$TOTAL_RECIPES" >> $GITHUB_OUTPUT
+          echo "categories=$TOTAL_CATEGORIES" >> $GITHUB_OUTPUT
+          echo "intros=$TOTAL_INTROS" >> $GITHUB_OUTPUT
+          echo "loc=$TOTAL_LOC" >> $GITHUB_OUTPUT
+          echo "normal_recipes=$NORMAL_RECIPES" >> $GITHUB_OUTPUT
+          echo "advanced_recipes=$ADVANCED_RECIPES" >> $GITHUB_OUTPUT
+      
+      - name: Get previous tag
+        id: previous
+        run: |
+          CURRENT_TAG="${{ steps.version.outputs.tag }}"
+          PREV_TAG=$(git tag -l "v*" | grep -v "$CURRENT_TAG" | sort -V | tail -n1 || echo "")
+          echo "tag=$PREV_TAG" >> $GITHUB_OUTPUT
+          
+          if [ -n "$PREV_TAG" ]; then
+            COMMITS=$(git rev-list --count "$PREV_TAG..HEAD")
+            echo "commits=$COMMITS" >> $GITHUB_OUTPUT
+          else
+            echo "commits=0" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Get commit log and contributors
+        run: |
+          PREV_TAG="${{ steps.previous.outputs.tag }}"
+          
+          if [ -n "$PREV_TAG" ]; then
+            git log "$PREV_TAG..HEAD" --format="- %s" > commit_log.txt
+            git log "$PREV_TAG..HEAD" --format='%an' | sort -u | sed 's/^/- /' > contributors.txt
+          else
+            git log --format="- %s" -50 > commit_log.txt
+            echo "- @realmg51-cpu" > contributors.txt
+          fi
+      
+      - name: Generate release notes with Gemini AI
+        id: gemini
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          NORMAL_RECIPES="${{ steps.stats.outputs.normal_recipes }}"
+          ADVANCED_RECIPES="${{ steps.stats.outputs.advanced_recipes }}"
+          COROUTINES_VER=$(grep -o "kotlinx-coroutines-bom:[0-9.]*" build.gradle.kts | cut -d: -f2 || echo "1.7.3")
+          COMMIT_LOG=$(cat commit_log.txt | head -30)
+          CONTRIBUTORS=$(cat contributors.txt)
+          
+          echo '{"contents":[{"parts":[{"text":"Generate professional release notes for KotlinCookBook v'"$VERSION"'. Use this commit log: '"$COMMIT_LOG"'. Stats: Normal recipes: '"$NORMAL_RECIPES"', Advanced recipes: '"$ADVANCED_RECIPES"', Coroutines version: '"$COROUTINES_VER"' (using BOM). Contributors: '"$CONTRIBUTORS"'. Format: 1. Start with # 🍳 KotlinCookBook v'"$VERSION"' 2. Add cooking quote 3. Create ## 📊 Statistics table 4. Create ## 🆕 What is New with categories: 🚀 Features, 🐛 Bug Fixes, 📦 Dependencies 5. Add ## 👥 Contributors 6. Add ## 🚀 How to Use with code examples 7. Emphasize Coroutines BOM 8. End with Happy cooking"}]}]}' > prompt.json
+          
+          RESPONSE=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}" -H "Content-Type: application/json" -d @prompt.json)
+          
+          echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text' > release_notes.md 2>/dev/null || echo "" > release_notes.md
+          
+          if [ -s release_notes.md ]; then
+            echo "✅ Gemini AI generated release notes"
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ Gemini API failed, using fallback"
+            echo "success=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Fallback manual release notes
+        if: steps.gemini.outputs.success == 'false'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          NORMAL_RECIPES="${{ steps.stats.outputs.normal_recipes }}"
+          ADVANCED_RECIPES="${{ steps.stats.outputs.advanced_recipes }}"
+          COROUTINES_VER=$(grep -o "kotlinx-coroutines-bom:[0-9.]*" build.gradle.kts | cut -d: -f2 || echo "1.7.3")
+          
+          echo "# 🍳 KotlinCookBook v${VERSION}" > release_notes.md
+          echo "" >> release_notes.md
+          echo "> *\"Another batch of delicious Kotlin recipes is ready!\"*" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "## 📊 Statistics" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "| Metric | Value |" >> release_notes.md
+          echo "|--------|-------|" >> release_notes.md
+          echo "| 🍜 Normal Recipes | ${NORMAL_RECIPES} |" >> release_notes.md
+          echo "| 🚀 Advanced Recipes | ${ADVANCED_RECIPES} |" >> release_notes.md
+          echo "| 🔄 Coroutines | ${COROUTINES_VER} (via BOM) |" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "## 🆕 What's New" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### 📦 Dependency Updates" >> release_notes.md
+          echo "- **Kotlin Coroutines**: Migrated to BOM (Bill of Materials) approach" >> release_notes.md
+          echo "- Version: \`${COROUTINES_VER}\`" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### 🚀 Features" >> release_notes.md
+          cat commit_log.txt | head -10 >> release_notes.md
+          echo "" >> release_notes.md
+          echo "## 👥 Contributors" >> release_notes.md
+          cat contributors.txt >> release_notes.md
+          echo "" >> release_notes.md
+          echo "## 🚀 How to Use" >> release_notes.md
+          echo "" >> release_notes.md
+          echo '```bash' >> release_notes.md
+          echo "git clone https://github.com/${{ github.repository }}.git" >> release_notes.md
+          echo "cd KotlinCookBook" >> release_notes.md
+          echo "kotlin src/kotlin/normal/GettingStarted/HelloWorld.kt" >> release_notes.md
+          echo '```' >> release_notes.md
+          echo "" >> release_notes.md
+          echo "**Happy cooking!** 👨‍🍳🚀" >> release_notes.md
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: release_notes.md
+          name: "🍳 ${{ steps.version.outputs.tag }}"
+          tag_name: ${{ steps.version.outputs.tag }}
+          draft: false
+          prerelease: ${{ github.event.inputs.prerelease || false }}
+          generate_release_notes: false
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Print success message
+        run: |
+          echo "✅ Release created: ${{ steps.version.outputs.tag }}"
+          echo "📊 Normal: ${{ steps.stats.outputs.normal_recipes }} recipes"
+          echo "📊 Advanced: ${{ steps.stats.outputs.advanced_recipes }} recipes"
+          echo "🔗 https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }}"
