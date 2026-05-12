@@ -116,21 +116,6 @@ jobs:
             git log --format="- %s" -50 > commit_log.txt
             echo "- @realmg51-cpu" > contributors.txt
           fi
-          
-          echo "=== commit_log.txt ===" >> debug.log
-          cat commit_log.txt >> debug.log
-          echo "" >> debug.log
-          echo "=== contributors.txt ===" >> debug.log
-          cat contributors.txt >> debug.log
-      
-      - name: Debug - Check API Key
-        run: |
-          if [ -n "${{ secrets.GEMINI_API_KEY }}" ]; then
-            echo "✅ GEMINI_API_KEY exists"
-            echo "API_KEY_LENGTH: ${{ secrets.GEMINI_API_KEY }} | wc -c"
-          else
-            echo "❌ GEMINI_API_KEY is missing!"
-          fi
       
       - name: Generate release notes with Gemini AI
         id: gemini
@@ -141,55 +126,53 @@ jobs:
           NORMAL_RECIPES="${{ steps.stats.outputs.normal_recipes }}"
           ADVANCED_RECIPES="${{ steps.stats.outputs.advanced_recipes }}"
           TOTAL_RECIPES="${{ steps.stats.outputs.recipes }}"
+          TOTAL_CATEGORIES="${{ steps.stats.outputs.categories }}"
+          TOTAL_LOC="${{ steps.stats.outputs.loc }}"
           COROUTINES_VER=$(grep -o "kotlinx-coroutines-bom:[0-9.]*" build.gradle.kts | cut -d: -f2 || echo "1.7.3")
-          COMMIT_LOG=$(cat commit_log.txt | head -30)
+          PREV_TAG="${{ steps.previous.outputs.tag }}"
+          COMMITS="${{ steps.previous.outputs.commits }}"
+          
+          COMMIT_LOG=$(cat commit_log.txt | head -20)
           CONTRIBUTORS=$(cat contributors.txt | head -10)
           
-          echo "=== DEBUG INFO ===" >> debug.log
-          echo "VERSION: $VERSION" >> debug.log
-          echo "NORMAL_RECIPES: $NORMAL_RECIPES" >> debug.log
-          echo "ADVANCED_RECIPES: $ADVANCED_RECIPES" >> debug.log
-          echo "COROUTINES_VER: $COROUTINES_VER" >> debug.log
-          echo "COMMIT_LOG (first 500 chars): ${COMMIT_LOG:0:500}" >> debug.log
+          # Build prompt text
+          PROMPT_TEXT="# 🍳 KotlinCookBook v${VERSION} Release Notes\n\n"
+          PROMPT_TEXT="${PROMPT_TEXT}## 📊 Statistics\n"
+          PROMPT_TEXT="${PROMPT_TEXT}- Normal Recipes: ${NORMAL_RECIPES}\n"
+          PROMPT_TEXT="${PROMPT_TEXT}- Advanced Recipes: ${ADVANCED_RECIPES}\n"
+          PROMPT_TEXT="${PROMPT_TEXT}- Total Recipes: ${TOTAL_RECIPES}\n"
+          PROMPT_TEXT="${PROMPT_TEXT}- Categories: ${TOTAL_CATEGORIES}\n"
+          PROMPT_TEXT="${PROMPT_TEXT}- Lines of Code: ${TOTAL_LOC}\n"
+          PROMPT_TEXT="${PROMPT_TEXT}- Coroutines Version: ${COROUTINES_VER} (via BOM)\n"
+          PROMPT_TEXT="${PROMPT_TEXT}- Commits since last release: ${COMMITS}\n\n"
+          PROMPT_TEXT="${PROMPT_TEXT}## 🆕 What's Changed\n"
+          PROMPT_TEXT="${PROMPT_TEXT}${COMMIT_LOG}\n\n"
+          PROMPT_TEXT="${PROMPT_TEXT}## 👥 Contributors\n"
+          PROMPT_TEXT="${PROMPT_TEXT}${CONTRIBUTORS}\n\n"
+          PROMPT_TEXT="${PROMPT_TEXT}## 📦 Dependency Updates\n"
+          PROMPT_TEXT="${PROMPT_TEXT}- Kotlin Coroutines upgraded to ${COROUTINES_VER} using BOM (Bill of Materials)\n"
+          PROMPT_TEXT="${PROMPT_TEXT}- Using: implementation(platform(\"org.jetbrains.kotlinx:kotlinx-coroutines-bom:${COROUTINES_VER}\"))\n\n"
+          PROMPT_TEXT="${PROMPT_TEXT}## 🚀 How to Use\n"
+          PROMPT_TEXT="${PROMPT_TEXT}git clone https://github.com/${{ github.repository }}.git\n"
+          PROMPT_TEXT="${PROMPT_TEXT}cd KotlinCookBook\n"
+          PROMPT_TEXT="${PROMPT_TEXT}./gradlew build\n\n"
+          PROMPT_TEXT="${PROMPT_TEXT}**Happy cooking!** 👨‍🍳🚀"
           
-          # Create prompt
-          cat > prompt.json << 'EOF'
-          {
-            "contents": [
+          # Create JSON payload using jq
+          jq -n --arg text "$PROMPT_TEXT" '{
+            contents: [
               {
-                "parts": [
-                  {
-                    "text": "Generate professional release notes for KotlinCookBook vVERSION_PLACEHOLDER. Use this commit log: COMMIT_LOG_PLACEHOLDER. Stats: Normal recipes: NORMAL_PLACEHOLDER, Advanced recipes: ADVANCED_PLACEHOLDER, Total recipes: TOTAL_PLACEHOLDER, Coroutines version: COROUTINES_PLACEHOLDER (using BOM). Contributors: CONTRIBUTORS_PLACEHOLDER. Format requirements: 1. Start with '# 🍳 KotlinCookBook vVERSION_PLACEHOLDER' 2. Add a fun cooking quote 3. Create '## 📊 Statistics' table with metrics 4. Create '## 🆕 What's New' with categories: 🚀 Features, 🐛 Bug Fixes, 📦 Dependencies 5. Add '## 👥 Contributors' section 6. Add '## 🚀 How to Use' section with code examples 7. Emphasize that Coroutines now uses BOM (Bill of Materials) approach upgraded to COROUTINES_PLACEHOLDER 8. Keep it concise but informative 9. End with '**Happy cooking!** 👨‍🍳🚀'"
-                  }
+                parts: [
+                  { text: $text }
                 ]
               }
             ]
-          }
-          EOF
+          }' > prompt.json
           
-          # Replace placeholders
-          sed -i "s/VERSION_PLACEHOLDER/$VERSION/g" prompt.json
-          sed -i "s/NORMAL_PLACEHOLDER/$NORMAL_RECIPES/g" prompt.json
-          sed -i "s/ADVANCED_PLACEHOLDER/$ADVANCED_RECIPES/g" prompt.json
-          sed -i "s/TOTAL_PLACEHOLDER/$TOTAL_RECIPES/g" prompt.json
-          sed -i "s/COROUTINES_PLACEHOLDER/$COROUTINES_VER/g" prompt.json
-          
-          # Escape special characters for sed
-          COMMIT_LOG_ESCAPED=$(echo "$COMMIT_LOG" | sed 's/[&/\]/\\&/g' | sed 's/"/\\"/g')
-          CONTRIBUTORS_ESCAPED=$(echo "$CONTRIBUTORS" | sed 's/[&/\]/\\&/g' | sed 's/"/\\"/g')
-          
-          sed -i "s/COMMIT_LOG_PLACEHOLDER/$COMMIT_LOG_ESCAPED/g" prompt.json
-          sed -i "s/CONTRIBUTORS_PLACEHOLDER/$CONTRIBUTORS_ESCAPED/g" prompt.json
-          
-          echo "=== PROMPT (first 1000 chars) ===" >> debug.log
-          cat prompt.json | head -c 1000 >> debug.log
-          
-          # Test API connectivity
-          echo "Testing API connectivity..." >> debug.log
-          curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" "https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}" >> debug.log
+          echo "=== PROMPT.JSON created ==="
+          echo "Prompt size: $(wc -c < prompt.json) bytes"
           
           # Call Gemini API
-          echo "Calling Gemini API..." >> debug.log
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}" \
             -H "Content-Type: application/json" \
             -d @prompt.json)
@@ -197,45 +180,26 @@ jobs:
           HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
           RESPONSE_BODY=$(echo "$RESPONSE" | sed '$d')
           
-          echo "HTTP_STATUS: $HTTP_STATUS" >> debug.log
-          echo "RESPONSE_BODY: $RESPONSE_BODY" >> debug.log
-          
-          # Save response for debugging
-          echo "$RESPONSE_BODY" > gemini_response.json
+          echo "HTTP Status: $HTTP_STATUS"
           
           if [ "$HTTP_STATUS" = "200" ]; then
             echo "$RESPONSE_BODY" | jq -r '.candidates[0].content.parts[0].text' > release_notes.md 2>/dev/null
             if [ -s release_notes.md ]; then
-              echo "✅ Gemini AI generated release notes" >> debug.log
+              echo "✅ Gemini AI generated release notes"
               echo "success=true" >> $GITHUB_OUTPUT
             else
-              echo "⚠️ Empty response from Gemini" >> debug.log
-              echo "$RESPONSE_BODY" | jq '.' >> debug.log
+              echo "⚠️ Empty response from Gemini"
               echo "success=false" >> $GITHUB_OUTPUT
             fi
           else
-            echo "⚠️ Gemini API error: $HTTP_STATUS" >> debug.log
-            echo "$RESPONSE_BODY" >> debug.log
+            echo "⚠️ Gemini API error: $HTTP_STATUS"
+            echo "Response: $RESPONSE_BODY"
             echo "success=false" >> $GITHUB_OUTPUT
           fi
-      
-      - name: Upload debug logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: debug-logs
-          path: |
-            debug.log
-            prompt.json
-            gemini_response.json
-            commit_log.txt
-            contributors.txt
       
       - name: Fallback manual release notes
         if: steps.gemini.outputs.success == 'false'
         run: |
-          echo "Using fallback manual release notes..." >> debug.log
-          
           VERSION="${{ steps.version.outputs.version }}"
           NORMAL_RECIPES="${{ steps.stats.outputs.normal_recipes }}"
           ADVANCED_RECIPES="${{ steps.stats.outputs.advanced_recipes }}"
@@ -312,5 +276,3 @@ jobs:
           echo "📊 Normal recipes: ${{ steps.stats.outputs.normal_recipes }}"
           echo "📊 Advanced recipes: ${{ steps.stats.outputs.advanced_recipes }}"
           echo "🔗 https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }}"
-          echo ""
-          echo "📁 Debug logs uploaded as artifact: debug-logs"
