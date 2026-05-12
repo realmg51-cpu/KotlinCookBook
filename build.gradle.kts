@@ -11,7 +11,8 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:6.0.3")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:6.0.3") 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
+        implementation(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.11.0"))
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 }
 
 sourceSets {
