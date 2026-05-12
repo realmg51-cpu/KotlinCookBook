@@ -125,11 +125,12 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           NORMAL_RECIPES="${{ steps.stats.outputs.normal_recipes }}"
           ADVANCED_RECIPES="${{ steps.stats.outputs.advanced_recipes }}"
+          TOTAL_RECIPES="${{ steps.stats.outputs.recipes }}"
           COROUTINES_VER=$(grep -o "kotlinx-coroutines-bom:[0-9.]*" build.gradle.kts | cut -d: -f2 || echo "1.7.3")
-          COMMIT_LOG=$(cat commit_log.txt | head -30)
+          COMMIT_LOG=$(cat commit_log.txt)
           CONTRIBUTORS=$(cat contributors.txt)
           
-          echo '{"contents":[{"parts":[{"text":"Generate professional release notes for KotlinCookBook v'"$VERSION"'. Use this commit log: '"$COMMIT_LOG"'. Stats: Normal recipes: '"$NORMAL_RECIPES"', Advanced recipes: '"$ADVANCED_RECIPES"', Coroutines version: '"$COROUTINES_VER"' (using BOM). Contributors: '"$CONTRIBUTORS"'. Format: 1. Start with # 🍳 KotlinCookBook v'"$VERSION"' 2. Add cooking quote 3. Create ## 📊 Statistics table 4. Create ## 🆕 What is New with categories: 🚀 Features, 🐛 Bug Fixes, 📦 Dependencies 5. Add ## 👥 Contributors 6. Add ## 🚀 How to Use with code examples 7. Emphasize Coroutines BOM 8. End with Happy cooking"}]}]}' > prompt.json
+          echo "{\"contents\":[{\"parts\":[{\"text\":\"Generate professional release notes for KotlinCookBook v${VERSION}. Use this commit log: ${COMMIT_LOG}. Stats: Normal recipes: ${NORMAL_RECIPES}, Advanced recipes: ${ADVANCED_RECIPES}, Total recipes: ${TOTAL_RECIPES}, Coroutines version: ${COROUTINES_VER} (using BOM). Contributors: ${CONTRIBUTORS}. Format requirements: 1. Start with '# 🍳 KotlinCookBook v${VERSION}' 2. Add a fun cooking quote 3. Create '## 📊 Statistics' table with metrics 4. Create '## 🆕 What's New' with categories: 🚀 Features, 🐛 Bug Fixes, 📦 Dependencies 5. Add '## 👥 Contributors' section 6. Add '## 🚀 How to Use' section with code examples 7. Emphasize that Coroutines now uses BOM (Bill of Materials) approach upgraded to ${COROUTINES_VER} 8. Keep it concise but informative 9. End with '**Happy cooking!** 👨‍🍳🚀'\"}]}]}" > prompt.json
           
           RESPONSE=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}" -H "Content-Type: application/json" -d @prompt.json)
           
@@ -149,7 +150,12 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           NORMAL_RECIPES="${{ steps.stats.outputs.normal_recipes }}"
           ADVANCED_RECIPES="${{ steps.stats.outputs.advanced_recipes }}"
+          TOTAL_RECIPES="${{ steps.stats.outputs.recipes }}"
+          TOTAL_CATEGORIES="${{ steps.stats.outputs.categories }}"
+          TOTAL_LOC="${{ steps.stats.outputs.loc }}"
           COROUTINES_VER=$(grep -o "kotlinx-coroutines-bom:[0-9.]*" build.gradle.kts | cut -d: -f2 || echo "1.7.3")
+          PREV_TAG="${{ steps.previous.outputs.tag }}"
+          COMMITS="${{ steps.previous.outputs.commits }}"
           
           echo "# 🍳 KotlinCookBook v${VERSION}" > release_notes.md
           echo "" >> release_notes.md
@@ -161,27 +167,54 @@ jobs:
           echo "|--------|-------|" >> release_notes.md
           echo "| 🍜 Normal Recipes | ${NORMAL_RECIPES} |" >> release_notes.md
           echo "| 🚀 Advanced Recipes | ${ADVANCED_RECIPES} |" >> release_notes.md
+          echo "| 🍽️ Total Recipes | ${TOTAL_RECIPES} |" >> release_notes.md
+          echo "| 📁 Categories | ${TOTAL_CATEGORIES} |" >> release_notes.md
+          echo "| 📝 Lines of Code | ${TOTAL_LOC} |" >> release_notes.md
           echo "| 🔄 Coroutines | ${COROUTINES_VER} (via BOM) |" >> release_notes.md
+          echo "| 🚀 Commits since last release | ${COMMITS} |" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "---" >> release_notes.md
           echo "" >> release_notes.md
           echo "## 🆕 What's New" >> release_notes.md
           echo "" >> release_notes.md
           echo "### 📦 Dependency Updates" >> release_notes.md
           echo "- **Kotlin Coroutines**: Migrated to BOM (Bill of Materials) approach" >> release_notes.md
-          echo "- Version: \`${COROUTINES_VER}\`" >> release_notes.md
+          echo "- Version upgraded: \`${COROUTINES_VER}\`" >> release_notes.md
+          echo "- Using: \`implementation(platform(\"org.jetbrains.kotlinx:kotlinx-coroutines-bom:${COROUTINES_VER}\"))\`" >> release_notes.md
           echo "" >> release_notes.md
-          echo "### 🚀 Features" >> release_notes.md
-          cat commit_log.txt | head -10 >> release_notes.md
+          echo "### 🚀 Changes in this Release" >> release_notes.md
+          echo "" >> release_notes.md
+          cat commit_log.txt | head -20 >> release_notes.md
+          echo "" >> release_notes.md
+          echo "---" >> release_notes.md
           echo "" >> release_notes.md
           echo "## 👥 Contributors" >> release_notes.md
+          echo "" >> release_notes.md
           cat contributors.txt >> release_notes.md
           echo "" >> release_notes.md
-          echo "## 🚀 How to Use" >> release_notes.md
+          echo "---" >> release_notes.md
           echo "" >> release_notes.md
+          echo "## 🚀 How to Use This Release" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### Clone and run locally" >> release_notes.md
           echo '```bash' >> release_notes.md
           echo "git clone https://github.com/${{ github.repository }}.git" >> release_notes.md
           echo "cd KotlinCookBook" >> release_notes.md
           echo "kotlin src/kotlin/normal/GettingStarted/HelloWorld.kt" >> release_notes.md
           echo '```' >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### Run with Docker" >> release_notes.md
+          echo '```bash' >> release_notes.md
+          echo "docker pull ghcr.io/${{ github.repository }}/kotlincookbook:latest" >> release_notes.md
+          echo "docker run --rm -it ghcr.io/${{ github.repository }}/kotlincookbook:latest kotlin src/kotlin/normal/GettingStarted/HelloWorld.kt" >> release_notes.md
+          echo '```' >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### Run Coroutines (Advanced)" >> release_notes.md
+          echo '```bash' >> release_notes.md
+          echo "kotlin -cp \"kotlinx-coroutines-core-${COROUTINES_VER}.jar\" src/kotlin/advanced/Coroutines/Coroutines.kt" >> release_notes.md
+          echo '```' >> release_notes.md
+          echo "" >> release_notes.md
+          echo "---" >> release_notes.md
           echo "" >> release_notes.md
           echo "**Happy cooking!** 👨‍🍳🚀" >> release_notes.md
       
@@ -201,6 +234,6 @@ jobs:
       - name: Print success message
         run: |
           echo "✅ Release created: ${{ steps.version.outputs.tag }}"
-          echo "📊 Normal: ${{ steps.stats.outputs.normal_recipes }} recipes"
-          echo "📊 Advanced: ${{ steps.stats.outputs.advanced_recipes }} recipes"
+          echo "📊 Normal recipes: ${{ steps.stats.outputs.normal_recipes }}"
+          echo "📊 Advanced recipes: ${{ steps.stats.outputs.advanced_recipes }}"
           echo "🔗 https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }}"
