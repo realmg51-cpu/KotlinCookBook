@@ -20,7 +20,7 @@
 | `List.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/List/List.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/List/README.md) |
 | `MutableList.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/List/MutableList/MutableList.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/List/MutableList/README.md) |
 | `DoWhileStirring.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/Do-While/DoWhileStirring.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/Do-While/README.md) |
-| `ForStirring.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/For/ForStirring.kt) | ❌ No intro |
+| `ForStirring.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/For/ForStirring.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/For/README.md) |
 | `WhileStirring.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/While/WhileStirring.kt) | ❌ No intro |
 | `Map.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Map/Map.kt) | ❌ No intro |
 | `ScopeFunctions.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/ScopeFunctions/ScopeFunctions.kt) | ❌ No intro |
@@ -45,8 +45,8 @@
 |--------|-------|
 | 🍜 **Normal Recipes** | `26` |
 | 🚀 **Advanced Recipes** | `1` |
-| 📖 **With Introduction** | `15` |
-| 🆕 **Last Updated** | 2026-05-15 23:13:42 UTC |
+| 📖 **With Introduction** | `16` |
+| 🆕 **Last Updated** | 2026-05-15 23:14:25 UTC |
 
 ---
 
