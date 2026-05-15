@@ -29,8 +29,8 @@
 | `CommonVariables.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/CommonVariables.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/README.md) |
 | `ImmutableVariables.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/ImmutableVariables.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/README.md) |
 | `MutableVariables.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/MutableVariables.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/README.md) |
-| `StringSplitter.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/WorkWithIt/StringSplitter.kt) | ❌ No intro |
-| `StringSplitterv2.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/WorkWithIt/StringSplitterv2.kt) | ❌ No intro |
+| `StringSplitter.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/WorkWithIt/StringSplitter.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/WorkWithIt/README.md) |
+| `StringSplitterv2.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/WorkWithIt/StringSplitterv2.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Variables/WorkWithIt/README.md) |
 | `WhenChef.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/WhenChef/WhenChef.kt) | ❌ No intro |
 
 ## 🚀 Advanced
@@ -45,8 +45,8 @@
 |--------|-------|
 | 🍜 **Normal Recipes** | `26` |
 | 🚀 **Advanced Recipes** | `1` |
-| 📖 **With Introduction** | `24` |
-| 🆕 **Last Updated** | 2026-05-15 23:18:58 UTC |
+| 📖 **With Introduction** | `26` |
+| 🆕 **Last Updated** | 2026-05-15 23:19:37 UTC |
 
 ---
 
