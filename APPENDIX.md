@@ -45,7 +45,7 @@
 |--------|-------|
 | 🍜 **Normal Recipes** | `26` |
 | 🚀 **Advanced Recipes** | `1` |
-| 📖 **With Introduction** | `25` |
+| 📖 **With Introduction** | `27` |
 | 🆕 **Last Updated** | 2026-05-15 22:41:02 UTC |
 
 ---
