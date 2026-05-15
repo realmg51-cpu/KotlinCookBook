@@ -37,7 +37,7 @@
 
 | Recipe | Code | Introduction |
 |--------|------|--------------|
-| `Coroutines.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/advanced/Coroutines/Coroutines.kt) | ❌ No intro |
+| `Coroutines.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/advanced/Coroutines/Coroutines.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/advanced/Coroutines/README.md) |
 
 ## Statistics
 
@@ -45,8 +45,8 @@
 |--------|-------|
 | 🍜 **Normal Recipes** | `26` |
 | 🚀 **Advanced Recipes** | `1` |
-| 📖 **With Introduction** | `3` |
-| 🆕 **Last Updated** | 2026-05-15 23:04:01 UTC |
+| 📖 **With Introduction** | `4` |
+| 🆕 **Last Updated** | 2026-05-15 23:05:14 UTC |
 
 ---
 
