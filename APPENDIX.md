@@ -18,7 +18,7 @@
 | `InputAndNullSafety.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/InputAndNullSafety/InputAndNullSafety.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/InputAndNullSafety/README.md) |
 | `Interfaces.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Interfaces/Interfaces.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Interfaces/README.md) |
 | `List.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/List/List.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/List/README.md) |
-| `MutableList.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/List/MutableList/MutableList.kt) | ❌ No intro |
+| `MutableList.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/List/MutableList/MutableList.kt) | [📖 Intro](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/List/MutableList/README.md) |
 | `DoWhileStirring.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/Do-While/DoWhileStirring.kt) | ❌ No intro |
 | `ForStirring.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/For/ForStirring.kt) | ❌ No intro |
 | `WhileStirring.kt` | [🔗 Code](https://github.com/realmg51-cpu/KotlinCookBook/blob/main/src/kotlin/normal/Loops/While/WhileStirring.kt) | ❌ No intro |
@@ -45,8 +45,8 @@
 |--------|-------|
 | 🍜 **Normal Recipes** | `26` |
 | 🚀 **Advanced Recipes** | `1` |
-| 📖 **With Introduction** | `13` |
-| 🆕 **Last Updated** | 2026-05-15 23:11:53 UTC |
+| 📖 **With Introduction** | `14` |
+| 🆕 **Last Updated** | 2026-05-15 23:13:02 UTC |
 
 ---
 
