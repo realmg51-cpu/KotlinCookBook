@@ -96,7 +96,7 @@ jobs:
               
               name = kt_file.name
               dir_path = kt_file.parent
-              intro_file = dir_path / "introduction.md"
+              intro_file = dir_path / "README.md"
               
               code_url = f"https://github.com/{repo}/blob/main/{kt_file}"
               code_link = f"[🔗 Code]({code_url})"
@@ -127,7 +127,7 @@ jobs:
                   
                   name = kt_file.name
                   dir_path = kt_file.parent
-                  intro_file = dir_path / "introduction.md"
+                  intro_file = dir_path / "README.md"
                   
                   code_url = f"https://github.com/{repo}/blob/main/{kt_file}"
                   code_link = f"[🔗 Code]({code_url})"
